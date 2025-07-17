@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChamadoPro - Versão Melhorada com Anúncios</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="./style.css"> <!-- Certifique-se de que style.css está na mesma pasta -->
+  <style>
+    /* Estilos para ocultar o conteúdo principal e modais por padrão */
+    .main-content-wrapper {
+      display: none; /* Oculta o conteúdo principal da aplicação por padrão */
+    }
+    .modal {
+      display: none; /* Oculta todos os modais por padrão */
+    }
+  </style>
+</head>
+<body>
+  <!-- Tela de Splash -->
+  <div id="splash" class="splash-screen">
+    <div class="splash-content">
+      <img src="https://placehold.co/150x150/17a2b8/FFFFFF?text=Logo" alt="Logo ChamadoPro" class="splash-logo">
+      <h1>ChamadoPro</h1>
+      <p>Conectando você aos melhores profissionais!</p>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- Nova Tela de Login/Cadastro (Login Screen V2) -->
+  <div id="login-screen-v2" class="login-screen-v2">
+    <div class="login-container">
+      <div class="logo-area">
+        <img src="https://placehold.co/100x100/17a2b8/FFFFFF?text=Logo" alt="Logo ChamadoPro">
+        <h2>Bem-vindo ao ChamadoPro</h2>
+      </div>
+
+      <div class="user-type-selection">
+        <label>
+          <input type="radio" name="main-user-type-select" id="select-user-client" value="client" checked>
+          <span class="radio-custom"></span> Sou Cliente
+        </label>
+        <label>
+          <input type="radio" name="main-user-type-select" id="select-user-provider" value="provider">
+          <span class="radio-custom"></span> Sou Prestador
+        </label>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="tab-button active" id="access-tab">Acessar</button>
+        <button class="tab-button" id="register-tab">Cadastrar</button>
+        <div class="progress-bar">
+          <div class="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <div class="form-sections">
+        <!-- Seção de Acesso para Cliente -->
+        <div id="access-section" class="form-section active">
+          <form id="client-access-form" class="auth-form active">
+            <h3>Acessar como Cliente</h3>
+            <div class="input-group">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="client-email-login" placeholder="Seu e-mail" required>
+            </div>
+            <div class="input-group">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="client-password-login" placeholder="Sua senha" required>
+            </div>
+            <button type="button" id="client-login-button-v2" class="btn primary-btn">Entrar</button>
+            <a href="#" class="forgot-password">Esqueceu a senha?</a>
+            <div class="social-login">
+              <p>Ou entre com:</p>
+              <div class="social-buttons">
+                <button type="button" class="social-login-button google"><i class="fab fa-google"></i> Google</button>
+                <button type="button" class="social-login-button facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
+                <button type="button" class="social-login-button apple"><i class="fab fa-apple"></i> Apple</button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Seção de Acesso para Prestador -->
+          <form id="provider-access-form" class="auth-form">
+            <h3>Acessar como Prestador</h3>
+            <div class="input-group">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="provider-email-login" placeholder="Seu e-mail" required>
+            </div>
+            <div class="input-group">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="provider-password-login" placeholder="Sua senha" required>
+            </div>
+            <button type="button" id="provider-login-button-v2" class="btn primary-btn">Entrar</button>
+            <a href="#" class="forgot-password">Esqueceu a senha?</a>
+          </form>
+        </div>
+
+        <!-- Seção de Cadastro para Cliente -->
+        <div id="register-section" class="form-section">
+          <form id="client-register-form" class="auth-form">
+            <h3>Cadastrar como Cliente</h3>
+            <div class="input-group">
+              <i class="fas fa-user"></i>
+              <input type="text" id="client-name-register" placeholder="Seu nome completo" required>
+            </div>
+            <div class="input-group">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="client-email-register" placeholder="Seu e-mail" required>
+            </div>
+            <div class="input-group">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="client-password-register" placeholder="Crie uma senha" required>
+            </div>
+            <button type="button" id="register-user-btn" class="btn primary-btn">Cadastrar</button>
+            <div class="social-login">
+              <p>Ou cadastre-se com:</p>
+              <div class="social-buttons">
+                <button type="button" class="social-login-button google"><i class="fab fa-google"></i> Google</button>
+                <button type="button" class="social-login-button facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
+                <button type="button" class="social-login-button apple"><i class="fab fa-apple"></i> Apple</button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Seção de Cadastro para Prestador -->
+          <form id="provider-register-form" class="auth-form">
+            <h3>Cadastrar como Prestador</h3>
+            <div class="input-group">
+              <i class="fas fa-user"></i>
+              <input type="text" id="provider-name-register" placeholder="Nome da sua empresa/completo" required>
+            </div>
+            <div class="input-group">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="provider-email-register" placeholder="Seu e-mail profissional" required>
+            </div>
+            <div class="input-group">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="provider-password-register" placeholder="Crie uma senha" required>
+            </div>
+            <button type="button" id="register-provider-btn" class="btn primary-btn">Cadastrar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conteúdo Principal da Aplicação -->
+  <div class="main-content-wrapper">
+    <!-- Cabeçalho da Aplicação -->
+    <header id="app-header">
+      <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+      <h1 id="header-title">ChamadoPro</h1>
+      <button class="back-button" onclick="goBack()"><i class="fas fa-arrow-left"></i> Voltar</button>
+    </header>
+
+    <!-- Menu Lateral (Sidebar) -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="https://placehold.co/80x80/17a2b8/FFFFFF?text=User" alt="User Avatar" class="user-avatar">
+        <h3 id="sidebar-username">Nome do Usuário</h3>
+        <p id="sidebar-usertype">Tipo: Cliente</p>
+      </div>
+      <ul class="sidebar-menu">
+        <li><a href="#" onclick="goToHome()"><i class="fas fa-home"></i> Home</a></li>
+        <li id="menu-item-orcamentos-usuario" style="display: none;"><a href="#" onclick="showScreen('orcamentos-usuario')"><i class="fas fa-file-invoice-dollar"></i> Meus Orçamentos</a></li>
+        <li id="menu-item-orcamentos-prestador" style="display: none;"><a href="#" onclick="showScreen('orcamentos-prestador')"><i class="fas fa-file-invoice-dollar"></i> Orçamentos</a></li>
+        <li id="menu-item-servicos-ativos" style="display: none;"><a href="#" onclick="showScreen('servicos-ativos')"><i class="fas fa-tools"></i> Serviços Ativos</a></li>
+        <li id="menu-item-servicos-contratados" style="display: none;"><a href="#" onclick="showScreen('servicos-contratados')"><i class="fas fa-handshake"></i> Serviços Contratados</a></li>
+        <li id="menu-item-ocorrencias-usuario" style="display: none;"><a href="#" onclick="showScreen('ocorrencias-usuario')"><i class="fas fa-exclamation-triangle"></i> Minhas Ocorrências</a></li>
+        <li id="menu-item-ocorrencias-prestador" style="display: none;"><a href="#" onclick="showScreen('ocorrencias-prestador')"><i class="fas fa-exclamation-triangle"></i> Ocorrências</a></li>
+        <li id="menu-item-buscar-servicos" style="display: none;"><a href="#" onclick="showScreen('buscar-servicos-unificado')"><i class="fas fa-search"></i> Buscar Serviços</a></li>
+        <li id="menu-item-cadastro-especialidades" style="display: none;"><a href="#" onclick="showScreen('cadastro-especialidades')"><i class="fas fa-clipboard-list"></i> Cad. Especialidades</a></li>
+        <li id="menu-item-servicos-historico" style="display: none;"><a href="#" onclick="showScreen('servicos-historico')"><i class="fas fa-history"></i> Histórico de Serviços</a></li>
+        <li id="menu-item-financeiro" style="display: none;"><a href="#" onclick="showScreen('financeiro')"><i class="fas fa-wallet"></i> Financeiro</a></li>
+        <li><a href="#" onclick="showScreen('ajuda')"><i class="fas fa-question-circle"></i> Ajuda e Suporte</a></li>
+        <li><a href="#" onclick="showScreen('fluxo-servico-detalhes')"><i class="fas fa-info-circle"></i> Fluxo de Serviço</a></li>
+        <li><a href="#" onclick="showScreen('anunciantes')"><i class="fas fa-bullhorn"></i> Anunciantes</a></li>
+        <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+      </ul>
+    </nav>
+
+    <!-- Conteúdo das Telas -->
+    <div class="screen-content">
+      <!-- Dashboard do Usuário -->
+      <div id="dashboard-usuario" class="screen active">
+        <div class="dashboard-cards">
+          <div class="card" onclick="showScreen('orcamentos-usuario')">
+            <h3>Minhas Solicitações</h3>
+            <p id="orcamentos-usuario-solicitados-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('orcamentos-usuario')">
+            <h3>Propostas Recebidas</h3>
+            <p id="orcamentos-usuario-recebidos-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('orcamentos-usuario')">
+            <h3>Orçamentos Aprovados</h3>
+            <p id="orcamentos-usuario-aprovados-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('orcamentos-usuario')">
+            <h3>Orçamentos Recusados</h3>
+            <p id="orcamentos-usuario-recusados-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('orcamentos-usuario')">
+            <h3>Visitas Solicitadas</h3>
+            <p id="orcamentos-usuario-visitas-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('ocorrencias-usuario')">
+            <h3>Minhas Ocorrências</h3>
+            <p id="ocorrencias-usuario-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('buscar-servicos-unificado')">
+            <h3>Buscar Serviços</h3>
+            <p><i class="fas fa-search"></i></p>
+          </div>
+          <div class="card" onclick="showScreen('solicitacao-orcamento')">
+            <h3>Solicitar Orçamento</h3>
+            <p><i class="fas fa-file-invoice"></i></p>
+          </div>
+        </div>
+        <div class="ad-banner user-ad-banner">
+          <p id="user-ad-content">Anúncio para Usuários</p>
+        </div>
+      </div>
+
+      <!-- Dashboard do Prestador -->
+      <div id="dashboard-prestador" class="screen">
+        <div class="dashboard-cards">
+          <div class="card" id="card-servicos-ativos" onclick="showScreen('servicos-ativos')">
+            <h3>Serviços Ativos</h3>
+            <p id="servicos-ativos-count">0</p>
+          </div>
+          <div class="card" id="card-orcamentos" onclick="showScreen('orcamentos-prestador')">
+            <h3>Orçamentos Recebidos</h3>
+            <p id="orcamentos-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('orcamentos-prestador')">
+            <h3>Propostas Enviadas</h3>
+            <p id="orcamentos-prestador-propostas-enviadas-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('orcamentos-prestador')">
+            <h3>Orçamentos Aprovados</h3>
+            <p id="orcamentos-prestador-aprovados-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('orcamentos-prestador')">
+            <h3>Orçamentos Recusados</h3>
+            <p id="orcamentos-prestador-recusados-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('ocorrencias-prestador')">
+            <h3>Minhas Ocorrências</h3>
+            <p id="ocorrencias-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('servicos-historico')">
+            <h3>Histórico de Serviços</h3>
+            <p id="servicos-historico-count">0</p>
+          </div>
+          <div class="card" onclick="showScreen('financeiro')">
+            <h3>Financeiro</h3>
+            <p><i class="fas fa-wallet"></i></p>
+          </div>
+          <div class="card" onclick="showScreen('cadastro-especialidades')">
+            <h3>Minhas Especialidades</h3>
+            <p><i class="fas fa-clipboard-list"></i></p>
+          </div>
+        </div>
+        <div class="ad-banner prestador-ad-banner">
+          <p id="prestador-ad-content">Anúncio para Prestadores</p>
+        </div>
+      </div>
+
+      <!-- Tela de Orçamentos do Usuário -->
+      <div id="orcamentos-usuario" class="screen">
+        <div class="tab-bar">
+          <button class="tab active" id="tab-orcamentos-usuario-solicitados" onclick="showTab('orcamentos-usuario', 'solicitados')">
+            Solicitados (<span id="orcamentos-usuario-solicitados-count-tab">0</span>)
+          </button>
+          <button class="tab" id="tab-orcamentos-usuario-recebidos" onclick="showTab('orcamentos-usuario', 'recebidos')">
+            Recebidos (<span id="orcamentos-usuario-recebidos-count-tab">0</span>)
+          </button>
+          <button class="tab" id="tab-orcamentos-usuario-aprovados" onclick="showTab('orcamentos-usuario', 'aprovados')">
+            Aprovados (<span id="orcamentos-usuario-aprovados-count-tab">0</span>)
+          </button>
+          <button class="tab" id="tab-orcamentos-usuario-recusados" onclick="showTab('orcamentos-usuario', 'recusados')">
+            Recusados (<span id="orcamentos-usuario-recusados-count-tab">0</span>)
+          </button>
+          <button class="tab" id="tab-orcamentos-usuario-visitas" onclick="showTab('orcamentos-usuario', 'visitas')">
+            Visitas (<span id="orcamentos-usuario-visitas-count-tab">0</span>)
+          </button>
+        </div>
+
+        <div id="orcamentos-usuario-solicitados-content" class="tab-content active">
+          <!-- Conteúdo de orçamentos solicitados -->
+        </div>
+        <div id="orcamentos-usuario-recebidos-content" class="tab-content">
+          <!-- Conteúdo de propostas recebidas -->
+        </div>
+        <div id="orcamentos-usuario-aprovados-content" class="tab-content">
+          <!-- Conteúdo de orçamentos aprovados -->
+        </div>
+        <div id="orcamentos-usuario-recusados-content" class="tab-content">
+          <!-- Conteúdo de orçamentos recusados -->
+        </div>
+        <div id="orcamentos-usuario-visitas-content" class="tab-content">
+          <!-- Conteúdo de visitas -->
+        </div>
+      </div>
+
+      <!-- Tela de Orçamentos do Prestador -->
+      <div id="orcamentos-prestador" class="screen">
+        <div class="tab-bar">
+          <button class="tab active" id="tab-orcamentos-prestador-recebidos" onclick="showTab('orcamentos-prestador', 'recebidos')">
+            Recebidos (<span id="orcamentos-prestador-recebidos-count-tab">0</span>)
+          </button>
+          <button class="tab" id="tab-orcamentos-prestador-propostas-enviadas" onclick="showTab('orcamentos-prestador', 'propostas-enviadas')">
+            Propostas Enviadas (<span id="orcamentos-prestador-propostas-enviadas-count-tab">0</span>)
+          </button>
+          <button class="tab" id="tab-orcamentos-prestador-aprovados" onclick="showTab('orcamentos-prestador', 'aprovados')">
+            Aprovados (<span id="orcamentos-prestador-aprovados-count-tab">0</span>)
+          </button>
+          <button class="tab" id="tab-orcamentos-prestador-recusados" onclick="showTab('orcamentos-prestador', 'recusados')">
+            Recusados (<span id="orcamentos-prestador-recusados-count-tab">0</span>)
+          </button>
+        </div>
+
+        <div id="orcamentos-prestador-recebidos-content" class="tab-content active">
+          <!-- Conteúdo de orçamentos recebidos pelo prestador -->
+        </div>
+        <div id="orcamentos-prestador-propostas-enviadas-content" class="tab-content">
+          <!-- Conteúdo de propostas enviadas pelo prestador -->
+        </div>
+        <div id="orcamentos-prestador-aprovados-content" class="tab-content">
+          <!-- Conteúdo de orçamentos aprovados pelo cliente -->
+        </div>
+        <div id="orcamentos-prestador-recusados-content" class="tab-content">
+          <!-- Conteúdo de orçamentos recusados pelo prestador -->
+        </div>
+      </div>
+
+      <!-- Tela de Serviços Ativos (Prestador) -->
+      <div id="servicos-ativos" class="screen">
+        <div class="section-header">
+          <h2>Serviços Ativos</h2>
+        </div>
+        <div class="service-list">
+          <!-- Exemplo de Card de Serviço Ativo -->
+          <div class="card service-card">
+            <div class="card-header">
+              <h3>Instalação de Tomada</h3>
+              <div class="status aguardando" id="status-1">Aguardando Início</div>
+            </div>
+            <div class="info">
+              <p><i class="fas fa-user"></i> Cliente: João Silva</p>
+              <p><i class="fas fa-map-marker-alt"></i> Endereço: Rua das Flores, 123</p>
+              <p><i class="fas fa-calendar-alt"></i> Agendado para: 2024-07-20 às 10:00</p>
+              <div class="alert-message" id="alert-1" style="display: none;">
+                <i class="fas fa-bell"></i> Aguardando confirmação do cliente!
+              </div>
+            </div>
+            <div class="actions" id="actions-1">
+              <button class="btn" id="start-btn-1" onclick="startService(1)"><i class="fas fa-play-circle"></i> Iniciar Serviço</button>
+              <button class="btn" id="send-photo-btn-1" onclick="alert('Enviar foto do serviço 1')"><i class="fas fa-camera"></i> Enviar Foto</button>
+              <button class="btn" id="send-video-btn-1" onclick="alert('Enviar vídeo do serviço 1')"><i class="fas fa-video"></i> Enviar Vídeo</button>
+              <button class="btn" id="chat-btn-1" onclick="openChat('João Silva')"><i class="fas fa-comments"></i> Chat</button>
+              <button class="btn btn-finalizar" id="finalize-btn-1" onclick="openFinalizeModal(1)"><i class="fas fa-check-circle"></i> Finalizar</button>
+            </div>
+          </div>
+
+          <div class="card service-card">
+            <div class="card-header">
+              <h3>Pintura de Quarto</h3>
+              <div class="status em-andamento" id="status-2">Em Andamento</div>
+            </div>
+            <div class="info">
+              <p><i class="fas fa-user"></i> Cliente: Maria Oliveira</p>
+              <p><i class="fas fa-map-marker-alt"></i> Endereço: Av. Central, 456</p>
+              <p><i class="fas fa-calendar-alt"></i> Agendado para: 2024-07-18 às 09:00</p>
+              <div class="alert-message" id="alert-2" style="display: none;">
+                <i class="fas fa-bell"></i> Aguardando confirmação do cliente!
+              </div>
+            </div>
+            <div class="actions" id="actions-2">
+              <button class="btn" id="start-btn-2" onclick="startService(2)" style="display: none;"><i class="fas fa-play-circle"></i> Iniciar Serviço</button>
+              <button class="btn" id="send-photo-btn-2" onclick="alert('Enviar foto do serviço 2')"><i class="fas fa-camera"></i> Enviar Foto</button>
+              <button class="btn" id="send-video-btn-2" onclick="alert('Enviar vídeo do serviço 2')"><i class="fas fa-video"></i> Enviar Vídeo</button>
+              <button class="btn" id="chat-btn-2" onclick="openChat('Maria Oliveira')"><i class="fas fa-comments"></i> Chat</button>
+              <button class="btn btn-finalizar" id="finalize-btn-2" onclick="openFinalizeModal(2)"><i class="fas fa-check-circle"></i> Finalizar</button>
+            </div>
+          </div>
+
+          <div class="card service-card">
+            <div class="card-header">
+              <h3>Reparo de Vazamento</h3>
+              <div class="status aguardando-confirmacao" id="status-3">Aguardando Confirmação</div>
+            </div>
+            <div class="info">
+              <p><i class="fas fa-user"></i> Cliente: Pedro Costa</p>
+              <p><i class="fas fa-map-marker-alt"></i> Endereço: Praça da Matriz, 789</p>
+              <p><i class="fas fa-calendar-alt"></i> Agendado para: 2024-07-17 às 14:00</p>
+              <div class="alert-message" id="alert-3">
+                <i class="fas fa-bell"></i> Aguardando confirmação do cliente!
+              </div>
+            </div>
+            <div class="actions" id="actions-3">
+              <button class="btn" id="start-btn-3" onclick="startService(3)" style="display: none;"><i class="fas fa-play-circle"></i> Iniciar Serviço</button>
+              <button class="btn" id="send-photo-btn-3" onclick="alert('Enviar foto do serviço 3')"><i class="fas fa-camera"></i> Enviar Foto</button>
+              <button class="btn" id="send-video-btn-3" onclick="alert('Enviar vídeo do serviço 3')"><i class="fas fa-video"></i> Enviar Vídeo</button>
+              <button class="btn" id="chat-btn-3" onclick="openChat('Pedro Costa')"><i class="fas fa-comments"></i> Chat</button>
+              <button class="btn btn-finalizar btn-disabled" id="finalize-btn-3" onclick="openFinalizeModal(3)" style="cursor: not-allowed;"><i class="fas fa-check-circle"></i> Finalizar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela de Serviços Contratados (Usuário) -->
+      <div id="servicos-contratados" class="screen">
+        <div class="section-header">
+          <h2>Serviços Contratados</h2>
+        </div>
+        <div class="service-list">
+          <!-- Exemplo de Card de Serviço Contratado -->
+          <div class="card service-card">
+            <div class="card-header">
+              <h3>Instalação de Tomada</h3>
+              <div class="status em-andamento">Em Andamento</div>
+            </div>
+            <div class="info">
+              <p><i class="fas fa-user"></i> Prestador: Eletricista Silva</p>
+              <p><i class="fas fa-calendar-alt"></i> Agendado para: 2024-07-20 às 10:00</p>
+            </div>
+            <div class="actions">
+              <button class="btn" onclick="alert('Ver detalhes do serviço contratado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+              <button class="btn" onclick="openChat('Eletricista Silva')"><i class="fas fa-comments"></i> Chat</button>
+              <button class="btn btn-finalizar" onclick="alert('Confirmar finalização do serviço')"><i class="fas fa-check-circle"></i> Confirmar Finalização</button>
+              <button class="btn btn-finalizar" onclick="showScreen('abrir-ocorrencia')"><i class="fas fa-exclamation-triangle"></i> Abrir Ocorrência</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela de Ocorrências (Usuário) -->
+      <div id="ocorrencias-usuario" class="screen">
+        <div class="section-header">
+          <h2>Minhas Ocorrências</h2>
+          <button class="btn primary-btn" onclick="showScreen('abrir-ocorrencia')"><i class="fas fa-plus-circle"></i> Abrir Nova Ocorrência</button>
+        </div>
+        <!-- Conteúdo dinâmico renderizado por JS -->
+      </div>
+
+      <!-- Tela de Ocorrências (Prestador) -->
+      <div id="ocorrencias-prestador" class="screen">
+        <div class="section-header">
+          <h2>Ocorrências para Meus Serviços</h2>
+        </div>
+        <!-- Conteúdo dinâmico renderizado por JS -->
+      </div>
+
+      <!-- Tela de Abrir Ocorrência -->
+      <div id="abrir-ocorrencia" class="screen">
+        <div class="section-header">
+          <h2>Abrir Nova Ocorrência</h2>
+        </div>
+        <div class="form-container">
+          <div class="input-group">
+            <label for="ocorrencia-servico">Serviço Relacionado:</label>
+            <select id="ocorrencia-servico" required>
+              <option value="">Selecione o Serviço</option>
+              <option value="Instalação de Tomada">Instalação de Tomada</option>
+              <option value="Pintura de Quarto">Pintura de Quarto</option>
+              <option value="Reparo de Vazamento">Reparo de Vazamento</option>
+              <!-- Adicionar mais serviços dinamicamente -->
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="ocorrencia-titulo">Título da Ocorrência:</label>
+            <input type="text" id="ocorrencia-titulo" placeholder="Ex: Problema com o serviço de pintura" required>
+          </div>
+          <div class="input-group">
+            <label for="ocorrencia-descricao">Descrição Detalhada:</label>
+            <textarea id="ocorrencia-descricao" rows="5" placeholder="Descreva o problema em detalhes..." required></textarea>
+          </div>
+          <div class="input-group">
+            <label for="ocorrencia-anexos">Anexar Fotos/Vídeos (opcional):</label>
+            <input type="file" id="ocorrencia-anexos" accept="image/*,video/*" multiple>
+          </div>
+          <button class="btn primary-btn" onclick="submitNewOccurrence()">Registrar Ocorrência</button>
+        </div>
+      </div>
+
+      <!-- Nova Tela Unificada de Busca de Serviços -->
+      <div id="buscar-servicos-unificado" class="screen">
+        <div class="section-header">
+          <h2>Buscar Serviço e Orçamento</h2>
+          <p>Encontre o profissional ideal para a sua necessidade ou solicite um orçamento.</p>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab active" id="tab-buscar-servicos-unificado-padrao" onclick="showTab('buscar-servicos-unificado', 'padrao')">
+            Solicitar Orçamento e Serviços
+          </button>
+          <button class="tab" id="tab-buscar-servicos-unificado-visita" onclick="showTab('buscar-servicos-unificado', 'visita')">
+            Solicitar Orçamento e Serviços com Visita no Local
+          </button>
+        </div>
+
+        <div id="buscar-servicos-unificado-padrao-content" class="tab-content active">
+          <div class="search-bar">
+            <input type="text" id="service-search-input" placeholder="Buscar por tipo de serviço ou profissional...">
+            <button class="btn" onclick="performServiceSearch()"><i class="fas fa-search"></i> Buscar</button>
+          </div>
+          <div class="sponsored-services-grid" id="sponsored-services-list">
+            <!-- Serviços patrocinados serão renderizados aqui pelo JS -->
+          </div>
+          <div class="fixed-budget-btn-container">
+            <button class="btn" onclick="handleBudgetRequestClick()">Anuncie seu serviço aqui! Contato: (XX) XXXX-XXXX</button>
+          </div>
+        </div>
+
+        <div id="buscar-servicos-unificado-visita-content" class="tab-content">
+          <div class="search-bar">
+            <input type="text" id="visit-service-search-input" placeholder="Buscar por profissional ou especialidade...">
+            <button class="btn" onclick="renderSponsoredVisitServices(document.getElementById('visit-service-search-input').value)"><i class="fas fa-search"></i> Buscar</button>
+          </div>
+          <div class="sponsored-services-grid" id="sponsored-visit-services-list">
+            <!-- Serviços de visita patrocinados serão renderizados aqui pelo JS -->
+          </div>
+          <div class="fixed-banner-container">
+            <p>Anuncie seu serviço aqui! Contato: (XX) XXXX-XXXX</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela de Solicitação de Orçamento (Usuário) -->
+      <div id="solicitacao-orcamento" class="screen">
+        <div class="section-header">
+          <h2>Solicitar Orçamento Personalizado</h2>
+        </div>
+        <div class="form-container">
+          <div class="input-group">
+            <label for="orcamento-titulo">Título do Serviço:</label>
+            <input type="text" id="orcamento-titulo" placeholder="Ex: Instalação de Ventilador de Teto" required>
+          </div>
+          <div class="input-group">
+            <label for="orcamento-descricao">Descrição Detalhada do Serviço:</label>
+            <textarea id="orcamento-descricao" rows="5" placeholder="Descreva o que precisa ser feito, o local, e qualquer detalhe relevante." required></textarea>
+          </div>
+          <div class="input-group">
+            <label for="orcamento-fotos">Anexar Fotos (máx. 5):</label>
+            <input type="file" id="orcamento-fotos" accept="image/*" multiple onchange="validateFiles(this, 5, 'image')">
+          </div>
+          <div class="input-group">
+            <label for="orcamento-video">Anexar Vídeo (máx. 30s, 1 arquivo):</label>
+            <input type="file" id="orcamento-video" accept="video/*" onchange="validateFiles(this, 1, 'video', 30)">
+          </div>
+          <button class="btn primary-btn" onclick="submitBudgetRequest()">Enviar Solicitação</button>
+        </div>
+      </div>
+
+      <!-- Tela de Cadastro de Especialidades (Prestador) -->
+      <div id="cadastro-especialidades" class="screen">
+        <div class="section-header">
+          <h2>Cadastro de Especialidades</h2>
+          <p>Selecione as áreas de serviço em que você atua.</p>
+        </div>
+        <div class="specialties-grid">
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="eletricista">
+            <span class="specialty-name"><i class="fas fa-lightbulb"></i> Eletricista</span>
+          </label>
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="encanador">
+            <span class="specialty-name"><i class="fas fa-faucet"></i> Encanador</span>
+          </label>
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="pintor">
+            <span class="specialty-name"><i class="fas fa-paint-roller"></i> Pintor</span>
+          </label>
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="pedreiro">
+            <span class="specialty-name"><i class="fas fa-hard-hat"></i> Pedreiro</span>
+          </label>
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="jardineiro">
+            <span class="specialty-name"><i class="fas fa-leaf"></i> Jardineiro</span>
+          </label>
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="limpeza">
+            <span class="specialty-name"><i class="fas fa-broom"></i> Limpeza</span>
+          </label>
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="montador">
+            <span class="specialty-name"><i class="fas fa-chair"></i> Montador de Móveis</span>
+          </label>
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="arquiteto">
+            <span class="specialty-name"><i class="fas fa-pencil-ruler"></i> Arquiteto</span>
+          </label>
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="engenheiro">
+            <span class="specialty-name"><i class="fas fa-drafting-compass"></i> Engenheiro</span>
+          </label>
+          <label class="specialty-item">
+            <input type="checkbox" name="specialty" value="outros">
+            <span class="specialty-name"><i class="fas fa-ellipsis-h"></i> Outros</span>
+          </label>
+        </div>
+        <button class="btn primary-btn" onclick="alert('Especialidades salvas!')">Salvar Especialidades</button>
+      </div>
+
+      <!-- Tela de Histórico de Serviços (Prestador) -->
+      <div id="servicos-historico" class="screen">
+        <div class="tab-bar">
+          <button class="tab active" id="tab-servicos-historico-finalizados" onclick="showTab('servicos-historico', 'finalizados')">
+            Finalizados (<span id="servicos-finalizados-count">0</span>)
+          </button>
+          <button class="tab" id="tab-servicos-historico-recusados" onclick="showTab('servicos-historico', 'recusados')">
+            Recusados (<span id="servicos-recusados-count">0</span>)
+          </button>
+        </div>
+
+        <div id="servicos-historico-finalizados-content" class="tab-content active">
+          <!-- Conteúdo de serviços finalizados -->
+        </div>
+        <div id="servicos-historico-recusados-content" class="tab-content">
+          <!-- Conteúdo de serviços recusados -->
+        </div>
+      </div>
+
+      <!-- Tela Financeiro (Prestador) -->
+      <div id="financeiro" class="screen">
+        <div class="section-header">
+          <h2>Financeiro</h2>
+        </div>
+        <div class="finance-summary">
+          <div class="summary-card">
+            <h3>Total de Recebimentos</h3>
+            <p id="total-recebimentos">R$ 0,00</p>
+          </div>
+          <div class="summary-card">
+            <h3>A Liberar pela Plataforma</h3>
+            <p id="a-liberar">R$ 0,00</p>
+          </div>
+        </div>
+
+        <div class="bank-accounts-section">
+          <h3>Minhas Contas Bancárias</h3>
+          <div id="bank-accounts-container" class="account-list">
+            <p id="no-bank-accounts-message">Nenhuma conta bancária cadastrada.</p>
+            <!-- Contas bancárias serão renderizadas aqui -->
+          </div>
+          <button class="btn primary-btn" onclick="showBankDetailsForm()"><i class="fas fa-plus-circle"></i> Adicionar/Editar Conta</button>
+
+          <div id="bank-details-form-container" class="form-container" style="display: none;">
+            <h4>Detalhes da Conta Bancária</h4>
+            <div class="input-group">
+              <label for="banco">Banco:</label>
+              <input type="text" id="banco" placeholder="Nome do Banco" required>
+            </div>
+            <div class="input-group">
+              <label for="agencia">Agência:</label>
+              <input type="text" id="agencia" placeholder="Número da Agência" required>
+            </div>
+            <div class="input-group">
+              <label for="conta">Conta:</label>
+              <input type="text" id="conta" placeholder="Número da Conta" required>
+            </div>
+            <div class="input-group">
+              <label for="tipo-conta">Tipo de Conta:</label>
+              <select id="tipo-conta">
+                <option value="corrente">Corrente</option>
+                <option value="poupanca">Poupança</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button class="btn primary-btn" id="save-bank-details-btn">Salvar Conta</button>
+              <button class="btn btn-finalizar" id="cancel-bank-details-edit-btn" onclick="clearBankDetailsForm()">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="finance-simulation-section">
+          <h3>Simulação de Recebimentos</h3>
+          <button class="btn" onclick="simulateServiceAwaitingRelease(50)"><i class="fas fa-hourglass-half"></i> Simular Serviço Aguardando Liberação (R$50)</button>
+          <button class="btn" onclick="simulateServiceCompletion(100)"><i class="fas fa-check-circle"></i> Simular Serviço Concluído (R$100)</button>
+        </div>
+      </div>
+
+      <!-- Tela de Ajuda e Suporte -->
+      <div id="ajuda" class="screen">
+        <div class="section-header">
+          <h2>Ajuda e Suporte</h2>
+        </div>
+        <div class="faq-section">
+          <h3>Perguntas Frequentes</h3>
+          <div class="faq-item">
+            <h4>Como solicito um orçamento?</h4>
+            <p>Vá para "Buscar Serviços" e selecione "Solicitar Orçamento Personalizado" ou escolha um serviço patrocinado.</p>
+          </div>
+          <div class="faq-item">
+            <h4>Como me torno um prestador?</h4>
+            <p>Na tela de login, selecione "Sou Prestador" e clique em "Cadastrar".</p>
+          </div>
+          <div class="faq-item">
+            <h4>Como abro uma ocorrência?</h4>
+            <p>Na sua dashboard, clique em "Minhas Ocorrências" e depois em "Abrir Nova Ocorrência".</p>
+           fungicide </div>
+        </div>
+        <div class="contact-section">
+          <h3>Fale Conosco</h3>
+          <p><i class="fas fa-envelope"></i> Email: suporte@chamadopro.com</p>
+          <p><i class="fas fa-phone"></i> Telefone: (XX) XXXX-XXXX</p>
+          <p><i class="fab fa-whatsapp"></i> WhatsApp: (XX) XXXXX-XXXX</p>
+        </div>
+      </div>
+
+      <!-- Tela de Fluxo de Serviço -->
+      <div id="fluxo-servico-detalhes" class="screen">
+        <div class="section-header">
+          <h2>Fluxo de Serviço</h2>
+          <p>Entenda cada etapa do processo de um serviço no ChamadoPro.</p>
+        </div>
+        <div class="flow-chart">
+          <div class="flow-step" id="step-1">
+            <div class="step-icon"><i class="fas fa-clipboard-list"></i></div>
+            <div class="step-text">1. Solicitação do Serviço</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="flow-step" id="step-2">
+            <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="step-text">2. Aceite do Prestador</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="flow-step" id="step-3">
+            <div class="step-icon"><i class="fas fa-car"></i></div>
+            <div class="step-text">3. Prestador a Caminho</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="flow-step" id="step-4">
+            <div class="step-icon"><i class="fas fa-play-circle"></i></div>
+            <div class="step-text">4. Serviço em Andamento</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="flow-step" id="step-5">
+            <div class="step-icon"><i class="fas fa-tools"></i></div>
+            <div class="step-text">5. Finalização do Serviço</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="flow-step" id="step-6">
+            <div class="step-icon"><i class="fas fa-user-check"></i></div>
+            <div class="step-text">6. Confirmação do Cliente</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="flow-step" id="step-7">
+            <div class="step-icon"><i class="fas fa-dollar-sign"></i></div>
+            <div class="step-text">7. Pagamento Processado</div>
+          </div>
+        </div>
+        <div class="flow-actions">
+          <button class="btn primary-btn" id="start-simulation-btn" onclick="startSimulation()">Iniciar Simulação</button>
+          <button class="btn" id="next-step-btn" onclick="nextSimulationStep()" style="display: none;">Próxima Etapa</button>
+          <button class="btn btn-finalizar" id="reset-simulation-btn" onclick="resetSimulation()" style="display: none;">Reiniciar Simulação</button>
+        </div>
+      </div>
+
+      <!-- Tela de Anunciantes -->
+      <div id="anunciantes" class="screen">
+        <div class="section-header">
+          <h2>Anunciantes</h2>
+          <p>Conheça nossos parceiros e as oportunidades de publicidade.</p>
+        </div>
+        <div class="advertiser-list">
+          <div class="advertiser-card">
+            <h3>Construtora Modelo</h3>
+            <p>Especializada em construções residenciais e comerciais de alto padrão.</p>
+            <a href="https://www.google.com" target="_blank" class="btn">Visitar Site</a>
+          </div>
+          <div class="advertiser-card">
+            <h3>Ferramentas Pro</h3>
+            <p>Sua loja completa de ferramentas para todas as necessidades.</p>
+            <a href="https://www.google.com" target="_blank" class="btn">Visitar Site</a>
+          </div>
+          <div class="advertiser-card">
+            <h3>Academia do Saber</h3>
+            <p>Cursos profissionalizantes e treinamentos online para diversas áreas.</p>
+            <a href="https://www.google.com" target="_blank" class="btn">Visitar Site</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modais -->
+  <!-- Modal de Finalizar Serviço (Prestador) -->
+  <div id="finalize-service-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="finalize-service-modal">&times;</span>
+      <h2 id="finalize-modal-title">Finalizar Serviço</h2>
+      <div class="form-container">
+        <div class="input-group">
+          <label for="finalize-photos">Fotos do Serviço Concluído (opcional):</label>
+          <input type="file" id="finalize-photos" accept="image/*" multiple>
+        </div>
+        <div class="input-group">
+          <label for="finalize-video">Vídeo do Serviço Concluído (opcional):</label>
+          <input type="file" id="finalize-video" accept="video/*">
+        </div>
+        <div class="input-group">
+          <label for="finalize-obs">Observações Finais (opcional):</label>
+          <textarea id="finalize-obs" rows="3"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn primary-btn" id="confirm-finalize-btn">Confirmar Finalização</button>
+          <button class="btn btn-finalizar" onclick="closeModal('finalize-service-modal')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Chat -->
+  <div id="chat-modal" class="modal">
+    <div class="modal-content chat-modal-content">
+      <span class="close-button" data-modal-id="chat-modal">&times;</span>
+      <h2 id="chat-header-title">Chat</h2>
+      <div class="chat-body" id="chat-body">
+        <!-- Mensagens do chat serão carregadas aqui -->
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Digite sua mensagem...">
+        <button class="btn primary-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes da Ocorrência -->
+  <div id="occurrence-details-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="occurrence-details-modal">&times;</span>
+      <h2 id="occurrence-details-title">Detalhes da Ocorrência</h2>
+      <div class="details-section">
+        <p><strong>Serviço:</strong> <span id="occurrence-details-service"></span></p>
+        <p><strong>Participante:</strong> <span id="occurrence-details-participant"></span></p>
+        <p><strong>Aberta em:</strong> <span id="occurrence-details-opening-date"></span></p>
+        <p><strong>Status:</strong> <span id="occurrence-details-status"></span></p>
+        <p id="occurrence-details-resolution-date-container" style="display: none;"><strong>Resolvida em:</strong> <span id="occurrence-details-resolution-date"></span></p>
+        <p><strong>Descrição:</strong> <span id="occurrence-details-description"></span></p>
+      </div>
+      <h3>Histórico do Chat</h3>
+      <div class="chat-body" id="occurrence-details-chat-history">
+        <!-- Histórico do chat da ocorrência -->
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal('occurrence-details-modal')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes da Solicitação (Usuário e Prestador) -->
+  <div id="request-details-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="request-details-modal">&times;</span>
+      <h2>Detalhes da Solicitação #<span id="request-details-id"></span></h2>
+      <div class="details-section">
+        <p><strong>Cliente:</strong> <span id="request-details-client"></span></p>
+        <p><strong>Endereço:</strong> <span id="request-details-address"></span></p>
+        <p><strong>Data da Solicitação:</strong> <span id="request-details-date"></span></p>
+        <p><strong>Descrição:</strong> <span id="request-details-description"></span></p>
+      </div>
+      <h3>Anexos:</h3>
+      <div class="attachments-container">
+        <div id="request-details-photos" class="photo-gallery"></div>
+        <div id="request-details-video-container" class="video-container"></div>
+        <p id="no-attachments-message" style="display: none;">Nenhum anexo disponível.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal('request-details-modal')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Formulário de Proposta (Prestador) -->
+  <div id="proposal-form-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="proposal-form-modal">&times;</span>
+      <h2>Enviar Proposta para Solicitação #<span id="proposal-request-id"></span></h2>
+      <div class="form-container">
+        <div class="input-group">
+          <label for="proposal-value">Valor da Proposta (R$):</label>
+          <input type="number" id="proposal-value" step="0.01" placeholder="Ex: 150.00" required>
+        </div>
+        <div class="input-group">
+          <label for="proposal-deadline">Prazo de Conclusão (dias):</label>
+          <input type="number" id="proposal-deadline" placeholder="Ex: 3" required>
+        </div>
+        <div class="input-group">
+          <label for="proposal-estimated-time">Tempo de Execução (horas):</label>
+          <input type="number" id="proposal-estimated-time" placeholder="Ex: 8" required>
+        </div>
+        <div class="input-group">
+          <label for="proposal-obs">Observações (opcional):</label>
+          <textarea id="proposal-obs" rows="3" placeholder="Detalhes da sua proposta, materiais inclusos, etc."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn primary-btn" id="send-proposal-btn">Enviar Proposta</button>
+          <button class="btn btn-finalizar" onclick="closeModal('proposal-form-modal')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Motivo de Recusa (Prestador) -->
+  <div id="refusal-reason-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="refusal-reason-modal">&times;</span>
+      <h2>Recusar Solicitação #<span id="refusal-request-id"></span></h2>
+      <p>Por favor, selecione o(s) motivo(s) da recusa:</p>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="refusal-reason" value="Não tenho disponibilidade"> Não tenho disponibilidade</label>
+        <label><input type="checkbox" name="refusal-reason" value="Não atuo nesta área"> Não atuo nesta área</label>
+        <label><input type="checkbox" name="refusal-reason" value="Valor inviável"> Valor inviável</label>
+        <label><input type="checkbox" name="refusal-reason" value="Distância"> Distância</label>
+        <label><input type="checkbox" name="refusal-reason" value="Outro" id="other-reason-checkbox" onchange="toggleOtherReason(this)"> Outro</label>
+        <div id="other-reason-group" style="display: none; margin-top: 10px;">
+          <textarea id="other-reason-text" rows="2" placeholder="Especifique outro motivo..."></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary-btn" id="confirm-refusal-btn">Confirmar Recusa</button>
+        <button class="btn btn-finalizar" onclick="closeModal('refusal-reason-modal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Motivo de Recusa (Usuário) -->
+  <div id="user-refusal-reason-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="user-refusal-reason-modal">&times;</span>
+      <h2>Recusar Orçamento #<span id="user-refusal-budget-id"></span></h2>
+      <p>Por favor, selecione o(s) motivo(s) da recusa:</p>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="user-refusal-reason" value="Valor muito alto"> Valor muito alto</label>
+        <label><input type="checkbox" name="user-refusal-reason" value="Prazo de entrega não atende"> Prazo de entrega não atende</label>
+        <label><input type="checkbox" name="user-refusal-reason" value="Não gostei da proposta"> Não gostei da proposta</label>
+        <label><input type="checkbox" name="user-refusal-reason" value="Encontrei outro profissional"> Encontrei outro profissional</label>
+        <label><input type="checkbox" name="user-refusal-reason" value="Outro" id="user-other-reason-checkbox" onchange="toggleUserOtherReason(this)"> Outro</label>
+        <div id="user-other-reason-group" style="display: none; margin-top: 10px;">
+          <textarea id="user-other-reason-text" rows="2" placeholder="Especifique outro motivo..."></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary-btn" id="confirm-user-refusal-btn">Confirmar Recusa</button>
+        <button class="btn btn-finalizar" onclick="closeModal('user-refusal-reason-modal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes da Proposta Enviada (Prestador) -->
+  <div id="proposal-sent-details-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="proposal-sent-details-modal">&times;</span>
+      <h2>Detalhes da Proposta #<span id="proposal-sent-id"></span></h2>
+      <div class="details-section">
+        <p><strong>Cliente:</strong> <span id="proposal-sent-client"></span></p>
+        <p><strong>Serviço:</strong> <span id="proposal-sent-service"></span></p>
+        <p><strong>Valor:</strong> <span id="proposal-sent-value"></span></p>
+        <p><strong>Prazo:</strong> <span id="proposal-sent-deadline"></span> dias</p>
+        <p><strong>Tempo Estimado:</strong> <span id="proposal-sent-estimated-time"></span> horas</p>
+        <p><strong>Observações:</strong> <span id="proposal-sent-obs"></span></p>
+        <p><strong>Status:</strong> <span id="proposal-sent-status"></span></p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal('proposal-sent-details-modal')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes do Orçamento Recebido (Usuário) -->
+  <div id="received-budget-details-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="received-budget-details-modal">&times;</span>
+      <h2>Detalhes do Orçamento #<span id="received-budget-id"></span></h2>
+      <div class="details-section">
+        <p><strong>Prestador:</strong> <span id="received-budget-prestador"></span></p>
+        <p><strong>Serviço:</strong> <span id="received-budget-service"></span></p>
+        <p><strong>Valor:</strong> <span id="received-budget-value"></span></p>
+        <p><strong>Proposta em:</strong> <span id="received-budget-date"></span></p>
+        <p><strong>Tempo Estimado:</strong> <span id="received-budget-estimated-time"></span> horas</p>
+        <p><strong>Descrição do Prestador:</strong> <span id="received-budget-prestador-description"></span></p>
+        <h4 id="received-budget-materials-title" style="display: none;">Materiais:</h4>
+        <p id="received-budget-materials" style="display: none;"></p>
+      </div>
+      <h3>Anexos da Solicitação Original:</h3>
+      <div class="attachments-container">
+        <div id="received-budget-original-photos" class="photo-gallery"></div>
+        <div id="received-budget-original-video-container" class="video-container"></div>
+        <p id="no-original-attachments-message" style="display: none;">Nenhum anexo disponível na solicitação original.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary-btn" id="approve-received-budget-btn"><i class="fas fa-check"></i> Aprovar e Agendar</button>
+        <button class="btn btn-finalizar" id="refuse-received-budget-btn"><i class="fas fa-times"></i> Recusar</button>
+        <button class="btn" onclick="closeModal('received-budget-details-modal')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Agendamento da Proposta (Usuário) -->
+  <div id="schedule-proposal-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="schedule-proposal-modal">&times;</span>
+      <h2>Agendar Serviço #<span id="schedule-budget-id"></span></h2>
+      <p>O tempo estimado para este serviço é de <span id="schedule-estimated-time"></span> horas.</p>
+      <p>Por favor, sugira até 3 opções de data e hora para o agendamento:</p>
+      <div class="form-container">
+        <div class="input-group">
+          <label for="schedule-date-1">Opção 1 - Data:</label>
+          <input type="date" id="schedule-date-1" onchange="calculateEndTime(1)">
+          <label for="schedule-time-1">Hora:</label>
+          <input type="time" id="schedule-time-1" onchange="calculateEndTime(1)">
+          <span id="estimated-end-time-1" class="estimated-end-time"></span>
+        </div>
+        <div class="input-group">
+          <label for="schedule-date-2">Opção 2 - Data:</label>
+          <input type="date" id="schedule-date-2" onchange="calculateEndTime(2)">
+          <label for="schedule-time-2">Hora:</label>
+          <input type="time" id="schedule-time-2" onchange="calculateEndTime(2)">
+          <span id="estimated-end-time-2" class="estimated-end-time"></span>
+        </div>
+        <div class="input-group">
+          <label for="schedule-date-3">Opção 3 - Data:</label>
+          <input type="date" id="schedule-date-3" onchange="calculateEndTime(3)">
+          <label for="schedule-time-3">Hora:</label>
+          <input type="time" id="schedule-time-3" onchange="calculateEndTime(3)">
+          <span id="estimated-end-time-3" class="estimated-end-time"></span>
+        </div>
+        <div class="input-group">
+          <label for="schedule-obs">Observações para o Prestador (opcional):</label>
+          <textarea id="schedule-obs" rows="3"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn primary-btn" id="send-schedule-proposals-btn">Enviar Sugestões de Agendamento</button>
+          <button class="btn btn-finalizar" onclick="closeModal('schedule-proposal-modal')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Perfil do Prestador (para serviços com visita) -->
+  <div id="prestador-profile-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="prestador-profile-modal">&times;</span>
+      <h2 id="prestador-profile-name">Nome do Prestador</h2>
+      <div class="profile-details">
+        <p id="prestador-profile-description"></p>
+        <h3>Galeria de Trabalhos</h3>
+        <div id="prestador-profile-photos" class="photo-gallery">
+          <!-- Fotos do perfil do prestador -->
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary-btn" id="request-visit-from-profile-btn"><i class="fas fa-calendar-alt"></i> Solicitar Visita</button>
+        <button class="btn" onclick="closeModal('prestador-profile-modal')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Solicitação de Agendamento de Visita (Usuário) -->
+  <div id="request-visit-schedule-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-modal-id="request-visit-schedule-modal">&times;</span>
+      <h2>Solicitar Visita com <span id="visit-prestador-name"></span></h2>
+      <p>Por favor, sugira até 3 opções de data e hora para a visita:</p>
+      <div class="form-container">
+        <div class="input-group">
+          <label for="visit-schedule-date-1">Opção 1 - Data:</label>
+          <input type="date" id="visit-schedule-date-1">
+          <label for="visit-schedule-time-1">Hora:</label>
+          <input type="time" id="visit-schedule-time-1">
+        </div>
+        <div class="input-group">
+          <label for="visit-schedule-date-2">Opção 2 - Data:</label>
+          <input type="date" id="visit-schedule-date-2">
+          <label for="visit-schedule-time-2">Hora:</label>
+          <input type="time" id="visit-schedule-time-2">
+        </div>
+        <div class="input-group">
+          <label for="visit-schedule-date-3">Opção 3 - Data:</label>
+          <input type="date" id="visit-schedule-date-3">
+          <label for="visit-schedule-time-3">Hora:</label>
+          <input type="time" id="visit-schedule-time-3">
+        </div>
+        <div class="input-group">
+          <label for="visit-schedule-obs">Observações para o Prestador (opcional):</label>
+          <textarea id="visit-schedule-obs" rows="3"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn primary-btn" id="send-visit-request-btn">Enviar Solicitação de Visita</button>
+          <button class="btn btn-finalizar" onclick="closeModal('request-visit-schedule-modal')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./script.js"></script> <!-- Certifique-se de que script.js está na mesma pasta -->
+</body>
+</html>
