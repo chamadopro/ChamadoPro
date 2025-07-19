@@ -14,6 +14,97 @@
     .modal {
       display: none; /* Oculta todos os modais por padrão */
     }
+
+    /* --- Pill Button Group Styles for Registration Screen --- */
+    .pill-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .pill-radio {
+      display: none;
+    }
+    .pill-label {
+      display: inline-block;
+      padding: 10px 28px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      border: 2px solid #17a2b8;
+      background: #fff;
+      color: #17a2b8;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+      user-select: none;
+      font-size: 1.08rem;
+      text-align: center;
+    }
+    .pill-radio:checked + .pill-label {
+      background: #17a2b8;
+      color: #fff;
+      border: none;
+    }
+    .pill-label:active {
+      filter: brightness(0.95);
+    }
+    /* Remove default radio circle space in pill group */
+    .pill-label > input[type="radio"] {
+      display: none;
+    }
+
+    /* --- Pill Tabs for Registration Screen --- */
+    .auth-tabs {
+      display: flex;
+      width: 100%;
+      margin-bottom: 30px;
+      position: relative;
+      border-bottom: none;
+      justify-content: center;
+      gap: 10px;
+    }
+    .auth-tabs .tab-button {
+      flex: none;
+      padding: 10px 32px;
+      border-radius: 50px;
+      border: 2px solid #17a2b8;
+      background: #fff;
+      color: #17a2b8;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+      margin-bottom: 0;
+      outline: none;
+    }
+    .auth-tabs .tab-button.active {
+      background: #17a2b8;
+      color: #fff;
+      border: none;
+    }
+    .auth-tabs .tab-button:active {
+      filter: brightness(0.95);
+    }
+    .auth-tabs .progress-bar {
+      display: none;
+    }
+
+    /* Responsive: stack pill buttons vertically on small screens */
+    @media (max-width: 480px) {
+      .pill-group {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .pill-label {
+        width: 100%;
+        text-align: center;
+      }
+      .auth-tabs {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .auth-tabs .tab-button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -35,17 +126,15 @@
         <h2>Bem-vindo ao ChamadoPro</h2>
       </div>
 
-      <div class="user-type-selection">
-        <label>
-          <input type="radio" name="main-user-type-select" id="select-user-client" value="client" checked>
-          <span class="radio-custom"></span> Sou Cliente
-        </label>
-        <label>
-          <input type="radio" name="main-user-type-select" id="select-user-provider" value="provider">
-          <span class="radio-custom"></span> Sou Prestador
-        </label>
+      <!-- Pill group for user type selection -->
+      <div class="user-type-selection pill-group">
+        <input type="radio" name="main-user-type-select" id="select-user-client" value="client" class="pill-radio" checked>
+        <label for="select-user-client" class="pill-label">Sou Cliente</label>
+        <input type="radio" name="main-user-type-select" id="select-user-provider" value="provider" class="pill-radio">
+        <label for="select-user-provider" class="pill-label">Sou Prestador</label>
       </div>
 
+      <!-- Pill tabs for access/register -->
       <div class="auth-tabs">
         <button class="tab-button active" id="access-tab">Acessar</button>
         <button class="tab-button" id="register-tab">Cadastrar</button>
@@ -97,48 +186,75 @@
 
         <!-- Seção de Cadastro para Cliente -->
         <div id="register-section" class="form-section">
-          <form id="client-register-form" class="auth-form">
-            <h3>Cadastrar como Cliente</h3>
-            <div class="input-group">
-              <i class="fas fa-user"></i>
-              <input type="text" id="client-name-register" placeholder="Seu nome completo" required>
-            </div>
-            <div class="input-group">
-              <i class="fas fa-envelope"></i>
-              <input type="email" id="client-email-register" placeholder="Seu e-mail" required>
-            </div>
-            <div class="input-group">
-              <i class="fas fa-lock"></i>
-              <input type="password" id="client-password-register" placeholder="Crie uma senha" required>
-            </div>
-            <button type="button" id="register-user-btn" class="btn primary-btn">Cadastrar</button>
-            <div class="social-login">
-              <p>Ou cadastre-se com:</p>
-              <div class="social-buttons">
-                <button type="button" class="social-login-button google"><i class="fab fa-google"></i> Google</button>
-                <button type="button" class="social-login-button facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
-                <button type="button" class="social-login-button apple"><i class="fab fa-apple"></i> Apple</button>
-              </div>
-            </div>
-          </form>
 
-          <!-- Seção de Cadastro para Prestador -->
-          <form id="provider-register-form" class="auth-form">
-            <h3>Cadastrar como Prestador</h3>
-            <div class="input-group">
-              <i class="fas fa-user"></i>
-              <input type="text" id="provider-name-register" placeholder="Nome da sua empresa/completo" required>
+        <!-- Formulário de Cadastro do Cliente -->
+        <form id="client-register-form" class="auth-form">
+          <h3>Cadastrar como Cliente</h3>
+          <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input type="text" id="client-name-register" placeholder="Seu nome completo" required>
+          </div>
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="client-email-register" placeholder="Seu e-mail" required>
+          </div>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="client-password-register" placeholder="Crie uma senha" required>
+          </div>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="client-password-register-confirm" placeholder="Confirme sua senha" required>
+          </div>
+          <button type="submit" class="btn primary-btn">Cadastrar</button>
+          <div class="social-login">
+            <p>Ou cadastre-se com:</p>
+            <div class="social-buttons">
+              <button type="button" class="social-login-button google"><i class="fab fa-google"></i> Google</button>
+              <button type="button" class="social-login-button facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
+              <button type="button" class="social-login-button apple"><i class="fab fa-apple"></i> Apple</button>
             </div>
-            <div class="input-group">
-              <i class="fas fa-envelope"></i>
-              <input type="email" id="provider-email-register" placeholder="Seu e-mail profissional" required>
-            </div>
-            <div class="input-group">
-              <i class="fas fa-lock"></i>
-              <input type="password" id="provider-password-register" placeholder="Crie uma senha" required>
-            </div>
-            <button type="button" id="register-provider-btn" class="btn primary-btn">Cadastrar</button>
-          </form>
+          </div>
+        </form>
+
+        <!-- Formulário de Cadastro do Prestador -->
+        <form id="provider-register-form" class="auth-form">
+          <h3>Cadastrar como Prestador</h3>
+          <div class="pill-group" style="margin-bottom: 20px;">
+            <input type="radio" name="tipo-prestador" id="tipo-prestador-pf" value="pf" class="pill-radio" checked onchange="togglePrestadorFields()">
+            <label for="tipo-prestador-pf" class="pill-label">Pessoa Física</label>
+            <input type="radio" name="tipo-prestador" id="tipo-prestador-pj" value="pj" class="pill-radio" onchange="togglePrestadorFields()">
+            <label for="tipo-prestador-pj" class="pill-label">Pessoa Jurídica</label>
+          </div>
+
+          <div id="campos-pf">
+            <div class="input-group"><i class="fas fa-user"></i><input type="text" id="provider-pf-name" placeholder="Nome completo" required></div>
+            <div class="input-group"><i class="fas fa-id-card"></i><input type="text" id="provider-pf-cpf" placeholder="CPF" required></div>
+            <div class="input-group"><i class="fas fa-phone"></i><input type="text" id="provider-pf-phone" placeholder="Telefone" required></div>
+            <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="provider-pf-email" placeholder="E-mail" required></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pf-password" placeholder="Crie uma Senha" required></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pf-password-confirm" placeholder="Confirme a Senha" required></div>
+            <div class="input-group"><label>Documento com Foto:</label><input type="file" id="provider-pf-doc-foto" accept="image/*,.pdf" required></div>
+            <div class="input-group"><label>Antecedentes Criminais:</label><input type="file" id="provider-pf-antecedentes" accept=".pdf" required></div>
+            <div class="input-group"><label>Comprovante de Endereço:</label><input type="file" id="provider-pf-comprovante" accept=".pdf,image/*" required></div>
+          </div>
+
+          <div id="campos-pj" style="display:none;">
+            <div class="input-group"><i class="fas fa-building"></i><input type="text" id="provider-pj-nome-fantasia" placeholder="Nome fantasia" required></div>
+            <div class="input-group"><i class="fas fa-briefcase"></i><input type="text" id="provider-pj-razao-social" placeholder="Razão social" required></div>
+            <div class="input-group"><i class="fas fa-id-card"></i><input type="text" id="provider-pj-cnpj" placeholder="CNPJ" required></div>
+            <div class="input-group"><i class="fas fa-file-alt"></i><input type="text" id="provider-pj-inscricao-estadual" placeholder="Inscrição Estadual" required></div>
+            <div class="input-group"><i class="fas fa-phone"></i><input type="text" id="provider-pj-phone" placeholder="Telefone comercial" required></div>
+            <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="provider-pj-email" placeholder="E-mail profissional" required></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pj-password" placeholder="Crie uma Senha" required></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pj-password-confirm" placeholder="Confirme a Senha" required></div>
+            <div class="input-group"><label>Contrato Social:</label><input type="file" id="provider-pj-contrato-social" accept=".pdf" required></div>
+            <div class="input-group"><label>Documento com Foto (responsável):</label><input type="file" id="provider-pj-doc-foto" accept="image/*,.pdf" required></div>
+            <div class="input-group"><label>Comprovante de Endereço:</label><input type="file" id="provider-pj-comprovante" accept=".pdf,image/*" required></div>
+          </div>
+
+          <button type="submit" class="btn primary-btn">Cadastrar</button>
+        </form>
         </div>
       </div>
     </div>
@@ -186,36 +302,33 @@
         <div class="dashboard-cards">
           <div class="card" onclick="showScreen('orcamentos-usuario')">
             <h3>Minhas Solicitações</h3>
-            <p id="orcamentos-usuario-solicitados-count">0</p>
+            <p><span id="orcamentos-usuario-solicitados-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('orcamentos-usuario')">
             <h3>Propostas Recebidas</h3>
-            <p id="orcamentos-usuario-recebidos-count">0</p>
+            <p><span id="orcamentos-usuario-recebidos-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('orcamentos-usuario')">
             <h3>Orçamentos Aprovados</h3>
-            <p id="orcamentos-usuario-aprovados-count">0</p>
+            <p><span id="orcamentos-usuario-aprovados-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('orcamentos-usuario')">
             <h3>Orçamentos Recusados</h3>
-            <p id="orcamentos-usuario-recusados-count">0</p>
+            <p><span id="orcamentos-usuario-recusados-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('orcamentos-usuario')">
             <h3>Visitas Solicitadas</h3>
-            <p id="orcamentos-usuario-visitas-count">0</p>
+            <p><span id="orcamentos-usuario-visitas-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('ocorrencias-usuario')">
             <h3>Minhas Ocorrências</h3>
-            <p id="ocorrencias-usuario-count">0</p>
+            <p><span id="ocorrencias-usuario-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('buscar-servicos-unificado')">
             <h3>Buscar Serviços</h3>
             <p><i class="fas fa-search"></i></p>
           </div>
-          <div class="card" onclick="showScreen('solicitacao-orcamento')">
-            <h3>Solicitar Orçamento</h3>
-            <p><i class="fas fa-file-invoice"></i></p>
-          </div>
+          <!-- O card "Solicitar Orçamento" será removido conforme instruído -->
         </div>
         <div class="ad-banner user-ad-banner">
           <p id="user-ad-content">Anúncio para Usuários</p>
@@ -227,31 +340,31 @@
         <div class="dashboard-cards">
           <div class="card" id="card-servicos-ativos" onclick="showScreen('servicos-ativos')">
             <h3>Serviços Ativos</h3>
-            <p id="servicos-ativos-count">0</p>
+            <p><span id="servicos-ativos-count-dashboard">0</span></p>
           </div>
           <div class="card" id="card-orcamentos" onclick="showScreen('orcamentos-prestador')">
             <h3>Orçamentos Recebidos</h3>
-            <p id="orcamentos-count">0</p>
+            <p><span id="orcamentos-prestador-recebidos-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('orcamentos-prestador')">
             <h3>Propostas Enviadas</h3>
-            <p id="orcamentos-prestador-propostas-enviadas-count">0</p>
+            <p><span id="orcamentos-prestador-propostas-enviadas-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('orcamentos-prestador')">
             <h3>Orçamentos Aprovados</h3>
-            <p id="orcamentos-prestador-aprovados-count">0</p>
+            <p><span id="orcamentos-prestador-aprovados-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('orcamentos-prestador')">
             <h3>Orçamentos Recusados</h3>
-            <p id="orcamentos-prestador-recusados-count">0</p>
+            <p><span id="orcamentos-prestador-recusados-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('ocorrencias-prestador')">
             <h3>Minhas Ocorrências</h3>
-            <p id="ocorrencias-count">0</p>
+            <p><span id="ocorrencias-prestador-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('servicos-historico')">
             <h3>Histórico de Serviços</h3>
-            <p id="servicos-historico-count">0</p>
+            <p><span id="servicos-historico-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('financeiro')">
             <h3>Financeiro</h3>
@@ -357,8 +470,8 @@
             </div>
             <div class="actions" id="actions-1">
               <button class="btn" id="start-btn-1" onclick="startService(1)"><i class="fas fa-play-circle"></i> Iniciar Serviço</button>
-              <button class="btn" id="send-photo-btn-1" onclick="alert('Enviar foto do serviço 1')"><i class="fas fa-camera"></i> Enviar Foto</button>
-              <button class="btn" id="send-video-btn-1" onclick="alert('Enviar vídeo do serviço 1')"><i class="fas fa-video"></i> Enviar Vídeo</button>
+              <button class="btn" id="send-photo-btn-1" onclick="showAlert('Enviar foto do serviço 1')"><i class="fas fa-camera"></i> Enviar Foto</button>
+              <button class="btn" id="send-video-btn-1" onclick="showAlert('Enviar vídeo do serviço 1')"><i class="fas fa-video"></i> Enviar Vídeo</button>
               <button class="btn" id="chat-btn-1" onclick="openChat('João Silva')"><i class="fas fa-comments"></i> Chat</button>
               <button class="btn btn-finalizar" id="finalize-btn-1" onclick="openFinalizeModal(1)"><i class="fas fa-check-circle"></i> Finalizar</button>
             </div>
@@ -379,8 +492,8 @@
             </div>
             <div class="actions" id="actions-2">
               <button class="btn" id="start-btn-2" onclick="startService(2)" style="display: none;"><i class="fas fa-play-circle"></i> Iniciar Serviço</button>
-              <button class="btn" id="send-photo-btn-2" onclick="alert('Enviar foto do serviço 2')"><i class="fas fa-camera"></i> Enviar Foto</button>
-              <button class="btn" id="send-video-btn-2" onclick="alert('Enviar vídeo do serviço 2')"><i class="fas fa-video"></i> Enviar Vídeo</button>
+              <button class="btn" id="send-photo-btn-2" onclick="showAlert('Enviar foto do serviço 2')"><i class="fas fa-camera"></i> Enviar Foto</button>
+              <button class="btn" id="send-video-btn-2" onclick="showAlert('Enviar vídeo do serviço 2')"><i class="fas fa-video"></i> Enviar Vídeo</button>
               <button class="btn" id="chat-btn-2" onclick="openChat('Maria Oliveira')"><i class="fas fa-comments"></i> Chat</button>
               <button class="btn btn-finalizar" id="finalize-btn-2" onclick="openFinalizeModal(2)"><i class="fas fa-check-circle"></i> Finalizar</button>
             </div>
@@ -401,8 +514,8 @@
             </div>
             <div class="actions" id="actions-3">
               <button class="btn" id="start-btn-3" onclick="startService(3)" style="display: none;"><i class="fas fa-play-circle"></i> Iniciar Serviço</button>
-              <button class="btn" id="send-photo-btn-3" onclick="alert('Enviar foto do serviço 3')"><i class="fas fa-camera"></i> Enviar Foto</button>
-              <button class="btn" id="send-video-btn-3" onclick="alert('Enviar vídeo do serviço 3')"><i class="fas fa-video"></i> Enviar Vídeo</button>
+              <button class="btn" id="send-photo-btn-3" onclick="showAlert('Enviar foto do serviço 3')"><i class="fas fa-camera"></i> Enviar Foto</button>
+              <button class="btn" id="send-video-btn-3" onclick="showAlert('Enviar vídeo do serviço 3')"><i class="fas fa-video"></i> Enviar Vídeo</button>
               <button class="btn" id="chat-btn-3" onclick="openChat('Pedro Costa')"><i class="fas fa-comments"></i> Chat</button>
               <button class="btn btn-finalizar btn-disabled" id="finalize-btn-3" onclick="openFinalizeModal(3)" style="cursor: not-allowed;"><i class="fas fa-check-circle"></i> Finalizar</button>
             </div>
@@ -427,9 +540,9 @@
               <p><i class="fas fa-calendar-alt"></i> Agendado para: 2024-07-20 às 10:00</p>
             </div>
             <div class="actions">
-              <button class="btn" onclick="alert('Ver detalhes do serviço contratado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+              <button class="btn" onclick="showAlert('Ver detalhes do serviço contratado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
               <button class="btn" onclick="openChat('Eletricista Silva')"><i class="fas fa-comments"></i> Chat</button>
-              <button class="btn btn-finalizar" onclick="alert('Confirmar finalização do serviço')"><i class="fas fa-check-circle"></i> Confirmar Finalização</button>
+              <button class="btn btn-finalizar" onclick="showAlert('Confirmar finalização do serviço')"><i class="fas fa-check-circle"></i> Confirmar Finalização</button>
               <button class="btn btn-finalizar" onclick="showScreen('abrir-ocorrencia')"><i class="fas fa-exclamation-triangle"></i> Abrir Ocorrência</button>
             </div>
           </div>
@@ -494,10 +607,10 @@
 
         <div class="tab-bar">
           <button class="tab active" id="tab-buscar-servicos-unificado-padrao" onclick="showTab('buscar-servicos-unificado', 'padrao')">
-            Solicitar Orçamento e Serviços
+            Solicitar Orçamento
           </button>
           <button class="tab" id="tab-buscar-servicos-unificado-visita" onclick="showTab('buscar-servicos-unificado', 'visita')">
-            Solicitar Orçamento e Serviços com Visita no Local
+            Solicitar Orçamento com Visita no Local
           </button>
         </div>
 
@@ -531,7 +644,7 @@
       <!-- Tela de Solicitação de Orçamento (Usuário) -->
       <div id="solicitacao-orcamento" class="screen">
         <div class="section-header">
-          <h2>Solicitar Orçamento Personalizado</h2>
+          <h2>Solicitar Orçamento</h2>
         </div>
         <div class="form-container">
           <div class="input-group">
@@ -602,17 +715,17 @@
             <span class="specialty-name"><i class="fas fa-ellipsis-h"></i> Outros</span>
           </label>
         </div>
-        <button class="btn primary-btn" onclick="alert('Especialidades salvas!')">Salvar Especialidades</button>
+        <button class="btn primary-btn" onclick="showAlert('Especialidades salvas!')">Salvar Especialidades</button>
       </div>
 
       <!-- Tela de Histórico de Serviços (Prestador) -->
       <div id="servicos-historico" class="screen">
         <div class="tab-bar">
           <button class="tab active" id="tab-servicos-historico-finalizados" onclick="showTab('servicos-historico', 'finalizados')">
-            Finalizados (<span id="servicos-finalizados-count">0</span>)
+            Finalizados (<span id="servicos-finalizados-count-tab">0</span>)
           </button>
           <button class="tab" id="tab-servicos-historico-recusados" onclick="showTab('servicos-historico', 'recusados')">
-            Recusados (<span id="servicos-recusados-count">0</span>)
+            Recusados (<span id="servicos-recusados-count-tab">0</span>)
           </button>
         </div>
 
@@ -671,7 +784,7 @@
             </div>
             <div class="form-actions">
               <button class="btn primary-btn" id="save-bank-details-btn">Salvar Conta</button>
-              <button class="btn btn-finalizar" id="cancel-bank-details-edit-btn" onclick="clearBankDetailsForm()">Cancelar</button>
+              <button class="btn btn-finalizar" onclick="clearBankDetailsForm()">Cancelar</button>
             </div>
           </div>
         </div>
@@ -692,7 +805,7 @@
           <h3>Perguntas Frequentes</h3>
           <div class="faq-item">
             <h4>Como solicito um orçamento?</h4>
-            <p>Vá para "Buscar Serviços" e selecione "Solicitar Orçamento Personalizado" ou escolha um serviço patrocinado.</p>
+            <p>Vá para "Buscar Serviços" e selecione "Solicitar Orçamento" ou escolha um serviço patrocinado.</p>
           </div>
           <div class="faq-item">
             <h4>Como me torno um prestador?</h4>
@@ -701,7 +814,7 @@
           <div class="faq-item">
             <h4>Como abro uma ocorrência?</h4>
             <p>Na sua dashboard, clique em "Minhas Ocorrências" e depois em "Abrir Nova Ocorrência".</p>
-           fungicide </div>
+          </div>
         </div>
         <div class="contact-section">
           <h3>Fale Conosco</h3>
@@ -1005,7 +1118,10 @@
     <div class="modal-content">
       <span class="close-button" data-modal-id="schedule-proposal-modal">&times;</span>
       <h2>Agendar Serviço #<span id="schedule-budget-id"></span></h2>
-      <p>O tempo estimado para este serviço é de <span id="schedule-estimated-time"></span> horas.</p>
+      <!-- Alert message for estimated time -->
+      <div class="alert-message" style="background-color: #fff3cd; border-color: #ffeeba; color: #856404; margin-bottom: 20px;">
+        <i class="fas fa-info-circle"></i> O tempo estimado para este serviço é de <span id="schedule-estimated-time-alert"></span> horas.
+      </div>
       <p>Por favor, sugira até 3 opções de data e hora para o agendamento:</p>
       <div class="form-container">
         <div class="input-group">
@@ -1095,6 +1211,18 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Custom Alert Modal -->
+  <div id="custom-alert-modal" class="modal">
+      <div class="modal-content">
+          <span class="close-button" data-modal-id="custom-alert-modal">&times;</span>
+          <h2 id="custom-alert-title">Aviso</h2>
+          <p id="custom-alert-message"></p>
+          <div class="modal-actions">
+              <button class="btn primary-btn" onclick="closeModal('custom-alert-modal')">OK</button>
+          </div>
+      </div>
   </div>
 
   <script src="./script.js"></script> <!-- Certifique-se de que script.js está na mesma pasta -->
