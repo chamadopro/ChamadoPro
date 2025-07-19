@@ -3,11 +3,10 @@ let currentScreen = 'splash'; // Tela inicial
 let screenHistory = []; // Para o botão de voltar
 let currentUserType = null; // 'usuario' ou 'prestador'
 
-// Dados de exemplo para simulação (mantidos do seu código original)
-let servicosAtivosCount = 1;
-let orcamentosCount = 3;
-let ocorrenciasCount = 0;
-let servicosHistoricoCount = 5;
+// Dados de exemplo para simulação
+let servicosAtivosCount = 1; // Exemplo de contador
+let ocorrenciasCount = 0; // Exemplo de contador
+let servicosHistoricoCount = 5; // Exemplo de contador
 
 let orcamentosUsuarioSolicitados = [
     { id: 1, title: 'Instalação de Tomada', description: 'Preciso instalar uma tomada nova na cozinha.', client: 'Eu', address: 'Rua A, 123', date: '2024-07-15', photos: ['https://placehold.co/100x100/FF0000/FFFFFF?text=Foto1'], video: '' },
@@ -75,8 +74,14 @@ const sponsoredVisitServices = [
     { id: 3, name: "Engenharia Estrutural Beta", description: "Cálculos estruturais e laudos técnicos.", type: "engenharia", profile: { photos: [], bio: 'Segurança e inovação em projetos de engenharia.' } }
 ];
 
+// --- FUNÇÃO DE ALERTA PERSONALIZADA ---
+function showAlert(message, title = 'Aviso') {
+    document.getElementById('custom-alert-title').textContent = title;
+    document.getElementById('custom-alert-message').textContent = message;
+    document.getElementById('custom-alert-modal').style.display = 'flex';
+}
 
-// Funções de controle de tela e histórico (mantidas e ajustadas)
+// Funções de controle de tela e histórico
 function showScreen(screenId, title = '') {
     // Esconde a tela de login v2 se estiver visível
     const loginScreenV2 = document.getElementById('login-screen-v2');
@@ -84,7 +89,7 @@ function showScreen(screenId, title = '') {
         loginScreenV2.style.display = 'none';
     }
 
-    // Esconde o cabeçalho se for a splash screen
+    // Esconde o cabeçalho se for a splash screen ou a tela de login
     const appHeader = document.getElementById('app-header');
     if (appHeader) {
         if (screenId === 'splash' || screenId === 'login-screen-v2') {
@@ -99,6 +104,16 @@ function showScreen(screenId, title = '') {
         document.body.classList.remove('app-active');
     } else {
         document.body.classList.add('app-active');
+    }
+
+    // Esconde todos os conteúdos principais primeiro
+    const mainContentWrapper = document.querySelector('.main-content-wrapper');
+    if (mainContentWrapper) {
+        if (screenId === 'splash' || screenId === 'login-screen-v2') {
+            mainContentWrapper.style.display = 'none';
+        } else {
+            mainContentWrapper.style.display = 'flex'; // Usar flex para o layout principal
+        }
     }
 
     const screens = document.querySelectorAll('.screen');
@@ -129,7 +144,7 @@ function showScreen(screenId, title = '') {
             } else if (screenId === 'buscar-servicos-unificado') { // Novo ID de tela unificada
                 headerTitleElement.textContent = 'Buscar Serviços e Orçamentos';
             } else if (screenId === 'solicitacao-orcamento') {
-                headerTitleElement.textContent = 'Solicitar Orçamento';
+                headerTitleElement.textContent = 'Solicitar Orçamento'; // Renomeado
             } else if (screenId === 'cadastro-especialidades') {
                 headerTitleElement.textContent = 'Cadastro de Especialidades';
             } else if (screenId === 'servicos-historico') {
@@ -155,8 +170,11 @@ function showScreen(screenId, title = '') {
     currentScreen = screenId;
 
     // Atualiza o estado dos cards e abas ao mudar de tela
-    if (screenId === 'dashboard-usuario' || screenId === 'dashboard-prestador') {
-        updateDashboardCounts();
+    if (screenId === 'dashboard-usuario') {
+        updateUserDashboardCounts();
+        startAdRotations();
+    } else if (screenId === 'dashboard-prestador') {
+        updatePrestadorDashboardCounts();
         startAdRotations();
     } else {
         stopAdRotations();
@@ -168,16 +186,19 @@ function showScreen(screenId, title = '') {
         renderOrcamentosUsuarioAprovados();
         renderOrcamentosUsuarioRecusados();
         renderOrcamentosUsuarioVisitas();
+        updateUserBudgetCounts(); // Atualiza os contadores das abas
         showTab('orcamentos-usuario', 'solicitados'); // Garante que a primeira aba esteja ativa
     } else if (screenId.startsWith('orcamentos-prestador')) {
         renderOrcamentosPrestadorRecebidos();
         renderOrcamentosPrestadorPropostasEnviadas();
         renderOrcamentosPrestadorAprovados();
         renderOrcamentosPrestadorRecusados();
+        updatePrestadorBudgetCounts(); // Atualiza os contadores das abas
         showTab('orcamentos-prestador', 'recebidos'); // Garante que a primeira aba esteja ativa
     } else if (screenId === 'servicos-historico') {
         renderServicosHistoricoFinalizados();
         renderServicosHistoricoRecusados();
+        updateServicosHistoricoCounts(); // Atualiza os contadores das abas
         showTab('servicos-historico', 'finalizados');
     } else if (screenId === 'ocorrencias-usuario') {
         renderUserOccurrences();
@@ -226,7 +247,7 @@ function showLoginScreenV2() {
     if (appHeader) appHeader.style.display = 'none'; // Garante que o cabeçalho da app esteja oculto
 
     if (loginScreenV2) {
-        loginScreenV2.style.display = 'block'; // Exibe a nova tela de login
+        loginScreenV2.style.display = 'flex'; // *** ALTERADO PARA FLEX para centralizar com CSS ***
         document.body.classList.remove('app-active'); // Remove a classe para centralizar o login
     }
 
@@ -296,18 +317,18 @@ function performLoginV2(event) {
             if (email === 'cliente@email.com' && password === '123') { // Example credentials for client
                 currentUserType = 'usuario';
                 document.getElementById('login-screen-v2').style.display = 'none';
-                document.querySelector('.main-content-wrapper').style.display = 'block';
+                document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
                 document.body.classList.add('app-active');
                 showScreen('dashboard-usuario');
             } else {
-                alert('E-mail ou senha incorretos para Usuário. Tente novamente.');
+                showAlert('E-mail ou senha incorretos para Usuário. Tente novamente.');
             }
         } else {
             // Social login for client (Google, Facebook, Apple)
-            alert('Simulando login de Cliente via social. Você será redirecionado para a dashboard de usuário.');
+            showAlert('Simulando login de Cliente via social. Você será redirecionado para a dashboard de usuário.');
             currentUserType = 'usuario';
             document.getElementById('login-screen-v2').style.display = 'none';
-            document.querySelector('.main-content-wrapper').style.display = 'block';
+            document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
             document.body.classList.add('app-active');
             showScreen('dashboard-usuario');
         }
@@ -316,14 +337,14 @@ function performLoginV2(event) {
         const email = document.getElementById('provider-email-login').value;
         const password = document.getElementById('provider-password-login').value;
 
-        if (email === 'teste@email.com' && password === '123') {
+        if (email === 'prestador@email.com' && password === '123') {
             currentUserType = 'prestador';
             document.getElementById('login-screen-v2').style.display = 'none';
-            document.querySelector('.main-content-wrapper').style.display = 'block';
+            document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
             document.body.classList.add('app-active');
             showScreen('dashboard-prestador');
         } else {
-            alert('E-mail ou senha incorretos para Prestador. Tente novamente.');
+            showAlert('E-mail ou senha incorretos para Prestador. Tente novamente.');
         }
     }
 }
@@ -335,14 +356,14 @@ function registerUserV2() {
     if (isClientSelected) {
         const clientEmail = document.getElementById('client-email-register').value;
         if (clientEmail) {
-            alert(`Usuário (Cliente) registrado com e-mail: ${clientEmail}. Você será redirecionado para a dashboard de usuário.`);
+            showAlert(`Usuário (Cliente) registrado com e-mail: ${clientEmail}. Você será redirecionado para a dashboard de usuário.`);
             currentUserType = 'usuario';
             document.getElementById('login-screen-v2').style.display = 'none';
-            document.querySelector('.main-content-wrapper').style.display = 'block';
+            document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
             document.body.classList.add('app-active');
             showScreen('dashboard-usuario');
         } else {
-            alert('Por favor, insira um e-mail para o cadastro do Usuário.');
+            showAlert('Por favor, insira um e-mail para o cadastro do Usuário.');
         }
     } else {
         const providerName = document.getElementById('provider-name-register').value;
@@ -350,21 +371,23 @@ function registerUserV2() {
         const providerPassword = document.getElementById('provider-password-register').value;
 
         if (providerName && providerEmail && providerPassword) {
-            alert(`Prestador registrado: ${providerName} (${providerEmail}). Você será redirecionado para a dashboard de prestador.`);
+            showAlert(`Prestador registrado: ${providerName} (${providerEmail}). Você será redirecionado para a dashboard de prestador.`);
             currentUserType = 'prestador';
             document.getElementById('login-screen-v2').style.display = 'none';
-            document.querySelector('.main-content-wrapper').style.display = 'block';
+            document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
             document.body.classList.add('app-active');
             showScreen('dashboard-prestador');
         } else {
-            alert('Por favor, preencha todos os campos para o cadastro do Prestador.');
+            showAlert('Por favor, preencha todos os campos para o cadastro do Prestador.');
         }
     }
 }
 
 
 function logout() {
-    if (confirm('Tem certeza que deseja sair?')) {
+    // Usando o modal de alerta personalizado para a confirmação de saída
+    const confirmLogout = confirm('Tem certeza que deseja sair?'); // Manter o confirm nativo para esta ação crítica
+    if (confirmLogout) {
         currentUserType = null;
         screenHistory = []; // Limpa o histórico de telas
         document.querySelector('.main-content-wrapper').style.display = 'none'; // Esconde o wrapper principal
@@ -375,60 +398,46 @@ function logout() {
 }
 
 
-// Funções de Dashboard e Conteúdo (mantidas do seu código original)
-function updateDashboardCounts() {
-    if (document.getElementById('servicos-ativos-count')) {
-        document.getElementById('servicos-ativos-count').textContent = servicosAtivosCount;
-        document.getElementById('card-servicos-ativos').classList.toggle('disabled-card', servicosAtivosCount === 0);
-    }
-    if (document.getElementById('orcamentos-count')) {
-        document.getElementById('orcamentos-count').textContent = orcamentosPrestadorRecebidos.length;
-        document.getElementById('card-orcamentos').classList.toggle('disabled-card', orcamentosPrestadorRecebidos.length === 0);
-    }
-    if (document.getElementById('ocorrencias-count')) {
-        document.getElementById('ocorrencias-count').textContent = providerOccurrences.length;
-        document.getElementById('card-ocorrencias').classList.toggle('disabled-card', providerOccurrences.length === 0);
-    }
-    if (document.getElementById('servicos-historico-count')) {
-        document.getElementById('servicos-historico-count').textContent = servicosHistoricoCount;
-    }
-
-    if (document.getElementById('orcamentos-usuario-solicitados-count')) {
-        document.getElementById('orcamentos-usuario-solicitados-count').textContent = orcamentosUsuarioSolicitados.length;
-    }
-    if (document.getElementById('orcamentos-usuario-recebidos-count')) {
-        document.getElementById('orcamentos-usuario-recebidos-count').textContent = orcamentosUsuarioRecebidos.length;
-    }
-    if (document.getElementById('orcamentos-usuario-aprovados-count')) {
-        document.getElementById('orcamentos-usuario-aprovados-count').textContent = orcamentosUsuarioAprovados.length;
-    }
-    if (document.getElementById('orcamentos-usuario-recusados-count')) {
-        document.getElementById('orcamentos-usuario-recusados-count').textContent = orcamentosUsuarioRecusados.length;
-    }
-    if (document.getElementById('orcamentos-usuario-visitas-count')) {
-        document.getElementById('orcamentos-usuario-visitas-count').textContent = orcamentosUsuarioVisitas.length;
-    }
-
-    if (document.getElementById('orcamentos-prestador-recebidos-count')) {
-        document.getElementById('orcamentos-prestador-recebidos-count').textContent = orcamentosPrestadorRecebidos.length;
-    }
-    if (document.getElementById('orcamentos-prestador-propostas-enviadas-count')) {
-        document.getElementById('orcamentos-prestador-propostas-enviadas-count').textContent = orcamentosPrestadorPropostasEnviadas.length;
-    }
-    if (document.getElementById('orcamentos-prestador-aprovados-count')) {
-        document.getElementById('orcamentos-prestador-aprovados-count').textContent = orcamentosPrestadorAprovados.length;
-    }
-    if (document.getElementById('orcamentos-prestador-recusados-count')) {
-        document.getElementById('orcamentos-prestador-recusados-count').textContent = orcamentosPrestadorRecusados.length;
-    }
-
-    if (document.getElementById('servicos-finalizados-count')) {
-        document.getElementById('servicos-finalizados-count').textContent = servicosHistoricoCount; // Usando a mesma variável por simplicidade
-    }
-    if (document.getElementById('servicos-recusados-count')) {
-        document.getElementById('servicos-recusados-count').textContent = orcamentosPrestadorRecusados.length; // Usando a mesma variável por simplicidade
-    }
+// Funções de Dashboard e Conteúdo
+function updateUserDashboardCounts() {
+    document.getElementById('orcamentos-usuario-solicitados-count-dashboard').textContent = orcamentosUsuarioSolicitados.length;
+    document.getElementById('orcamentos-usuario-recebidos-count-dashboard').textContent = orcamentosUsuarioRecebidos.length;
+    document.getElementById('orcamentos-usuario-aprovados-count-dashboard').textContent = orcamentosUsuarioAprovados.length;
+    document.getElementById('orcamentos-usuario-recusados-count-dashboard').textContent = orcamentosUsuarioRecusados.length;
+    document.getElementById('orcamentos-usuario-visitas-count-dashboard').textContent = orcamentosUsuarioVisitas.length;
+    document.getElementById('ocorrencias-usuario-count-dashboard').textContent = userOccurrences.length;
 }
+
+function updatePrestadorDashboardCounts() {
+    document.getElementById('servicos-ativos-count-dashboard').textContent = servicosAtivosCount;
+    document.getElementById('orcamentos-prestador-recebidos-count-dashboard').textContent = orcamentosPrestadorRecebidos.length;
+    document.getElementById('orcamentos-prestador-propostas-enviadas-count-dashboard').textContent = orcamentosPrestadorPropostasEnviadas.length;
+    document.getElementById('orcamentos-prestador-aprovados-count-dashboard').textContent = orcamentosPrestadorAprovados.length;
+    document.getElementById('orcamentos-prestador-recusados-count-dashboard').textContent = orcamentosPrestadorRecusados.length;
+    document.getElementById('ocorrencias-prestador-count-dashboard').textContent = providerOccurrences.length;
+    document.getElementById('servicos-historico-count-dashboard').textContent = servicosHistoricoCount;
+}
+
+function updateUserBudgetCounts() {
+    document.getElementById('orcamentos-usuario-solicitados-count-tab').textContent = orcamentosUsuarioSolicitados.length;
+    document.getElementById('orcamentos-usuario-recebidos-count-tab').textContent = orcamentosUsuarioRecebidos.length;
+    document.getElementById('orcamentos-usuario-aprovados-count-tab').textContent = orcamentosUsuarioAprovados.length;
+    document.getElementById('orcamentos-usuario-recusados-count-tab').textContent = orcamentosUsuarioRecusados.length;
+    document.getElementById('orcamentos-usuario-visitas-count-tab').textContent = orcamentosUsuarioVisitas.length;
+}
+
+function updatePrestadorBudgetCounts() {
+    document.getElementById('orcamentos-prestador-recebidos-count-tab').textContent = orcamentosPrestadorRecebidos.length;
+    document.getElementById('orcamentos-prestador-propostas-enviadas-count-tab').textContent = orcamentosPrestadorPropostasEnviadas.length;
+    document.getElementById('orcamentos-prestador-aprovados-count-tab').textContent = orcamentosPrestadorAprovados.length;
+    document.getElementById('orcamentos-prestador-recusados-count-tab').textContent = orcamentosPrestadorRecusados.length;
+}
+
+function updateServicosHistoricoCounts() {
+    document.getElementById('servicos-finalizados-count-tab').textContent = servicosHistoricoCount;
+    document.getElementById('servicos-recusados-count-tab').textContent = orcamentosPrestadorRecusados.length; // Reutilizando para exemplo
+}
+
 
 function startAdRotations() {
     stopAdRotations(); // Garante que não haja múltiplos intervalos
@@ -490,7 +499,7 @@ function renderOrcamentosUsuarioSolicitados() {
             </div>
             <div class="actions">
                 <button class="btn" onclick="openRequestDetailsModal(${req.id}, 'solicitado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
-                <button class="btn btn-finalizar" onclick="alert('Cancelar solicitação ${req.id}')"><i class="fas fa-times-circle"></i> Cancelar</button>
+                <button class="btn btn-finalizar" onclick="showAlert('Cancelar solicitação ${req.id}')"><i class="fas fa-times-circle"></i> Cancelar</button>
             </div>
         `;
         container.appendChild(card);
@@ -546,7 +555,7 @@ function renderOrcamentosUsuarioAprovados() {
                 <p><i class="fas fa-calendar-alt"></i> Agendado para: ${budget.scheduleDate} às ${budget.scheduleTime}</p>
             </div>
             <div class="actions">
-                <button class="btn" onclick="alert('Ver detalhes do serviço aprovado ${budget.id}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" onclick="showAlert('Ver detalhes do serviço aprovado ${budget.id}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
                 <button class="btn" onclick="openChat('${budget.prestador}')"><i class="fas fa-comments"></i> Chat</button>
             </div>
         `;
@@ -575,7 +584,7 @@ function renderOrcamentosUsuarioRecusados() {
                 <p><i class="fas fa-info-circle"></i> Motivo: ${budget.reason}</p>
             </div>
             <div class="actions">
-                <button class="btn" onclick="alert('Ver detalhes do orçamento recusado ${budget.id}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" onclick="showAlert('Ver detalhes do orçamento recusado ${budget.id}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
             </div>
         `;
         container.appendChild(card);
@@ -604,7 +613,7 @@ function renderOrcamentosUsuarioVisitas() {
                 <p><i class="fas fa-info-circle"></i> Observações: ${visit.obs}</p>
             </div>
             <div class="actions">
-                <button class="btn" onclick="alert('Ver detalhes da visita ${visit.id}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" onclick="showAlert('Ver detalhes da visita ${visit.id}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
                 <button class="btn" onclick="openChat('${visit.prestador}')"><i class="fas fa-comments"></i> Chat</button>
             </div>
         `;
@@ -692,7 +701,7 @@ function renderOrcamentosPrestadorAprovados() {
                 <p><i class="fas fa-calendar-alt"></i> Agendado para: ${budget.scheduleDate} às ${budget.scheduleTime}</p>
             </div>
             <div class="actions">
-                <button class="btn" onclick="alert('Ver detalhes do orçamento aprovado ${budget.id}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" onclick="showAlert('Ver detalhes do orçamento aprovado ${budget.id}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
                 <button class="btn" onclick="openChat('${budget.client}')"><i class="fas fa-comments"></i> Chat</button>
             </div>
         `;
@@ -717,7 +726,7 @@ function renderOrcamentosPrestadorRecusados() {
             </div>
             <div class="info">
                 <p><i class="fas fa-user"></i> Cliente: ${req.client}</p>
-                <p><i class="fas fa-calendar-alt"></i> Data: ${req.date}</p>
+                <p><i class="fas fa-map-marker-alt"></i> Data: ${req.date}</p>
                 <p><i class="fas fa-info-circle"></i> Motivo: ${req.reason}</p>
             </div>
             <div class="actions">
@@ -783,12 +792,12 @@ function startService(serviceId) {
     serviceStatuses[serviceId].status = 'Em Andamento';
     serviceStatuses[serviceId].alert = false;
     updateServiceCard(serviceId);
-    alert(`Serviço ${serviceId} iniciado!`);
+    showAlert(`Serviço ${serviceId} iniciado!`);
 }
 
 function openFinalizeModal(serviceId) {
     if (serviceStatuses[serviceId].status === 'Aguardando Confirmação') {
-        alert('Este serviço já está aguardando confirmação do cliente e não pode ser finalizado novamente.');
+        showAlert('Este serviço já está aguardando confirmação do cliente e não pode ser finalizado novamente.');
         return;
     }
     currentFinalizeServiceId = serviceId;
@@ -807,7 +816,7 @@ document.getElementById('confirm-finalize-btn').addEventListener('click', () => 
         serviceStatuses[currentFinalizeServiceId].status = 'Aguardando Confirmação';
         serviceStatuses[currentFinalizeServiceId].alert = true;
         updateServiceCard(currentFinalizeServiceId);
-        alert(`Serviço #${currentFinalizeServiceId} finalizado e aguardando confirmação do cliente!`);
+        showAlert(`Serviço #${currentFinalizeServiceId} finalizado e aguardando confirmação do cliente!`);
         closeModal('finalize-service-modal');
         currentFinalizeServiceId = null;
     }
@@ -845,7 +854,7 @@ function sendMessage() {
 // Funções de Ocorrências
 function renderUserOccurrences() {
     const container = document.getElementById('ocorrencias-usuario');
-    container.innerHTML = '<h1>Minhas Ocorrências</h1>'; // Mantém o título
+    container.innerHTML = '<div class="section-header"><h2>Minhas Ocorrências</h2><button class="btn primary-btn" onclick="showScreen(\'abrir-ocorrencia\')"><i class="fas fa-plus-circle"></i> Abrir Nova Ocorrência</button></div>'; // Mantém o título
     if (userOccurrences.length === 0) {
         container.innerHTML += '<p>Nenhuma ocorrência registrada ainda.</p>';
         return;
@@ -872,7 +881,7 @@ function renderUserOccurrences() {
 
 function renderProviderOccurrences() {
     const container = document.getElementById('ocorrencias-prestador');
-    container.innerHTML = '<h1>Ocorrências do Prestador</h1>'; // Mantém o título
+    container.innerHTML = '<div class="section-header"><h2>Ocorrências para Meus Serviços</h2></div>'; // Mantém o título
     if (providerOccurrences.length === 0) {
         container.innerHTML += '<p>Nenhuma ocorrência registrada para seus serviços ainda.</p>';
         return;
@@ -906,7 +915,7 @@ function submitNewOccurrence() {
     const attachments = document.getElementById('ocorrencia-anexos').files;
 
     if (!service || !title || !description) {
-        alert('Por favor, preencha todos os campos obrigatórios (Serviço, Título, Descrição).');
+        showAlert('Por favor, preencha todos os campos obrigatórios (Serviço, Título, Descrição).');
         return;
     }
 
@@ -926,12 +935,13 @@ function submitNewOccurrence() {
     userOccurrences.push(newOccurrence);
     providerOccurrences.push(newOccurrence); // Adiciona para o prestador também para simulação
 
-    alert('Ocorrência registrada com sucesso! Nossa equipe entrará em contato em breve.');
+    showAlert('Ocorrência registrada com sucesso! Nossa equipe entrará em contato em breve.');
     document.getElementById('ocorrencia-servico').value = '';
     document.getElementById('ocorrencia-titulo').value = '';
     document.getElementById('ocorrencia-descricao').value = '';
     document.getElementById('ocorrencia-anexos').value = ''; // Limpa o input de arquivo
-    updateDashboardCounts();
+    updateUserDashboardCounts(); // Atualiza o contador do dashboard do usuário
+    updatePrestadorDashboardCounts(); // Atualiza o contador do dashboard do prestador
     goBack(); // Volta para a tela anterior
 }
 
@@ -982,16 +992,16 @@ function resolveOccurrence(occurrenceId) {
             userOccurrences[userOccurrenceIndex].chatHistory.push({ sender: 'Plataforma', message: 'Ocorrência resolvida pelo prestador.', type: 'platform-highlight' });
         }
 
-        alert(`Ocorrência #${occurrenceId} marcada como resolvida!`);
+        showAlert(`Ocorrência #${occurrenceId} marcada como resolvida!`);
         renderProviderOccurrences();
-        updateDashboardCounts();
+        updatePrestadorDashboardCounts(); // Atualiza o contador do dashboard do prestador
     }
 }
 
 
 // Funções de Busca de Serviços (Usuário)
 function handleBudgetRequestClick() {
-    alert('Você será redirecionado para a tela de Solicitação de Orçamento Personalizado.');
+    // Este botão é o "Anuncie seu serviço aqui!" que agora redireciona para a tela de solicitação de orçamento
     showScreen('solicitacao-orcamento');
 }
 
@@ -1020,7 +1030,7 @@ function renderSponsoredServices(searchTerm = '') {
         card.innerHTML = `
             <h3>${service.name}</h3>
             <p>${service.description}</p>
-            <button class="btn" onclick="alert('Solicitar orçamento para ${service.name}')">Solicitar Orçamento</button>
+            <button class="btn" onclick="showScreen('solicitacao-orcamento')">Solicitar Orçamento</button>
         `;
         container.appendChild(card);
     });
@@ -1057,7 +1067,7 @@ function renderSponsoredVisitServices(searchTerm = '') {
 function validateFiles(input, maxCount, type, maxDuration = 0) {
     const files = input.files;
     if (files.length > maxCount) {
-        alert(`Você pode anexar no máximo ${maxCount} ${type === 'image' ? 'fotos' : 'vídeos'}.`);
+        showAlert(`Você pode anexar no máximo ${maxCount} ${type === 'image' ? 'fotos' : 'vídeos'}.`);
         input.value = ''; // Limpa a seleção
         return false;
     }
@@ -1068,7 +1078,7 @@ function validateFiles(input, maxCount, type, maxDuration = 0) {
         video.onloadedmetadata = function() {
             window.URL.revokeObjectURL(video.src);
             if (video.duration > maxDuration) {
-                alert(`O vídeo não pode ter mais de ${maxDuration} segundos.`);
+                showAlert(`O vídeo não pode ter mais de ${maxDuration} segundos.`);
                 input.value = '';
             }
         };
@@ -1084,7 +1094,7 @@ function submitBudgetRequest() {
     const videoInput = document.getElementById('orcamento-video');
 
     if (!title || !description) {
-        alert('Por favor, preencha o título e a descrição do serviço.');
+        showAlert('Por favor, preencha o título e a descrição do serviço.');
         return;
     }
 
@@ -1105,7 +1115,7 @@ function submitBudgetRequest() {
     };
 
     orcamentosUsuarioSolicitados.push(newRequest);
-    alert('Solicitação de orçamento enviada com sucesso!');
+    showAlert('Solicitação de orçamento enviada com sucesso!');
     
     // Limpa o formulário
     document.getElementById('orcamento-titulo').value = '';
@@ -1113,7 +1123,8 @@ function submitBudgetRequest() {
     photosInput.value = '';
     videoInput.value = '';
 
-    updateDashboardCounts();
+    updateUserDashboardCounts(); // Atualiza o contador do dashboard do usuário
+    updateUserBudgetCounts(); // Atualiza o contador da aba de orçamentos do usuário
     showScreen('orcamentos-usuario'); // Volta para a tela de orçamentos do usuário
     showTab('orcamentos-usuario', 'solicitados'); // Garante que a aba de solicitados esteja ativa
 }
@@ -1142,7 +1153,7 @@ function renderServicosHistoricoFinalizados() {
                 <p><i class="fas fa-dollar-sign"></i> Valor: R$ ${((i + 1) * 100).toFixed(2).replace('.', ',')}</p>
             </div>
             <div class="actions">
-                <button class="btn" onclick="alert('Ver detalhes do serviço finalizado ${i + 1}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" onclick="showAlert('Ver detalhes do serviço finalizado ${i + 1}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
             </div>
         `;
         container.appendChild(card);
@@ -1166,7 +1177,7 @@ function renderServicosHistoricoRecusados() {
             </div>
             <div class="info">
                 <p><i class="fas fa-user"></i> Cliente: ${req.client}</p>
-                <p><i class="fas fa-calendar-alt"></i> Data: ${req.date}</p>
+                <p><i class="fas fa-map-marker-alt"></i> Data: ${req.date}</p>
                 <p><i class="fas fa-info-circle"></i> Motivo: ${req.reason}</p>
             </div>
             <div class="actions">
@@ -1187,13 +1198,13 @@ function updateFinanceiroDashboard() {
 function simulateServiceAwaitingRelease(amount) {
     aLiberar += amount;
     updateFinanceiroDashboard();
-    alert(`R$ ${amount.toFixed(2).replace('.', ',')} adicionados ao valor 'A Liberar pela Plataforma'.`);
+    showAlert(`R$ ${amount.toFixed(2).replace('.', ',')} adicionados ao valor 'A Liberar pela Plataforma'.`);
 }
 
 function simulateServiceCompletion(amount) {
     totalRecebimentos += amount;
     updateFinanceiroDashboard();
-    alert(`R$ ${amount.toFixed(2).replace('.', ',')} adicionados ao 'Recebimentos Totais'.`);
+    showAlert(`R$ ${amount.toFixed(2).replace('.', ',')} adicionados ao 'Recebimentos Totais'.`);
 }
 
 function showBankDetailsForm() {
@@ -1242,7 +1253,7 @@ document.getElementById('save-bank-details-btn').addEventListener('click', () =>
     const tipoConta = document.getElementById('tipo-conta').value;
 
     if (!banco || !agencia || !conta) {
-        alert('Por favor, preencha todos os campos bancários.');
+        showAlert('Por favor, preencha todos os campos bancários.');
         return;
     }
 
@@ -1252,10 +1263,10 @@ document.getElementById('save-bank-details-btn').addEventListener('click', () =>
     const editingIndex = document.getElementById('save-bank-details-btn').dataset.editingIndex;
     if (editingIndex !== undefined && editingIndex !== '') {
         bankAccounts[parseInt(editingIndex)] = newAccount;
-        alert('Conta bancária atualizada com sucesso!');
+        showAlert('Conta bancária atualizada com sucesso!');
     } else {
         bankAccounts.push(newAccount);
-        alert('Conta bancária cadastrada com sucesso!');
+        showAlert('Conta bancária cadastrada com sucesso!');
     }
 
     renderBankAccounts();
@@ -1274,10 +1285,12 @@ function editBankAccount(index) {
 }
 
 function deleteBankAccount(index) {
-    if (confirm('Tem certeza que deseja excluir esta conta bancária?')) {
+    // Usando o modal de alerta personalizado para a confirmação de exclusão
+    const confirmDelete = confirm('Tem certeza que deseja excluir esta conta bancária?'); // Manter o confirm nativo para esta ação crítica
+    if (confirmDelete) {
         bankAccounts.splice(index, 1);
         renderBankAccounts();
-        alert('Conta bancária excluída.');
+        showAlert('Conta bancária excluída.');
     }
 }
 
@@ -1313,7 +1326,7 @@ function updateSimulationDisplay() {
 
     if (currentSimulationStep >= simulationSteps.length) {
         document.getElementById('next-step-btn').style.display = 'none';
-        alert('Simulação concluída!');
+        showAlert('Simulação concluída!');
     }
 }
 
@@ -1323,7 +1336,7 @@ function startSimulation() {
 }
 
 function nextSimulationStep() {
-    if (currentSimulationStep < simulationSteps.length) {
+    if (currentSimulationStep < simulationSteps) { // Changed to < simulationSteps.length
         currentSimulationStep++;
         updateSimulationDisplay();
     }
@@ -1484,7 +1497,7 @@ function sendProposal(requestId) {
     const obs = document.getElementById('proposal-obs').value.trim();
 
     if (!value || !deadline || !estimatedTime) {
-        alert('Por favor, preencha o valor, prazo e tempo de execução da proposta.');
+        showAlert('Por favor, preencha o valor, prazo e tempo de execução da proposta.');
         return;
     }
 
@@ -1504,8 +1517,9 @@ function sendProposal(requestId) {
             status: 'Aguardando Cliente'
         };
         orcamentosPrestadorPropostasEnviadas.push(newProposal);
-        alert(`Proposta para solicitação #${requestId} enviada com sucesso!`);
-        updateDashboardCounts();
+        showAlert(`Proposta para solicitação #${requestId} enviada com sucesso!`);
+        updatePrestadorDashboardCounts(); // Atualiza o contador do dashboard do prestador
+        updatePrestadorBudgetCounts(); // Atualiza o contador da aba de orçamentos do prestador
         renderOrcamentosPrestadorRecebidos(); // Atualiza a lista de recebidos
         renderOrcamentosPrestadorPropostasEnviadas(); // Atualiza a lista de propostas enviadas
         closeModal('proposal-form-modal');
@@ -1548,13 +1562,13 @@ document.getElementById('confirm-refusal-btn').addEventListener('click', () => {
         if (otherReason) {
             refusalText = `Outro: ${otherReason}`;
         } else {
-            alert('Por favor, especifique o "Outro" motivo ou desmarque a opção.');
+            showAlert('Por favor, especifique o "Outro" motivo ou desmarque a opção.');
             return;
         }
     }
 
     if (selectedReasons.length === 0) {
-        alert('Por favor, selecione pelo menos um motivo para a recusa.');
+        showAlert('Por favor, selecione pelo menos um motivo para a recusa.');
         return;
     }
 
@@ -1568,8 +1582,9 @@ document.getElementById('confirm-refusal-btn').addEventListener('click', () => {
         const rejectedRequest = orcamentosPrestadorRecebidos.splice(requestIndex, 1)[0];
         rejectedRequest.reason = reasonsDisplay; // Adiciona o motivo da recusa
         orcamentosPrestadorRecusados.push(rejectedRequest);
-        alert(`Solicitação #${currentRefusalRequestId} recusada!\nMotivo(s): ${reasonsDisplay}`);
-        updateDashboardCounts();
+        showAlert(`Solicitação #${currentRefusalRequestId} recusada!\nMotivo(s): ${reasonsDisplay}`);
+        updatePrestadorDashboardCounts(); // Atualiza o contador do dashboard do prestador
+        updatePrestadorBudgetCounts(); // Atualiza o contador da aba de orçamentos do prestador
         renderOrcamentosPrestadorRecebidos();
         renderOrcamentosPrestadorRecusados();
         closeModal('refusal-reason-modal');
@@ -1613,13 +1628,13 @@ document.getElementById('confirm-user-refusal-btn').addEventListener('click', ()
         if (otherReason) {
             refusalText = `Outro: ${otherReason}`;
         } else {
-            alert('Por favor, especifique o "Outro" motivo ou desmarque a opção.');
+            showAlert('Por favor, especifique o "Outro" motivo ou desmarque a opção.');
             return;
         }
     }
 
     if (selectedReasons.length === 0) {
-        alert('Por favor, selecione pelo menos um motivo para a recusa.');
+        showAlert('Por favor, selecione pelo menos um motivo para a recusa.');
         return;
     }
 
@@ -1633,8 +1648,9 @@ document.getElementById('confirm-user-refusal-btn').addEventListener('click', ()
         const rejectedBudget = orcamentosUsuarioRecebidos.splice(budgetIndex, 1)[0];
         rejectedBudget.reason = reasonsDisplay; // Adiciona o motivo da recusa
         orcamentosUsuarioRecusados.push(rejectedBudget);
-        alert(`Orçamento #${currentUserRefusalBudgetId} recusado!\nMotivo(s): ${reasonsDisplay}`);
-        updateDashboardCounts();
+        showAlert(`Orçamento #${currentUserRefusalBudgetId} recusado!\nMotivo(s): ${reasonsDisplay}`);
+        updateUserDashboardCounts(); // Atualiza o contador do dashboard do usuário
+        updateUserBudgetCounts(); // Atualiza o contador da aba de orçamentos do usuário
         renderOrcamentosUsuarioRecebidos();
         renderOrcamentosUsuarioRecusados();
         closeModal('user-refusal-reason-modal');
@@ -1665,7 +1681,7 @@ function openScheduleProposalModal(budgetId) {
     if (!budget) return;
 
     document.getElementById('schedule-budget-id').textContent = budget.id;
-    document.getElementById('schedule-estimated-time').textContent = budget.estimatedTime;
+    document.getElementById('schedule-estimated-time-alert').textContent = budget.estimatedTime; // Updated ID
 
     // Limpa campos de data/hora
     for (let i = 1; i <= 3; i++) {
@@ -1682,7 +1698,7 @@ function openScheduleProposalModal(budgetId) {
 function calculateEndTime(optionNum) {
     const dateInput = document.getElementById(`schedule-date-${optionNum}`);
     const timeInput = document.getElementById(`schedule-time-${optionNum}`);
-    const estimatedTimeSpan = document.getElementById('schedule-estimated-time');
+    const estimatedTimeSpan = document.getElementById('schedule-estimated-time-alert'); // Updated ID
     const endTimeSpan = document.getElementById(`estimated-end-time-${optionNum}`);
 
     const date = dateInput.value;
@@ -1714,7 +1730,7 @@ function sendScheduleProposals(budgetId, estimatedTime) {
     const obs = document.getElementById('schedule-obs').value.trim();
 
     if (proposals.length === 0) {
-        alert('Por favor, sugira pelo menos uma opção de data e hora.');
+        showAlert('Por favor, sugira pelo menos uma opção de data e hora.');
         return;
     }
 
@@ -1731,8 +1747,11 @@ function sendScheduleProposals(budgetId, estimatedTime) {
         const prestadorApprovedBudget = { ...approvedBudget }; // Copia para o array do prestador
         orcamentosPrestadorAprovados.push(prestadorApprovedBudget);
 
-        alert(`Orçamento #${budgetId} aprovado e sugestões de agendamento enviadas!`);
-        updateDashboardCounts();
+        showAlert(`Orçamento #${budgetId} aprovado e sugestões de agendamento enviadas!`);
+        updateUserDashboardCounts(); // Atualiza o contador do dashboard do usuário
+        updateUserBudgetCounts(); // Atualiza o contador da aba de orçamentos do usuário
+        updatePrestadorDashboardCounts(); // Atualiza o contador do dashboard do prestador
+        updatePrestadorBudgetCounts(); // Atualiza o contador da aba de orçamentos do prestador
         renderOrcamentosUsuarioRecebidos();
         renderOrcamentosUsuarioAprovados();
         renderOrcamentosPrestadorAprovados();
@@ -1790,7 +1809,7 @@ function sendVisitRequest(prestadorName) {
     const obs = document.getElementById('visit-schedule-obs').value.trim();
 
     if (proposals.length === 0) {
-        alert('Por favor, sugira pelo menos uma opção de data e hora para a visita.');
+        showAlert('Por favor, sugira pelo menos uma opção de data e hora para a visita.');
         return;
     }
 
@@ -1808,9 +1827,9 @@ function sendVisitRequest(prestadorName) {
     };
 
     orcamentosUsuarioVisitas.push(newVisitRequest);
-    alert(`Solicitação de visita para ${prestadorName} enviada com sucesso!`);
-    updateDashboardCounts();
-    renderOrcamentosUsuarioVisitas();
+    showAlert(`Solicitação de visita para ${prestadorName} enviada com sucesso!`);
+    updateUserDashboardCounts(); // Atualiza o contador do dashboard do usuário
+    updateUserBudgetCounts(); // Atualiza o contador da aba de orçamentos do usuário
     closeModal('request-visit-schedule-modal');
     closeModal('prestador-profile-modal'); // Fecha o modal de perfil também
     showScreen('orcamentos-usuario'); // Volta para a tela de orçamentos do usuário
@@ -1840,14 +1859,17 @@ function showTab(screenPrefix, tabId) {
         else if (tabId === 'aprovados') renderOrcamentosUsuarioAprovados();
         else if (tabId === 'recusados') renderOrcamentosUsuarioRecusados();
         else if (tabId === 'visitas') renderOrcamentosUsuarioVisitas();
+        updateUserBudgetCounts(); // Garante que os contadores das abas sejam atualizados ao trocar
     } else if (screenPrefix === 'orcamentos-prestador') {
         if (tabId === 'recebidos') renderOrcamentosPrestadorRecebidos();
         else if (tabId === 'propostas-enviadas') renderOrcamentosPrestadorPropostasEnviadas();
         else if (tabId === 'aprovados') renderOrcamentosPrestadorAprovados();
         else if (tabId === 'recusados') renderOrcamentosPrestadorRecusados();
+        updatePrestadorBudgetCounts(); // Garante que os contadores das abas sejam atualizados ao trocar
     } else if (screenPrefix === 'servicos-historico') {
         if (tabId === 'finalizados') renderServicosHistoricoFinalizados();
         else if (tabId === 'recusados') renderServicosHistoricoRecusados();
+        updateServicosHistoricoCounts(); // Garante que os contadores das abas sejam atualizados ao trocar
     } else if (screenPrefix === 'buscar-servicos-unificado') { // Nova lógica para a tela unificada
         if (tabId === 'padrao') {
             renderSponsoredServices(); // Renderiza os serviços padrão
@@ -1869,20 +1891,6 @@ function closeModal(modalId) {
 function toggleMenu() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('active');
-}
-
-// Atualiza os contadores das abas de orçamentos do usuário
-function updateUserBudgetCounts() {
-    document.getElementById('orcamentos-usuario-solicitados-count-tab').textContent = orcamentosUsuarioSolicitados.length;
-    document.getElementById('orcamentos-usuario-recebidos-count-tab').textContent = orcamentosUsuarioRecebidos.length;
-    document.getElementById('orcamentos-usuario-aprovados-count-tab').textContent = orcamentosUsuarioAprovados.length;
-    document.getElementById('orcamentos-usuario-recusados-count-tab').textContent = orcamentosUsuarioRecusados.length;
-    document.getElementById('orcamentos-usuario-visitas-count-tab').textContent = orcamentosUsuarioVisitas.length;
-
-    document.getElementById('orcamentos-prestador-recebidos-count-tab').textContent = orcamentosPrestadorRecebidos.length;
-    document.getElementById('orcamentos-prestador-propostas-enviadas-count-tab').textContent = orcamentosPrestadorPropostasEnviadas.length;
-    document.getElementById('orcamentos-prestador-aprovados-count-tab').textContent = orcamentosPrestadorAprovados.length;
-    document.getElementById('orcamentos-prestador-recusados-count-tab').textContent = orcamentosPrestadorRecusados.length;
 }
 
 
@@ -1951,7 +1959,7 @@ document.addEventListener('DOMContentLoaded', () => {
             serviceStatuses[currentFinalizeServiceId].status = 'Aguardando Confirmação';
             serviceStatuses[currentFinalizeServiceId].alert = true;
             updateServiceCard(currentFinalizeServiceId);
-            alert(`Serviço #${currentFinalizeServiceId} finalizado e aguardando confirmação do cliente!`);
+            showAlert(`Serviço #${currentFinalizeServiceId} finalizado e aguardando confirmação do cliente!`);
             closeModal('finalize-service-modal');
             currentFinalizeServiceId = null;
         }
@@ -2021,6 +2029,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // currentUserType = 'usuario'; // Descomente para testar como usuário
     // currentUserType = 'prestador'; // Descomente para testar como prestador
 
+    // Atualiza os contadores iniciais com base no tipo de usuário padrão (ou após login)
     if (currentUserType === 'usuario') {
         document.getElementById('sidebar-username').textContent = 'Usuário Cliente';
         document.getElementById('sidebar-usertype').textContent = 'Tipo: Cliente';
@@ -2028,7 +2037,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('menu-item-servicos-contratados').style.display = 'list-item';
         document.getElementById('menu-item-ocorrencias-usuario').style.display = 'list-item';
         document.getElementById('menu-item-buscar-servicos').style.display = 'list-item';
-        // Atualiza os contadores das abas de orçamentos do usuário APÓS o login/definição do tipo de usuário
+        updateUserDashboardCounts();
         updateUserBudgetCounts();
     } else if (currentUserType === 'prestador') {
         document.getElementById('sidebar-username').textContent = 'Prestador Exemplo';
@@ -2039,7 +2048,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('menu-item-cadastro-especialidades').style.display = 'list-item';
         document.getElementById('menu-item-servicos-historico').style.display = 'list-item';
         document.getElementById('menu-item-financeiro').style.display = 'list-item';
-        // Atualiza os contadores das abas de orçamentos do prestador APÓS o login/definição do tipo de usuário
-        updateUserBudgetCounts();
+        updatePrestadorDashboardCounts();
+        updatePrestadorBudgetCounts();
+        updateServicosHistoricoCounts();
     }
 });
+
+// Alterna os campos PF/PJ no cadastro do prestador
+function togglePrestadorFields() {
+  const tipo = document.querySelector('input[name="tipo-prestador"]:checked').value;
+  document.getElementById('campos-pf').style.display = (tipo === 'pf') ? 'block' : 'none';
+  document.getElementById('campos-pj').style.display = (tipo === 'pj') ? 'block' : 'none';
+}
+document.addEventListener('DOMContentLoaded', togglePrestadorFields);
