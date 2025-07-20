@@ -302,6 +302,7 @@ body {
   outline: none;
 }
 
+/* Botão padrão */
 .btn {
   padding: 12px 20px;
   border: none;
@@ -315,6 +316,29 @@ body {
   gap: 8px;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Destaque para o botão de voltar nas telas de login/cadastro */
+#back-to-choice-client,
+#back-to-choice-provider {
+  background: linear-gradient(90deg, #fff 60%, #e0f7fa 100%);
+  color: #17a2b8;
+  border: 2px solid #17a2b8;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(23,162,184,0.10);
+  transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
+  width: auto;
+  min-width: 120px;
+  margin-bottom: 18px;
+  margin-top: 0;
+  float: right;
+}
+#back-to-choice-client:hover,
+#back-to-choice-provider:hover {
+  background: #17a2b8;
+  color: #fff;
+  border-color: #138496;
+  box-shadow: 0 4px 16px rgba(23,162,184,0.18);
 }
 
 .primary-btn {
@@ -903,7 +927,24 @@ header {
   margin-bottom: 20px;
 }
 
-.sponsored-service-card .btn {
+/* Placeholder do logo: centralizado, único e limpo */
+.logo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border: 3px dashed #bbb;
+  border-radius: 50%;
+  background: transparent;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.logo-placeholder.small {
+  width: 72px;
+  height: 72px;
+  border-width: 2px;
   width: auto;
   align-self: center;
   padding: 10px 20px;
