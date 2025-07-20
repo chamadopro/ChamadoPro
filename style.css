@@ -1619,30 +1619,35 @@ header {
     font-weight: 500;
     font-size: 1rem;
 }
+/* Unificar input-group do provider com o client para garantir padding correto */
 #provider-register-form .input-group {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 #provider-register-form .input-group i {
-    position: absolute;
-    left: 15px;
-    color: #888;
-    font-size: 1.1rem;
-    z-index: 2;
+  position: absolute;
+  left: 15px;
+  color: #888;
+  font-size: 1.1rem;
+  z-index: 2;
 }
-#provider-register-form .input-group input[type="text"],
-#provider-register-form .input-group input[type="email"],
-#provider-register-form .input-group input[type="password"] {
-    width: 100%;
-    padding: 12px 12px 12px 45px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
-    box-sizing: border-box;
-    margin-bottom: 2px;
-    z-index: 1;
+#provider-register-form .input-group input {
+  width: 100%;
+  padding: 12px 12px 12px 45px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+  margin-bottom: 2px;
+  z-index: 1;
+}
+#provider-register-form .input-group input:focus {
+  border-color: #17a2b8;
+  box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.2);
+  outline: none;
 }
 #provider-register-form .file-upload-group {
     width: 100%;
@@ -1714,34 +1719,32 @@ header {
 }
 /* Responsivo para mobile */
 @media (max-width: 600px) {
-    #provider-register-form.auth-form {
-        max-width: 98vw;
-        padding: 10px 2vw 18px 2vw;
-    }
-    #provider-register-form .form-group label {
-        font-size: 0.98rem;
-    }
-    #provider-register-form input[type="text"],
-    #provider-register-form input[type="email"],
-    #provider-register-form input[type="password"] {
-        font-size: 0.97rem;
-        padding: 9px 8px;
-    }
-    #provider-register-form .pf-pj-toggle .pill {
-        font-size: 0.97rem;
-        padding: 7px 18px;
-    }
-    #provider-register-form .btn.primary-btn {
-        padding: 10px 0;
-        font-size: 1rem;
-    }
-    #provider-register-form .file-upload-group {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 10px 4px;
-    }
-    #provider-register-form .remove-file-btn {
-        margin-left: 0;
-        margin-top: 8px;
-    }
+  #provider-register-form.auth-form {
+    max-width: 98vw;
+    padding: 10px 2vw 18px 2vw;
+  }
+  #provider-register-form .form-group label {
+    font-size: 0.98rem;
+  }
+  #provider-register-form .input-group input {
+    font-size: 0.97rem;
+    padding: 9px 8px 9px 42px;
+  }
+  #provider-register-form .pf-pj-toggle .pill {
+    font-size: 0.97rem;
+    padding: 7px 18px;
+  }
+  #provider-register-form .btn.primary-btn {
+    padding: 10px 0;
+    font-size: 1rem;
+  }
+  #provider-register-form .file-upload-group {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 4px;
+  }
+  #provider-register-form .remove-file-btn {
+    margin-left: 0;
+    margin-top: 8px;
+  }
 }
