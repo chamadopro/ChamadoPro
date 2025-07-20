@@ -1,3 +1,32 @@
+/* Centralizar o botão Entrar e os campos nos formulários de login */
+#client-access-form.auth-form,
+#provider-access-form.auth-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+#client-access-form .input-group,
+#provider-access-form .input-group {
+  width: 100%;
+  max-width: 340px;
+}
+
+#client-access-form .btn.primary-btn,
+#provider-access-form .btn.primary-btn {
+  display: block;
+  margin: 24px auto 8px auto;
+  min-width: 160px;
+  align-self: center;
+}
+/* Centralizar o botão Entrar nos formulários de login */
+#client-access-form .btn.primary-btn,
+#provider-access-form .btn.primary-btn {
+  display: block;
+  margin: 24px auto 8px auto;
+  min-width: 160px;
+}
 /* Reset Básico e Estilos do Corpo */
 html, body { /* Adicionado para garantir 100% de altura */
   height: 100%;
@@ -199,9 +228,11 @@ body {
 }
 
 .auth-tabs .tab-button.active {
-  background: #17a2b8;
-  color: #fff;
-  border: none;
+  background: #17a2b8 !important;
+  color: #fff !important;
+  border: 2px solid #17a2b8 !important;
+  box-shadow: 0 2px 8px rgba(23,162,184,0.08);
+  z-index: 1;
 }
 
 .auth-tabs .tab-button:active {
@@ -1521,246 +1552,141 @@ header {
   display: none;
 }
 
-/* Responsive: stack pill buttons vertically on small screens */
-@media (max-width: 480px) {
-  .pill-group {
+/* Cadastro Prestador: Centralização e responsividade */
+#provider-register-form.auth-form {
+    display: flex;
     flex-direction: column;
-    gap: 8px;
-  }
-  .pill-label {
+    align-items: center;
+    justify-content: flex-start;
     width: 100%;
-    text-align: center;
-  }
-  .auth-tabs {
-    flex-direction: column;
-    gap: 8px;
-  }
-  .auth-tabs .tab-button {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 16px 8px 24px 8px;
+    box-sizing: border-box;
+}
+#provider-register-form .form-group {
     width: 100%;
-  }
-}
-
-/* Remove old radio custom styles for user-type-selection (registration only) */
-.user-type-selection label,
-.user-type-selection input[type="radio"],
-.user-type-selection .radio-custom {
-  all: unset;
-  display: revert;
-}
-.user-type-selection {
-  gap: 10px;
-  margin-bottom: 30px;
-}
-
-/* Media Queries para Responsividade */
-@media (max-width: 768px) {
-  .login-screen-v2 {
-    padding: 20px;
-    margin: 15px;
-  }
-
-  .user-type-selection {
+    margin-bottom: 18px;
+    display: flex;
     flex-direction: column;
+    align-items: center;
+}
+#provider-register-form .form-group label {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 6px;
+    font-weight: 500;
+    font-size: 1rem;
+}
+#provider-register-form input[type="text"],
+#provider-register-form input[type="email"],
+#provider-register-form input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    margin-bottom: 2px;
+}
+#provider-register-form .file-upload-group {
+    width: 100%;
+    display: flex;
+    align-items: center;
     gap: 10px;
-  }
-
-  .auth-tabs .tab-button {
-    font-size: 1rem;
-    padding: 10px 0;
-  }
-
-  .social-buttons {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .social-login-button {
-    width: 100%;
-  }
-
-  header {
-    padding: 10px;
-  }
-
-  .menu-toggle {
-    font-size: 1.5rem;
-  }
-
-  #header-title {
-    font-size: 1.3rem;
-  }
-
-  .back-button {
-    font-size: 0.9rem;
-    padding: 5px;
-  }
-
-  .sidebar {
-    width: 250px;
-  }
-
-  .screen-content {
-    padding: 15px;
-    padding-top: 60px; /* Ajuste para o cabeçalho menor */
-  }
-
-  .section-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .dashboard-cards {
-    grid-template-columns: 1fr; /* Uma coluna em telas pequenas */
-  }
-
-  .tab-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .tab-bar .tab {
-    text-align: center;
-    border-bottom: 1px solid #eee;
-  }
-
-  .tab-bar .tab.active {
-    border-bottom: 3px solid #17a2b8;
-  }
-
-  .service-list .actions .btn,
-  .modal-actions .btn,
-  .form-actions .btn {
-    width: 100%;
-  }
-
-  .modal-content {
-    padding: 20px;
-    width: 95%;
-  }
-
-  .close-button {
-    font-size: 1.8rem;
-    top: 10px;
-    right: 15px;
-  }
-
-  .chat-body .message {
-    max-width: 95%;
-  }
+    border: 1.5px dashed #17a2b8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: #f8fcfd;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    position: relative;
 }
-
-@media (max-width: 480px) {
-  .login-screen-v2 {
-    padding: 15px;
-    margin: 10px;
-  }
-
-  .logo-area h2 {
-    font-size: 1.5rem;
-  }
-
-  .auth-form h3 {
-    font-size: 1.3rem;
-  }
-
-  .input-group input {
-    padding: 10px 10px 10px 40px;
-    font-size: 0.9rem;
-  }
-
-  .input-group i {
+#provider-register-form .file-upload-group input[type="file"] {
+    flex: 1 1 auto;
+    font-size: 0.98rem;
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+#provider-register-form .remove-file-btn {
+    background: #ff4d4f;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: background 0.2s;
+    display: none;
+}
+#provider-register-form .remove-file-btn.active {
+    display: inline-block;
+}
+#provider-register-form .file-upload-group.selected {
+    border-color: #28a745;
+    background: #e6f9f0;
+}
+#provider-register-form .pf-pj-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
+    justify-content: center;
+    width: 100%;
+}
+#provider-register-form .pf-pj-toggle .pill {
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid #007bff;
+    background: #fff;
+    color: #007bff;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
     font-size: 1rem;
-    left: 10px;
-  }
-
-  .btn {
-    font-size: 1rem;
-    padding: 10px 15px;
-  }
-
-  .social-login-button {
-    font-size: 0.9rem;
-    padding: 8px 15px;
-  }
-
-  .sidebar {
-    width: 220px;
-  }
-
-  .sidebar-menu a {
-    font-size: 0.9rem;
-    padding: 12px 15px;
-  }
-
-  .sidebar-menu a i {
-    margin-right: 10px;
-    font-size: 1rem;
-  }
-
-  .section-header h2 {
-    font-size: 1.3rem;
-  }
-
-  .dashboard-cards .card h3 {
-    font-size: 1.1rem;
-  }
-
-  .dashboard-cards .card p {
-    font-size: 2rem;
-  }
-
-  .tab-bar .tab {
-    font-size: 0.9rem;
-    padding: 10px 15px;
-  }
-
-  .form-container {
-    padding: 20px;
-  }
-
-  .form-container label {
-    font-size: 0.9rem;
-  }
-
-  .form-container input,
-  .form-container textarea,
-  .form-container select {
-    font-size: 0.9rem;
-    padding: 8px 10px;
-  }
-
-  .sponsored-service-card h3 {
-    font-size: 1.2rem;
-  }
-
-  .specialty-item .specialty-name {
-    font-size: 0.85rem;
-  }
-
-  .specialty-item .specialty-name i {
-    font-size: 1.8rem;
-  }
-
-  .summary-card h3 {
-    font-size: 1.1rem;
-  }
-
-  .summary-card p {
-    font-size: 1.8rem;
-  }
-
-  .flow-step {
-    width: 100px;
-  }
-
-  .step-icon {
-    font-size: 2rem;
-  }
-
-  .step-text {
-    font-size: 0.8rem;
-  }
-
-  .flow-arrow {
-    font-size: 1.5rem;
-  }
+}
+#provider-register-form .pf-pj-toggle .pill.active {
+    background: #007bff;
+    color: #fff;
+}
+#provider-register-form .btn.primary-btn {
+    display: block;
+    margin: 24px auto 8px auto;
+    min-width: 160px;
+    align-self: center;
+}
+/* Responsivo para mobile */
+@media (max-width: 600px) {
+    #provider-register-form.auth-form {
+        max-width: 98vw;
+        padding: 10px 2vw 18px 2vw;
+    }
+    #provider-register-form .form-group label {
+        font-size: 0.98rem;
+    }
+    #provider-register-form input[type="text"],
+    #provider-register-form input[type="email"],
+    #provider-register-form input[type="password"] {
+        font-size: 0.97rem;
+        padding: 9px 8px;
+    }
+    #provider-register-form .pf-pj-toggle .pill {
+        font-size: 0.97rem;
+        padding: 7px 18px;
+    }
+    #provider-register-form .btn.primary-btn {
+        padding: 10px 0;
+        font-size: 1rem;
+    }
+    #provider-register-form .file-upload-group {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 4px;
+    }
+    #provider-register-form .remove-file-btn {
+        margin-left: 0;
+        margin-top: 8px;
+    }
 }
