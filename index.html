@@ -105,47 +105,202 @@
         width: 100%;
       }
     }
+
+    /* Two-column layout for registration forms on large screens */
+    @media (min-width: 1025px) {
+      .login-screen-v2 {
+        max-width: 900px;
+        padding: 2.5rem 2rem;
+      }
+      .form-sections {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      /* Two-column grid for registration forms */
+      .auth-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.2rem 2rem;
+        max-width: 700px;
+        margin: 0 auto;
+        background: none;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        width: 100%;
+      }
+      .auth-form h3 {
+        grid-column: 1 / -1;
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+      /* Make input groups fill columns */
+      .auth-form .input-group {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.7rem;
+        margin-bottom: 0;
+        width: 100%;
+      }
+      /* Make file input groups span both columns for clarity */
+      .auth-form .input-group input[type="file"],
+      .auth-form .input-group label[for*="file"],
+      .auth-form .input-group label[for*="doc"],
+      .auth-form .input-group label[for*="comprovante"],
+      .auth-form .input-group label[for*="antecedentes"] {
+        grid-column: 1 / -1;
+      }
+      /* Make file input groups span both columns */
+      .auth-form .input-group:has(input[type="file"]) {
+        grid-column: 1 / -1;
+      }
+      /* Make the submit button span both columns */
+      .auth-form button[type="submit"] {
+        grid-column: 1 / -1;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      /* Social login section spans both columns */
+      .auth-form .social-login {
+        grid-column: 1 / -1;
+        margin-top: 0.5rem;
+      }
+      /* Pill groups (user type, PF/PJ) centered and spanning both columns */
+      .pill-group {
+        grid-column: 1 / -1;
+        justify-content: center;
+      }
+      /* Hide icons on desktop for a cleaner look */
+      .auth-form .input-group i {
+        display: none;
+      }
+      /* Adjust spacing for vertical alignment */
+      .auth-form .input-group input,
+      .auth-form .input-group select,
+      .auth-form .input-group textarea {
+        min-width: 0;
+        width: 100%;
+      }
+      /* Ensure forgot password and social login are centered */
+      .auth-form .forgot-password {
+        grid-column: 1 / -1;
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    /* Keep single-column layout for <= 1024px */
+    @media (max-width: 1024px) {
+      .auth-form {
+        display: block;
+        max-width: 100%;
+      }
+      .auth-form .input-group {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.7rem;
+        margin-bottom: 1rem;
+        width: 100%;
+      }
+      .auth-form .input-group i {
+        display: inline-block;
+      }
+    }
   </style>
 </head>
 <body>
   <!-- Tela de Splash -->
   <div id="splash" class="splash-screen">
     <div class="splash-content">
-      <img src="https://placehold.co/150x150/17a2b8/FFFFFF?text=Logo" alt="Logo ChamadoPro" class="splash-logo">
+      <div class="splash-logo logo-animated-container">
+        <div class="logo-placeholder"><span class="logo-placeholder-text">logo</span></div>
+        <div class="logo-animated-shine"></div>
+      </div>
       <h1>ChamadoPro</h1>
       <p>Conectando você aos melhores profissionais!</p>
       <div class="spinner"></div>
     </div>
   </div>
 
-  <!-- Nova Tela de Login/Cadastro (Login Screen V2) -->
-  <div id="login-screen-v2" class="login-screen-v2">
+
+  <!-- Radios ocultos para seleção de tipo de usuário (usados pelo JS) -->
+  <input type="radio" id="select-user-client" name="main-user-type-select" value="cliente" style="display:none;" checked>
+  <input type="radio" id="select-user-provider" name="main-user-type-select" value="prestador" style="display:none;">
+
+  <!-- Tela de Escolha Inicial: Cliente ou Prestador -->
+  <div id="login-choice-screen" class="login-screen-v2">
     <div class="login-container">
       <div class="logo-area">
-        <img src="https://placehold.co/100x100/17a2b8/FFFFFF?text=Logo" alt="Logo ChamadoPro">
+        <div class="logo-placeholder small"><span class="logo-placeholder-text">logo</span></div>
         <h2>Bem-vindo ao ChamadoPro</h2>
       </div>
-
-      <!-- Pill group for user type selection -->
-      <div class="user-type-selection pill-group">
-        <input type="radio" name="main-user-type-select" id="select-user-client" value="client" class="pill-radio" checked>
-        <label for="select-user-client" class="pill-label">Sou Cliente</label>
-        <input type="radio" name="main-user-type-select" id="select-user-provider" value="provider" class="pill-radio">
-        <label for="select-user-provider" class="pill-label">Sou Prestador</label>
+      <div class="pill-group" style="justify-content:center; margin-top: 30px;">
+        <button id="choose-client-btn" class="pill-label" style="font-size:1.2rem;">Sou Cliente</button>
+        <button id="choose-provider-btn" class="pill-label" style="font-size:1.2rem;">Sou Prestador</button>
       </div>
+    </div>
+  </div>
 
-      <!-- Pill tabs for access/register -->
+  <script>
+    // Integração dos botões de escolha inicial com os radios e telas de login
+    document.addEventListener('DOMContentLoaded', function() {
+      var chooseClientBtn = document.getElementById('choose-client-btn');
+      var chooseProviderBtn = document.getElementById('choose-provider-btn');
+      var loginChoiceScreen = document.getElementById('login-choice-screen');
+      var loginClientScreen = document.getElementById('login-client-screen');
+      var loginProviderScreen = document.getElementById('login-provider-screen');
+      var clientRadio = document.getElementById('select-user-client');
+      var providerRadio = document.getElementById('select-user-provider');
+      if (chooseClientBtn) {
+        chooseClientBtn.addEventListener('click', function() {
+          if (clientRadio) clientRadio.checked = true;
+          if (loginChoiceScreen) loginChoiceScreen.style.display = 'none';
+          if (loginClientScreen) loginClientScreen.style.display = 'flex';
+          if (loginProviderScreen) loginProviderScreen.style.display = 'none';
+        });
+      }
+      if (chooseProviderBtn) {
+        chooseProviderBtn.addEventListener('click', function() {
+          if (providerRadio) providerRadio.checked = true;
+          if (loginChoiceScreen) loginChoiceScreen.style.display = 'none';
+          if (loginProviderScreen) loginProviderScreen.style.display = 'flex';
+          if (loginClientScreen) loginClientScreen.style.display = 'none';
+        });
+      }
+      // Botões de voltar nas telas de login/cadastro
+      var backToChoiceClient = document.getElementById('back-to-choice-client');
+      var backToChoiceProvider = document.getElementById('back-to-choice-provider');
+      if (backToChoiceClient) {
+        backToChoiceClient.addEventListener('click', function() {
+          if (loginClientScreen) loginClientScreen.style.display = 'none';
+          if (loginChoiceScreen) loginChoiceScreen.style.display = 'flex';
+        });
+      }
+      if (backToChoiceProvider) {
+        backToChoiceProvider.addEventListener('click', function() {
+          if (loginProviderScreen) loginProviderScreen.style.display = 'none';
+          if (loginChoiceScreen) loginChoiceScreen.style.display = 'flex';
+        });
+      }
+    });
+  </script>
+
+  <!-- Tela de Login/Cadastro do Cliente -->
+  <div id="login-client-screen" class="login-screen-v2" style="display:none;">
+    <div class="login-container">
+      <button class="btn" id="back-to-choice-client" style="margin-bottom:10px; float:right;">Voltar</button>
+      <div class="logo-area">
+        <div class="logo-placeholder small"><span class="logo-placeholder-text">logo</span></div>
+        <h2>Cliente</h2>
+      </div>
       <div class="auth-tabs">
-        <button class="tab-button active" id="access-tab">Acessar</button>
-        <button class="tab-button" id="register-tab">Cadastrar</button>
-        <div class="progress-bar">
-          <div class="progress-bar-fill"></div>
-        </div>
+        <button class="tab-button active" id="access-tab-client">Acessar</button>
+        <button class="tab-button" id="register-tab-client">Cadastrar</button>
       </div>
-
       <div class="form-sections">
-        <!-- Seção de Acesso para Cliente -->
-        <div id="access-section" class="form-section active">
+        <div id="access-section-client" class="form-section active">
           <form id="client-access-form" class="auth-form active">
             <h3>Acessar como Cliente</h3>
             <div class="input-group">
@@ -167,8 +322,125 @@
               </div>
             </div>
           </form>
+        </div>
+        <div id="register-section-client" class="form-section">
+          <form id="client-register-form" class="auth-form">
+            <h3>Cadastrar como Cliente</h3>
+            <div class="input-group">
+              <i class="fas fa-user"></i>
+              <input type="text" id="client-name-register" placeholder="Seu nome completo" required>
+            </div>
+            <div class="input-group">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="client-email-register" placeholder="Seu e-mail" required>
+            </div>
+            <div class="input-group">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="client-password-register" placeholder="Crie uma senha" required>
+            </div>
+            <div class="input-group">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="client-password-register-confirm" placeholder="Confirme sua senha" required>
+            </div>
+            <button type="submit" class="btn primary-btn">Cadastrar</button>
+            <div class="social-login">
+              <p>Ou cadastre-se com:</p>
+              <div class="social-buttons">
+                <button type="button" class="social-login-button google"><i class="fab fa-google"></i> Google</button>
+                <button type="button" class="social-login-button facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
+                <button type="button" class="social-login-button apple"><i class="fab fa-apple"></i> Apple</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          <!-- Seção de Acesso para Prestador -->
+  <!-- Tela de Login/Cadastro do Prestador -->
+  <div id="login-provider-screen" class="login-screen-v2" style="display:none;">
+    <div class="login-container">
+      <button class="btn" id="back-to-choice-provider" style="margin-bottom:10px; float:right;">Voltar</button>
+      <div class="logo-area">
+        <div class="logo-placeholder small"><span class="logo-placeholder-text">logo</span></div>
+  .logo-placeholder {
+    position: relative;
+    /* ...restante já existente... */
+  }
+  .logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .logo-placeholder-text {
+    color: #fafafa;
+    font-size: 1.35em;
+    font-weight: 1000;
+    letter-spacing: 2px;
+    user-select: none;
+    pointer-events: none;
+    text-transform: lowercase;
+    text-align: center;
+    line-height: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+</body>
+<style>
+  .logo-placeholder {
+    width: 96px;
+    height: 96px;
+    border: 3px dashed #bbb;
+    border-radius: 50%;
+    background: transparent;
+    margin: 0 auto;
+    box-sizing: border-box;
+    display: block;
+  }
+  .logo-placeholder.small {
+    width: 72px;
+    height: 72px;
+    border-width: 2px;
+  }
+  .logo-animated-container {
+    position: relative;
+    display: inline-block;
+  }
+  .logo-animated-shine {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .logo-animated-shine::before {
+    content: '';
+    position: absolute;
+    left: -60%;
+    top: 0;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 100%);
+    animation: logo-shine-move 2.2s cubic-bezier(.4,0,.2,1) infinite;
+  }
+  @keyframes logo-shine-move {
+    0% { left: -60%; }
+    60% { left: 110%; }
+    100% { left: 110%; }
+  }
+</style>
+        <h2>Prestador</h2>
+      </div>
+      <div class="auth-tabs">
+        <button class="tab-button active" id="access-tab-provider">Acessar</button>
+        <button class="tab-button" id="register-tab-provider">Cadastrar</button>
+      </div>
+      <div class="form-sections">
+        <div id="access-section-provider" class="form-section active">
           <form id="provider-access-form" class="auth-form">
             <h3>Acessar como Prestador</h3>
             <div class="input-group">
@@ -180,81 +452,97 @@
               <input type="password" id="provider-password-login" placeholder="Sua senha" required>
             </div>
             <button type="button" id="provider-login-button-v2" class="btn primary-btn">Entrar</button>
+  <script>
+    // Garante que o botão Entrar chama performLoginV2 corretamente
+    document.addEventListener('DOMContentLoaded', function() {
+      var clientLoginBtn = document.getElementById('client-login-button-v2');
+      if (clientLoginBtn) {
+        clientLoginBtn.addEventListener('click', function(event) {
+          performLoginV2(event);
+        });
+      }
+      var providerLoginBtn = document.getElementById('provider-login-button-v2');
+      if (providerLoginBtn) {
+        providerLoginBtn.addEventListener('click', function(event) {
+          performLoginV2(event);
+        });
+      }
+    });
+  </script>
             <a href="#" class="forgot-password">Esqueceu a senha?</a>
           </form>
         </div>
-
-        <!-- Seção de Cadastro para Cliente -->
-        <div id="register-section" class="form-section">
-
-        <!-- Formulário de Cadastro do Cliente -->
-        <form id="client-register-form" class="auth-form">
-          <h3>Cadastrar como Cliente</h3>
-          <div class="input-group">
-            <i class="fas fa-user"></i>
-            <input type="text" id="client-name-register" placeholder="Seu nome completo" required>
-          </div>
-          <div class="input-group">
-            <i class="fas fa-envelope"></i>
-            <input type="email" id="client-email-register" placeholder="Seu e-mail" required>
-          </div>
-          <div class="input-group">
-            <i class="fas fa-lock"></i>
-            <input type="password" id="client-password-register" placeholder="Crie uma senha" required>
-          </div>
-          <div class="input-group">
-            <i class="fas fa-lock"></i>
-            <input type="password" id="client-password-register-confirm" placeholder="Confirme sua senha" required>
-          </div>
-          <button type="submit" class="btn primary-btn">Cadastrar</button>
-          <div class="social-login">
-            <p>Ou cadastre-se com:</p>
-            <div class="social-buttons">
-              <button type="button" class="social-login-button google"><i class="fab fa-google"></i> Google</button>
-              <button type="button" class="social-login-button facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
-              <button type="button" class="social-login-button apple"><i class="fab fa-apple"></i> Apple</button>
+        <div id="register-section-provider" class="form-section">
+          <form id="provider-register-form" class="auth-form">
+            <h3>Cadastrar como Prestador</h3>
+            <div class="pill-group" style="margin-bottom: 20px;">
+              <input type="radio" name="tipo-prestador" id="tipo-prestador-pf" value="pf" class="pill-radio" checked onchange="togglePrestadorFields()">
+              <label for="tipo-prestador-pf" class="pill-label">Pessoa Física</label>
+              <input type="radio" name="tipo-prestador" id="tipo-prestador-pj" value="pj" class="pill-radio" onchange="togglePrestadorFields()">
+              <label for="tipo-prestador-pj" class="pill-label">Pessoa Jurídica</label>
             </div>
-          </div>
-        </form>
-
-        <!-- Formulário de Cadastro do Prestador -->
-        <form id="provider-register-form" class="auth-form">
-          <h3>Cadastrar como Prestador</h3>
-          <div class="pill-group" style="margin-bottom: 20px;">
-            <input type="radio" name="tipo-prestador" id="tipo-prestador-pf" value="pf" class="pill-radio" checked onchange="togglePrestadorFields()">
-            <label for="tipo-prestador-pf" class="pill-label">Pessoa Física</label>
-            <input type="radio" name="tipo-prestador" id="tipo-prestador-pj" value="pj" class="pill-radio" onchange="togglePrestadorFields()">
-            <label for="tipo-prestador-pj" class="pill-label">Pessoa Jurídica</label>
-          </div>
-
-          <div id="campos-pf">
-            <div class="input-group"><i class="fas fa-user"></i><input type="text" id="provider-pf-name" placeholder="Nome completo" required></div>
-            <div class="input-group"><i class="fas fa-id-card"></i><input type="text" id="provider-pf-cpf" placeholder="CPF" required></div>
-            <div class="input-group"><i class="fas fa-phone"></i><input type="text" id="provider-pf-phone" placeholder="Telefone" required></div>
-            <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="provider-pf-email" placeholder="E-mail" required></div>
-            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pf-password" placeholder="Crie uma Senha" required></div>
-            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pf-password-confirm" placeholder="Confirme a Senha" required></div>
-            <div class="input-group"><label>Documento com Foto:</label><input type="file" id="provider-pf-doc-foto" accept="image/*,.pdf" required></div>
-            <div class="input-group"><label>Antecedentes Criminais:</label><input type="file" id="provider-pf-antecedentes" accept=".pdf" required></div>
-            <div class="input-group"><label>Comprovante de Endereço:</label><input type="file" id="provider-pf-comprovante" accept=".pdf,image/*" required></div>
-          </div>
-
-          <div id="campos-pj" style="display:none;">
-            <div class="input-group"><i class="fas fa-building"></i><input type="text" id="provider-pj-nome-fantasia" placeholder="Nome fantasia" required></div>
-            <div class="input-group"><i class="fas fa-briefcase"></i><input type="text" id="provider-pj-razao-social" placeholder="Razão social" required></div>
-            <div class="input-group"><i class="fas fa-id-card"></i><input type="text" id="provider-pj-cnpj" placeholder="CNPJ" required></div>
-            <div class="input-group"><i class="fas fa-file-alt"></i><input type="text" id="provider-pj-inscricao-estadual" placeholder="Inscrição Estadual" required></div>
-            <div class="input-group"><i class="fas fa-phone"></i><input type="text" id="provider-pj-phone" placeholder="Telefone comercial" required></div>
-            <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="provider-pj-email" placeholder="E-mail profissional" required></div>
-            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pj-password" placeholder="Crie uma Senha" required></div>
-            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pj-password-confirm" placeholder="Confirme a Senha" required></div>
-            <div class="input-group"><label>Contrato Social:</label><input type="file" id="provider-pj-contrato-social" accept=".pdf" required></div>
-            <div class="input-group"><label>Documento com Foto (responsável):</label><input type="file" id="provider-pj-doc-foto" accept="image/*,.pdf" required></div>
-            <div class="input-group"><label>Comprovante de Endereço:</label><input type="file" id="provider-pj-comprovante" accept=".pdf,image/*" required></div>
-          </div>
-
-          <button type="submit" class="btn primary-btn">Cadastrar</button>
-        </form>
+            <div id="campos-pf">
+              <div class="input-group"><i class="fas fa-user"></i><input type="text" id="provider-pf-name" placeholder="Nome completo" required></div>
+              <div class="input-group"><i class="fas fa-id-card"></i><input type="text" id="provider-pf-cpf" placeholder="CPF" required></div>
+              <div class="input-group"><i class="fas fa-phone"></i><input type="text" id="provider-pf-phone" placeholder="Telefone" required></div>
+              <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="provider-pf-email" placeholder="E-mail" required></div>
+              <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pf-password" placeholder="Crie uma Senha" required></div>
+              <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pf-password-confirm" placeholder="Confirme a Senha" required></div>
+              <div class="form-group">
+                <label for="provider-pf-doc-foto">Documento com Foto:</label>
+                <div class="file-upload-group" id="provider-pf-doc-foto-group">
+                  <input type="file" id="provider-pf-doc-foto" accept="image/*,.pdf" required>
+                  <button type="button" class="remove-file-btn" id="remove-pf-doc-foto-btn" onclick="removeSelectedFile('provider-pf-doc-foto')">Excluir</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="provider-pf-antecedentes">Antecedentes Criminais:</label>
+                <div class="file-upload-group" id="provider-pf-antecedentes-group">
+                  <input type="file" id="provider-pf-antecedentes" accept=".pdf" required>
+                  <button type="button" class="remove-file-btn" id="remove-pf-antecedentes-btn" onclick="removeSelectedFile('provider-pf-antecedentes')">Excluir</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="provider-pf-comprovante">Comprovante de Endereço:</label>
+                <div class="file-upload-group" id="provider-pf-comprovante-group">
+                  <input type="file" id="provider-pf-comprovante" accept=".pdf,image/*" required>
+                  <button type="button" class="remove-file-btn" id="remove-pf-comprovante-btn" onclick="removeSelectedFile('provider-pf-comprovante')">Excluir</button>
+                </div>
+              </div>
+            </div>
+            <div id="campos-pj" style="display:none;">
+              <div class="input-group"><i class="fas fa-building"></i><input type="text" id="provider-pj-nome-fantasia" placeholder="Nome fantasia" required></div>
+              <div class="input-group"><i class="fas fa-briefcase"></i><input type="text" id="provider-pj-razao-social" placeholder="Razão social" required></div>
+              <div class="input-group"><i class="fas fa-id-card"></i><input type="text" id="provider-pj-cnpj" placeholder="CNPJ" required></div>
+              <div class="input-group"><i class="fas fa-file-alt"></i><input type="text" id="provider-pj-inscricao-estadual" placeholder="Inscrição Estadual" required></div>
+              <div class="input-group"><i class="fas fa-phone"></i><input type="text" id="provider-pj-phone" placeholder="Telefone comercial" required></div>
+              <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="provider-pj-email" placeholder="E-mail profissional" required></div>
+              <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pj-password" placeholder="Crie uma Senha" required></div>
+              <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="provider-pj-password-confirm" placeholder="Confirme a Senha" required></div>
+              <div class="form-group">
+                <label for="provider-pj-contrato-social">Contrato Social:</label>
+                <div class="file-upload-group" id="provider-pj-contrato-social-group">
+                  <input type="file" id="provider-pj-contrato-social" accept=".pdf" required>
+                  <button type="button" class="remove-file-btn" id="remove-pj-contrato-social-btn" onclick="removeSelectedFile('provider-pj-contrato-social')">Excluir</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="provider-pj-doc-foto">Documento com Foto (responsável):</label>
+                <div class="file-upload-group" id="provider-pj-doc-foto-group">
+                  <input type="file" id="provider-pj-doc-foto" accept="image/*,.pdf" required>
+                  <button type="button" class="remove-file-btn" id="remove-pj-doc-foto-btn" onclick="removeSelectedFile('provider-pj-doc-foto')">Excluir</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="provider-pj-comprovante">Comprovante de Endereço:</label>
+                <div class="file-upload-group" id="provider-pj-comprovante-group">
+                  <input type="file" id="provider-pj-comprovante" accept=".pdf,image/*" required>
+                  <button type="button" class="remove-file-btn" id="remove-pj-comprovante-btn" onclick="removeSelectedFile('provider-pj-comprovante')">Excluir</button>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn primary-btn">Cadastrar</button>
+          </form>
         </div>
       </div>
     </div>
