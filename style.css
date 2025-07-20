@@ -1619,16 +1619,30 @@ header {
     font-weight: 500;
     font-size: 1rem;
 }
-#provider-register-form input[type="text"],
-#provider-register-form input[type="email"],
-#provider-register-form input[type="password"] {
+#provider-register-form .input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
     width: 100%;
-    padding: 10px 12px;
+}
+#provider-register-form .input-group i {
+    position: absolute;
+    left: 15px;
+    color: #888;
+    font-size: 1.1rem;
+    z-index: 2;
+}
+#provider-register-form .input-group input[type="text"],
+#provider-register-form .input-group input[type="email"],
+#provider-register-form .input-group input[type="password"] {
+    width: 100%;
+    padding: 12px 12px 12px 45px;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 1rem;
     box-sizing: border-box;
     margin-bottom: 2px;
+    z-index: 1;
 }
 #provider-register-form .file-upload-group {
     width: 100%;
