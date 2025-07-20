@@ -1,3 +1,54 @@
+// Fecha o menu lateral ao clicar fora dele
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const menuButton = document.querySelector('.menu-toggle');
+    if (!sidebar) return;
+    // Se o menu não está aberto, não faz nada
+    if (!sidebar.classList.contains('active')) return;
+    // Se clicou dentro do menu ou no botão de abrir, não fecha
+    if (sidebar.contains(event.target) || (menuButton && menuButton.contains(event.target))) return;
+    // Fecha o menu
+    sidebar.classList.remove('active');
+});
+// --- Função para remover arquivo selecionado nos campos de upload do cadastro de prestador ---
+function removeSelectedFile(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.value = '';
+        // Esconde o botão de excluir
+        const btn = document.getElementById('remove-' + inputId.replace('provider-', '').replace('-', '-') + '-btn');
+        if (btn) btn.classList.remove('active');
+        // Remove destaque visual
+        const group = document.getElementById(inputId + '-group');
+        if (group) group.classList.remove('selected');
+    }
+}
+
+// Ativa/desativa botão de excluir e borda quando arquivo é selecionado (PF e PJ)
+const fileFields = [
+  'provider-pf-doc-foto',
+  'provider-pf-antecedentes',
+  'provider-pf-comprovante',
+  'provider-pj-contrato-social',
+  'provider-pj-doc-foto',
+  'provider-pj-comprovante'
+];
+fileFields.forEach(function(id) {
+    const input = document.getElementById(id);
+    if (input) {
+        input.addEventListener('change', function() {
+            const btn = document.getElementById('remove-' + id.split('provider-')[1] + '-btn');
+            const group = document.getElementById(id + '-group');
+            if (input.files && input.files.length > 0) {
+                if (btn) btn.classList.add('active');
+                if (group) group.classList.add('selected');
+            } else {
+                if (btn) btn.classList.remove('active');
+                if (group) group.classList.remove('selected');
+            }
+        });
+    }
+});
 // Variáveis globais para gerenciar o estado da aplicação
 let currentScreen = 'splash'; // Tela inicial
 let screenHistory = []; // Para o botão de voltar
@@ -213,12 +264,17 @@ function showScreen(screenId, title = '') {
 }
 
 function goBack() {
+    // Se está no dashboard principal, não faz nada
+    if (currentScreen === 'dashboard-usuario' || currentScreen === 'dashboard-prestador') {
+        return;
+    }
     if (screenHistory.length > 0) {
         const prevScreenId = screenHistory.pop();
+        // Se o anterior é dashboard, vai para ele normalmente
         showScreen(prevScreenId);
     } else {
-        // Se não há histórico, volta para a tela de login
-        logout();
+        // Se não há histórico, não faz nada (não sai do sistema)
+        return;
     }
 }
 
@@ -254,7 +310,9 @@ function showLoginScreenV2() {
     // Garante que o radio de "Usuário" esteja selecionado e a aba "Acessar" ativa no carregamento
     const selectUserClientRadio = document.getElementById('select-user-client');
     if (selectUserClientRadio) selectUserClientRadio.checked = true;
+    if (typeof updateUserTypePillHighlight === 'function') updateUserTypePillHighlight();
     switchTab('access'); // Ativa a aba "Acessar"
+    if (typeof updateTabHighlight === 'function') updateTabHighlight();
     updateFormVisibility(); // Garante que o formulário correto (cliente social) seja exibido
 }
 
@@ -300,6 +358,9 @@ function updateFormVisibility() {
             document.getElementById('provider-register-form').style.display = 'flex';
         }
     }
+    // Atualiza o destaque visual dos pills
+    if (typeof updateUserTypePillHighlight === 'function') updateUserTypePillHighlight();
+    if (typeof updatePrestadorTypePillHighlight === 'function') updatePrestadorTypePillHighlight();
 }
 
 
@@ -311,15 +372,24 @@ function performLoginV2(event) {
         // Client login
         if (clickedButtonId === 'client-login-button-v2') {
             // Email/password login for client
-            const email = document.getElementById('client-email-login').value;
-            const password = document.getElementById('client-password-login').value;
-
-            if (email === 'cliente@email.com' && password === '123') { // Example credentials for client
+            let email = document.getElementById('client-email-login').value.trim();
+            let password = document.getElementById('client-password-login').value;
+            console.log('Tentando login cliente:', email, password);
+            if (email.toLowerCase() === 'cliente@chamadopro.com.br' && password === '123') { // Novo usuário de exemplo para cliente
                 currentUserType = 'usuario';
-                document.getElementById('login-screen-v2').style.display = 'none';
-                document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
+                setTimeout(function() {
+                // Oculta todas as telas de login/cadastro
+                var loginScreen = document.getElementById('login-screen-v2');
+                var loginClientScreen = document.getElementById('login-client-screen');
+                var loginProviderScreen = document.getElementById('login-provider-screen');
+                var mainContent = document.querySelector('.main-content-wrapper');
+                if (loginScreen) loginScreen.style.display = 'none';
+                if (loginClientScreen) loginClientScreen.style.display = 'none';
+                if (loginProviderScreen) loginProviderScreen.style.display = 'none';
+                if (mainContent) mainContent.style.display = 'flex';
                 document.body.classList.add('app-active');
                 showScreen('dashboard-usuario');
+                }, 100);
             } else {
                 showAlert('E-mail ou senha incorretos para Usuário. Tente novamente.');
             }
@@ -327,22 +397,33 @@ function performLoginV2(event) {
             // Social login for client (Google, Facebook, Apple)
             showAlert('Simulando login de Cliente via social. Você será redirecionado para a dashboard de usuário.');
             currentUserType = 'usuario';
-            document.getElementById('login-screen-v2').style.display = 'none';
-            document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
-            document.body.classList.add('app-active');
-            showScreen('dashboard-usuario');
+            setTimeout(function() {
+                document.getElementById('login-screen-v2').style.display = 'none';
+                document.querySelector('.main-content-wrapper').style.display = 'flex';
+                document.body.classList.add('app-active');
+                showScreen('dashboard-usuario');
+            }, 100);
         }
     } else {
         // Provider login with email/password
-        const email = document.getElementById('provider-email-login').value;
-        const password = document.getElementById('provider-password-login').value;
-
-        if (email === 'prestador@email.com' && password === '123') {
+        let email = document.getElementById('provider-email-login').value.trim();
+        let password = document.getElementById('provider-password-login').value;
+        console.log('Tentando login prestador:', email, password);
+        if (email.toLowerCase() === 'prestador@chamadopro.com.br' && password === '123') { // Novo usuário de exemplo para prestador
             currentUserType = 'prestador';
-            document.getElementById('login-screen-v2').style.display = 'none';
-            document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
-            document.body.classList.add('app-active');
-            showScreen('dashboard-prestador');
+            setTimeout(function() {
+                // Oculta todas as telas de login/cadastro
+                var loginScreen = document.getElementById('login-screen-v2');
+                var loginClientScreen = document.getElementById('login-client-screen');
+                var loginProviderScreen = document.getElementById('login-provider-screen');
+                var mainContent = document.querySelector('.main-content-wrapper');
+                if (loginScreen) loginScreen.style.display = 'none';
+                if (loginClientScreen) loginClientScreen.style.display = 'none';
+                if (loginProviderScreen) loginProviderScreen.style.display = 'none';
+                if (mainContent) mainContent.style.display = 'flex';
+                document.body.classList.add('app-active');
+                showScreen('dashboard-prestador');
+            }, 100);
         } else {
             showAlert('E-mail ou senha incorretos para Prestador. Tente novamente.');
         }
@@ -389,11 +470,24 @@ function logout() {
     const confirmLogout = confirm('Tem certeza que deseja sair?'); // Manter o confirm nativo para esta ação crítica
     if (confirmLogout) {
         currentUserType = null;
-        screenHistory = []; // Limpa o histórico de telas
-        document.querySelector('.main-content-wrapper').style.display = 'none'; // Esconde o wrapper principal
-        document.getElementById('app-header').style.display = 'none'; // Esconde o cabeçalho
-        document.body.classList.remove('app-active'); // Remove a classe para centralizar o login
-        showLoginScreenV2(); // Volta para a tela de login V2
+        screenHistory = [];
+        // Esconde todas as telas principais
+        const mainContent = document.querySelector('.main-content-wrapper');
+        if (mainContent) mainContent.style.display = 'none';
+        const appHeader = document.getElementById('app-header');
+        if (appHeader) appHeader.style.display = 'none';
+        document.body.classList.remove('app-active');
+        // Esconde dashboards e telas de conteúdo
+        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+        // Exibe a tela de login principal (login-choice-screen se existir, senão login-screen-v2)
+        const loginChoice = document.getElementById('login-choice-screen');
+        const loginScreenV2 = document.getElementById('login-screen-v2');
+        if (loginChoice) {
+            loginChoice.style.display = 'flex';
+            if (loginScreenV2) loginScreenV2.style.display = 'none';
+        } else if (loginScreenV2) {
+            loginScreenV2.style.display = 'flex';
+        }
     }
 }
 
@@ -1896,6 +1990,87 @@ function toggleMenu() {
 
 // Event Listeners (DOM Content Loaded)
 document.addEventListener('DOMContentLoaded', () => {
+    // --- NOVO FLUXO PROGRESSIVO DE LOGIN ---
+    // Função para mostrar apenas uma tela de login/cadastro
+    function showLoginChoiceScreen() {
+        document.getElementById('login-choice-screen').style.display = 'flex';
+        document.getElementById('login-client-screen').style.display = 'none';
+        document.getElementById('login-provider-screen').style.display = 'none';
+        if (document.getElementById('login-screen-v2')) document.getElementById('login-screen-v2').style.display = 'none';
+    }
+    function showLoginClientScreen() {
+        document.getElementById('login-choice-screen').style.display = 'none';
+        document.getElementById('login-client-screen').style.display = 'flex';
+        document.getElementById('login-provider-screen').style.display = 'none';
+    }
+    function showLoginProviderScreen() {
+        document.getElementById('login-choice-screen').style.display = 'none';
+        document.getElementById('login-client-screen').style.display = 'none';
+        document.getElementById('login-provider-screen').style.display = 'flex';
+    }
+
+    // Inicializa mostrando a tela de escolha
+    showLoginChoiceScreen();
+
+    // Listeners para escolha inicial
+    document.getElementById('choose-client-btn').onclick = showLoginClientScreen;
+    document.getElementById('choose-provider-btn').onclick = showLoginProviderScreen;
+    document.getElementById('back-to-choice-client').onclick = showLoginChoiceScreen;
+    document.getElementById('back-to-choice-provider').onclick = showLoginChoiceScreen;
+
+    // Tabs do CLIENTE
+    document.getElementById('access-tab-client').onclick = function() {
+        document.getElementById('access-tab-client').classList.add('active');
+        document.getElementById('register-tab-client').classList.remove('active');
+        document.getElementById('access-section-client').classList.add('active');
+        document.getElementById('register-section-client').classList.remove('active');
+    };
+    document.getElementById('register-tab-client').onclick = function() {
+        document.getElementById('register-tab-client').classList.add('active');
+        document.getElementById('access-tab-client').classList.remove('active');
+        document.getElementById('register-section-client').classList.add('active');
+        document.getElementById('access-section-client').classList.remove('active');
+    };
+
+    // Tabs do PRESTADOR
+    document.getElementById('access-tab-provider').onclick = function() {
+        document.getElementById('access-tab-provider').classList.add('active');
+        document.getElementById('register-tab-provider').classList.remove('active');
+        document.getElementById('access-section-provider').classList.add('active');
+        document.getElementById('register-section-provider').classList.remove('active');
+    };
+    document.getElementById('register-tab-provider').onclick = function() {
+        document.getElementById('register-tab-provider').classList.add('active');
+        document.getElementById('access-tab-provider').classList.remove('active');
+        document.getElementById('register-section-provider').classList.add('active');
+        document.getElementById('access-section-provider').classList.remove('active');
+    };
+
+    // Ajustar exibição do login/cadastro antigo (caso ainda exista)
+    if (document.getElementById('login-screen-v2')) document.getElementById('login-screen-v2').style.display = 'none';
+    // Simulação de recuperação de senha para Cliente e Prestador
+    function handleForgotPassword(userType) {
+        let email = '';
+        if (userType === 'usuario') {
+            email = document.getElementById('client-email-login').value;
+        } else {
+            email = document.getElementById('provider-email-login').value;
+        }
+        const inputEmail = prompt('Digite seu e-mail para recuperar a senha:', email || '');
+        if (inputEmail) {
+            showAlert('Se este e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.', 'Recuperação de Senha');
+        }
+    }
+
+    // Adiciona listeners para os links "Esqueceu a senha?"
+    document.querySelector('#client-access-form .forgot-password').addEventListener('click', function(e) {
+        e.preventDefault();
+        handleForgotPassword('usuario');
+    });
+    document.querySelector('#provider-access-form .forgot-password').addEventListener('click', function(e) {
+        e.preventDefault();
+        handleForgotPassword('prestador');
+    });
     // Inicializa a exibição da tela de splash, que depois transiciona para o login V2
     showScreen('splash');
 
@@ -1941,14 +2116,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Listeners para os radio buttons de tipo de usuário
     document.querySelectorAll('input[name="main-user-type-select"]').forEach(radio => {
-        radio.addEventListener('change', updateFormVisibility);
+        radio.addEventListener('change', () => {
+            updateFormVisibility();
+            updateUserTypePillHighlight();
+        });
     });
+
+    // Destaque visual para o pill selecionado (Cliente/Prestador)
+    function updateUserTypePillHighlight() {
+        const clientRadio = document.getElementById('select-user-client');
+        const providerRadio = document.getElementById('select-user-provider');
+        const clientLabel = document.querySelector('label[for="select-user-client"]');
+        const providerLabel = document.querySelector('label[for="select-user-provider"]');
+        if (clientRadio && providerRadio && clientLabel && providerLabel) {
+            if (clientRadio.checked) {
+                clientLabel.classList.add('active');
+                providerLabel.classList.remove('active');
+            } else {
+                providerLabel.classList.add('active');
+                clientLabel.classList.remove('active');
+            }
+        }
+    }
+    updateUserTypePillHighlight();
+
+    // Destaque visual para PF/PJ no cadastro do prestador
+    document.querySelectorAll('input[name="tipo-prestador"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            updatePrestadorTypePillHighlight();
+            togglePrestadorFields();
+        });
+    });
+    function updatePrestadorTypePillHighlight() {
+        const pfRadio = document.getElementById('tipo-prestador-pf');
+        const pjRadio = document.getElementById('tipo-prestador-pj');
+        const pfLabel = document.querySelector('label[for="tipo-prestador-pf"]');
+        const pjLabel = document.querySelector('label[for="tipo-prestador-pj"]');
+        if (pfRadio && pjRadio && pfLabel && pjLabel) {
+            if (pfRadio.checked) {
+                pfLabel.classList.add('active');
+                pjLabel.classList.remove('active');
+            } else {
+                pjLabel.classList.add('active');
+                pfLabel.classList.remove('active');
+            }
+        }
+    }
+    updatePrestadorTypePillHighlight();
 
     // Listeners para as abas Acessar/Cadastrar
     const accessTab = document.getElementById('access-tab');
     const registerTab = document.getElementById('register-tab');
-    if (accessTab) accessTab.addEventListener('click', () => switchTab('access'));
-    if (registerTab) registerTab.addEventListener('click', () => switchTab('register'));
+    if (accessTab) accessTab.addEventListener('click', () => {
+        switchTab('access');
+        updateTabHighlight();
+    });
+    if (registerTab) registerTab.addEventListener('click', () => {
+        switchTab('register');
+        updateTabHighlight();
+    });
+    function updateTabHighlight() {
+        // Remove a classe active de todos
+        document.querySelectorAll('.auth-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
+        // Adiciona a classe active apenas na aba atualmente ativa
+        if (document.getElementById('access-section').classList.contains('active')) {
+            document.getElementById('access-tab').classList.add('active');
+        } else if (document.getElementById('register-section').classList.contains('active')) {
+            document.getElementById('register-tab').classList.add('active');
+        }
+    }
+    updateTabHighlight();
 
     // Outros Listeners (mantidos do seu código original)
     document.getElementById('confirm-finalize-btn').addEventListener('click', () => {
