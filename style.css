@@ -285,8 +285,12 @@ body {
 .input-group i {
   position: absolute;
   left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
   color: #888;
   font-size: 1.1rem;
+  z-index: 1;
+  pointer-events: none; /* Evita interferir com o clique no input */
 }
 
 .input-group input {
@@ -297,6 +301,9 @@ body {
   font-size: 1rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   box-sizing: border-box;
+  position: relative;
+  z-index: 2; /* Garante que o input fique acima do ícone */
+  background-color: #fff; /* Garante fundo branco */
 }
 
 .input-group input:focus {
@@ -448,6 +455,7 @@ header {
   padding: 5px 10px;
   border-radius: 5px;
   transition: background-color 0.3s ease;
+  display: none; /* Escondido por padrão no desktop */
 }
 
 .menu-toggle:hover {
@@ -650,22 +658,23 @@ header {
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .dashboard-cards .card {
   background: #fff;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  padding: 18px 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 120px;
+  justify-content: center;
+  min-height: 90px;
+  max-height: 110px;
 }
 
 .dashboard-cards .card:hover {
@@ -675,15 +684,17 @@ header {
 
 .dashboard-cards .card h3 {
   margin-top: 0;
-  font-size: 1.2rem;
-  color: #555 !important; /* Força a cor para garantir visibilidade */
+  margin-bottom: 5px;
+  font-size: 1.1rem;
+  color: #555 !important;
+  line-height: 1.2;
 }
 
 .dashboard-cards .card p {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   font-weight: 700;
-  color: #17a2b8 !important; /* Força a cor para garantir visibilidade */
-  margin: 10px 0 0;
+  color: #17a2b8 !important;
+  margin: 0;
 }
 
 .dashboard-cards .card.disabled-card {
@@ -2056,9 +2067,296 @@ header {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* ================== RESPONSIVIDADE MOBILE ================== */
+
+/* Melhorias gerais para touch */
+* {
+  -webkit-tap-highlight-color: rgba(0,0,0,0); /* Remove highlight azul no iOS */
+}
+
+/* Breakpoints para dispositivos móveis */
 @media (max-width: 768px) {
+  /* Configurações gerais para mobile */
+  body {
+    font-size: 14px;
+    padding: 10px; /* Adiciona padding para não grudar nas bordas */
+    -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
+  }
+  
+  /* ========== TELAS DE LOGIN MOBILE ========== */
+  .login-screen-v2 {
+    max-width: 100%;
+    margin: 10px;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .login-container {
+    padding: 0;
+  }
+  
+  .logo-area h2 {
+    font-size: 1.5rem;
+  }
+  
+  .auth-tabs {
+    margin-bottom: 20px;
+  }
+  
+  .tab-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-height: 44px; /* Touch target mínimo */
+  }
+  
+  .auth-form h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+  
+  .input-group {
+    margin-bottom: 15px;
+  }
+  
+  .input-group input,
+  .input-group textarea,
+  .input-group select {
+    padding: 12px 12px 12px 45px; /* Mantém espaço para ícone */
+    font-size: 16px; /* Evita zoom no iOS */
+    border-radius: 8px;
+    min-height: 44px; /* Touch target mínimo */
+  }
+  
+  .btn {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    min-height: 44px; /* Touch target mínimo */
+    touch-action: manipulation; /* Evita double-tap zoom */
+  }
+  
+  .social-buttons {
+    gap: 10px;
+  }
+  
+  .social-login-button {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+  
+  /* Pill group mobile */
+  .pill-group {
+    gap: 10px;
+    margin: 15px 0;
+  }
+  
+  .pill-label {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+  
+  /* Ajustes do cabeçalho mobile */
+  #app-header {
+    padding: 10px 15px;
+    height: 60px;
+  }
+  
+  #app-header h1 {
+    font-size: 1.4rem;
+  }
+  
+  .header-buttons {
+    gap: 8px;
+  }
+  
+  .header-buttons .btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+  
+  /* Sidebar mobile - ajustes */
+  .sidebar {
+    width: 280px;
+    left: -280px; /* Garante que esteja escondida */
+    box-shadow: 3px 0 15px rgba(0,0,0,0.2); /* Sombra mais forte no mobile */
+  }
+  
+  .sidebar.active {
+    left: 0;
+  }
+  
+  .sidebar-header {
+    padding: 15px;
+    height: 140px; /* Altura específica */
+  }
+  
+  .sidebar-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .sidebar-header p {
+    font-size: 0.85rem;
+  }
+  
+  .user-avatar {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 8px;
+  }
+  
+  .sidebar-menu {
+    padding-top: 140px; /* Ajusta para o header menor */
+  }
+  
+  .sidebar-menu li a {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    min-height: 44px; /* Touch target mínimo */
+    display: flex;
+    align-items: center;
+  }
+  
+  .sidebar-menu a i {
+    font-size: 1.1rem;
+    margin-right: 12px;
+  }
+  
+  /* Overlay para mobile quando sidebar está aberta */
+  .sidebar.active::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 280px;
+    width: calc(100vw - 280px);
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: -1;
+  }
+  
+  /* Container principal mobile */
+  .main-content-wrapper {
+    margin-left: 0;
+    padding: 10px;
+  }
+  
+  .screen-content {
+    padding: 15px 10px;
+  }
+  
+  /* ========== CARDS DO DASHBOARD - MOBILE ========== */
+  .dashboard-cards {
+    grid-template-columns: repeat(2, 1fr); /* 2 cards por linha no mobile */
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .dashboard-cards .card {
+    padding: 12px 10px; /* Padding menor */
+    min-height: 75px; /* Altura menor */
+    max-height: 85px;
+    border-radius: 10px;
+    touch-action: manipulation; /* Evita double-tap zoom */
+    cursor: pointer;
+  }
+  
+  .dashboard-cards .card h3 {
+    font-size: 0.9rem; /* Título menor */
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  
+  .dashboard-cards .card p {
+    font-size: 1.6rem; /* Número menor */
+    margin: 0;
+  }
+  
+  .dashboard-cards .card i {
+    font-size: 1.4rem; /* Ícones menores */
+  }
+  
+  /* Section headers mobile */
+  .section-header {
+    padding: 15px 0;
+    margin-bottom: 15px;
+  }
+  
+  .section-header h2 {
+    font-size: 1.4rem;
+  }
+  
+  /* Tabs mobile */
+  .tab-bar {
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+  
+  .tab {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  .sub-tab-bar {
+    gap: 6px;
+  }
+  
+  .sub-tab {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    min-height: 40px;
+  }
+  
+  /* Service cards mobile */
+  .service-list .card {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .service-list .card h3 {
+    font-size: 1.1rem;
+  }
+  
+  .service-list .card .info p {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  
+  .service-list .card .actions {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .service-list .card .actions .btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-height: 40px;
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  /* Forms mobile */
+  .form-container {
+    padding: 15px;
+  }
+  
+  .input-group {
+    margin-bottom: 15px;
+  }
+  
+  .input-group input,
+  .input-group textarea,
+  .input-group select {
+    padding: 12px 12px 12px 45px; /* Mantém espaço para ícone */
+    font-size: 16px; /* Evita zoom no iOS */
+  }
+  
+  /* Calendário mobile - existente + novos */
   .days-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
   
   .feriados-custom,
@@ -2070,6 +2368,7 @@ header {
   
   .action-buttons {
     flex-direction: column;
+    gap: 10px;
   }
   
   .data-item {
@@ -2077,93 +2376,136 @@ header {
     align-items: flex-start;
     gap: 10px;
   }
-}
-
-/* Estilos para Toggle Switches Modernos */
-.toggle-option {
-  margin: 15px 0;
-  padding: 10px 0;
-}
-
-.toggle-switch {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-  font-size: 14px;
-  min-height: 44px; /* Mínimo para toque móvel */
-}
-
-.toggle-switch input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.slider {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 25px;
-  background-color: #ccc;
-  border-radius: 25px;
-  transition: 0.3s;
-  margin-right: 12px;
-  flex-shrink: 0;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 21px;
-  width: 21px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
-  border-radius: 50%;
-  transition: 0.3s;
-}
-
-.toggle-switch input:checked + .slider {
-  background-color: #2196F3;
-}
-
-.toggle-switch input:checked + .slider:before {
-  transform: translateX(25px);
-}
-
-.toggle-text {
-  flex: 1;
-  line-height: 1.4;
-}
-
-/* Melhorias para móvel */
-@media (max-width: 768px) {
-  .toggle-switch {
-    font-size: 16px; /* Maior para móvel */
-    min-height: 48px;
+  
+  /* Financeiro mobile */
+  .finance-summary {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
   
-  .slider {
-    width: 55px;
-    height: 30px;
-    margin-right: 15px;
+  .summary-card {
+    padding: 15px;
   }
   
-  .slider:before {
-    height: 26px;
-    width: 26px;
+  .bank-accounts-section {
+    padding: 15px;
   }
   
-  .toggle-switch input:checked + .slider:before {
-    transform: translateX(25px);
+  /* Navegação mobile */
+  .menu-toggle {
+    display: block;
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Breakpoint para celulares muito pequenos */
+@media (max-width: 480px) {
+  body {
+    padding: 5px;
   }
   
-  .time-input-group input[type="time"] {
-    min-height: 40px; /* Para móvel */
+  /* Login mobile pequeno */
+  .login-screen-v2 {
+    margin: 5px;
+    padding: 15px;
   }
   
-  .add-interval, .btn-calendar {
-    min-height: 44px; /* Para móvel */
+  .logo-area h2 {
+    font-size: 1.3rem;
+  }
+  
+  .auth-form h3 {
+    font-size: 1.2rem;
+  }
+  
+  .pill-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .pill-label {
+    text-align: center;
+    padding: 12px;
+  }
+  
+  /* Cards ainda menores para telas muito pequenas */
+  .dashboard-cards {
+    grid-template-columns: 1fr; /* 1 card por linha em telas muito pequenas */
+    gap: 8px;
+  }
+  
+  .dashboard-cards .card {
+    padding: 10px;
+    min-height: 65px;
+    max-height: 75px;
+  }
+  
+  .dashboard-cards .card h3 {
+    font-size: 0.85rem;
+  }
+  
+  .dashboard-cards .card p {
+    font-size: 1.4rem;
+  }
+  
+  /* Sidebar menor */
+  .sidebar {
+    width: 260px;
+  }
+  
+  /* Header mais compacto */
+  #app-header {
+    padding: 8px 12px;
+    height: 55px;
+  }
+  
+  #app-header h1 {
+    font-size: 1.2rem;
+  }
+  
+  .header-buttons .btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  
+  /* Conteúdo mais compacto */
+  .screen-content {
+    padding: 10px 8px;
+  }
+  
+  .section-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  /* Tabs mais compactas */
+  .tab {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Landscape mobile (celular deitado) */
+@media (max-width: 896px) and (orientation: landscape) {
+  .dashboard-cards {
+    grid-template-columns: repeat(3, 1fr); /* 3 cards por linha no landscape */
+  }
+  
+  .dashboard-cards .card {
+    padding: 10px 8px;
+    min-height: 70px;
+    max-height: 80px;
+  }
+  
+  .sidebar {
+    width: 250px;
+  }
+  
+  .login-screen-v2 {
+    max-height: 90vh;
+    overflow-y: auto;
   }
 }

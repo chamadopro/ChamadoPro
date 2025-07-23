@@ -767,133 +767,38 @@ function initializeSubTabs() {
 // Funções de Dashboard e Conteúdo
 function updateUserDashboardCounts() {
     const totalSolicitacoesAbertas = orcamentosUsuarioSolicitados.length + orcamentosUsuarioRecebidos.length;
-    
-    const solicitadosElement = document.getElementById('orcamentos-usuario-solicitados-count-dashboard');
-    if (solicitadosElement) {
-        solicitadosElement.textContent = totalSolicitacoesAbertas;
-    }
-    
+    document.getElementById('orcamentos-usuario-solicitados-count-dashboard').textContent = totalSolicitacoesAbertas;
     const totalAprovadosRecusados = orcamentosUsuarioAprovados.length + orcamentosUsuarioRecusados.length;
-    const aprovadosRecusadosElement = document.getElementById('orcamentos-aprovados-recusados-count-dashboard');
-    if (aprovadosRecusadosElement) {
-        aprovadosRecusadosElement.textContent = totalAprovadosRecusados;
-    }
-    
-    const ocorrenciasElement = document.getElementById('ocorrencias-usuario-count-dashboard');
-    if (ocorrenciasElement) {
-        ocorrenciasElement.textContent = userOccurrences.length;
-    }
-    
-    const visitasElement = document.getElementById('orcamentos-usuario-visitas-count-dashboard');
-    if (visitasElement) {
-        visitasElement.textContent = visitasMarcadas.length;
-    }
+    document.getElementById('orcamentos-aprovados-recusados-count-dashboard').textContent = totalAprovadosRecusados;
+    document.getElementById('ocorrencias-usuario-count-dashboard').textContent = userOccurrences.length;
+    document.getElementById('orcamentos-usuario-visitas-count-dashboard').textContent = visitasMarcadas.length;
 }
 
 function updatePrestadorDashboardCounts() {
-    const servicosAtivosElement = document.getElementById('servicos-ativos-count-dashboard');
-    if (servicosAtivosElement) {
-        servicosAtivosElement.textContent = Object.keys(serviceStatuses).length;
-    }
-    
-    const orcamentosRecebidosElement = document.getElementById('orcamentos-prestador-recebidos-count-dashboard');
-    if (orcamentosRecebidosElement) {
-        orcamentosRecebidosElement.textContent = orcamentosPrestadorRecebidos.length;
-    }
-    
-    const propostasEnviadasElement = document.getElementById('orcamentos-prestador-propostas-enviadas-count-dashboard');
-    if (propostasEnviadasElement) {
-        propostasEnviadasElement.textContent = orcamentosPrestadorPropostasEnviadas.length;
-    }
-    
-    const aprovadosElement = document.getElementById('orcamentos-prestador-aprovados-count-dashboard');
-    if (aprovadosElement) {
-        aprovadosElement.textContent = orcamentosPrestadorAprovados.length;
-    }
-    
-    const recusadosElement = document.getElementById('orcamentos-prestador-recusados-count-dashboard');
-    if (recusadosElement) {
-        recusadosElement.textContent = orcamentosPrestadorRecusados.length;
-    }
-    
-    const ocorrenciasPrestadorElement = document.getElementById('ocorrencias-prestador-count-dashboard');
-    if (ocorrenciasPrestadorElement) {
-        ocorrenciasPrestadorElement.textContent = providerOccurrences.length;
-    }
-    
-    const historicoElement = document.getElementById('servicos-historico-count-dashboard');
-    if (historicoElement) {
-        historicoElement.textContent = servicosHistoricoCount;
-    }
+    document.getElementById('servicos-ativos-count-dashboard').textContent = Object.keys(serviceStatuses).length; // Conta serviços ativos baseados no objeto de status
+    document.getElementById('orcamentos-prestador-recebidos-count-dashboard').textContent = orcamentosPrestadorRecebidos.length;
+    document.getElementById('orcamentos-prestador-propostas-enviadas-count-dashboard').textContent = orcamentosPrestadorPropostasEnviadas.length;
+    document.getElementById('orcamentos-prestador-aprovados-count-dashboard').textContent = orcamentosPrestadorAprovados.length;
+    document.getElementById('orcamentos-prestador-recusados-count-dashboard').textContent = orcamentosPrestadorRecusados.length;
+    document.getElementById('ocorrencias-prestador-count-dashboard').textContent = providerOccurrences.length;
+    document.getElementById('servicos-historico-count-dashboard').textContent = servicosHistoricoCount;
 }
 
 function updateUserBudgetCounts() {
-    const solicitadosTabElement = document.getElementById('orcamentos-usuario-solicitados-count-tab');
-    if (solicitadosTabElement) {
-        solicitadosTabElement.textContent = orcamentosUsuarioSolicitados.length;
-    }
-    
-    const recebidosTabElement = document.getElementById('orcamentos-usuario-recebidos-count-tab');
-    if (recebidosTabElement) {
-        recebidosTabElement.textContent = orcamentosUsuarioRecebidos.length;
-    }
+    document.getElementById('orcamentos-usuario-solicitados-count-tab').textContent = orcamentosUsuarioSolicitados.length;
+    document.getElementById('orcamentos-usuario-recebidos-count-tab').textContent = orcamentosUsuarioRecebidos.length;
 }
 
 function updatePrestadorBudgetCounts() {
-    // Atualizar contadores do dashboard
-    const dashboardElements = [
-        'orcamentos-prestador-recebidos-count-dashboard',
-        'orcamentos-prestador-propostas-enviadas-count-dashboard',
-        'orcamentos-prestador-aprovados-count-dashboard',
-        'orcamentos-prestador-recusados-count-dashboard'
-    ];
-    
-    const counts = [
-        orcamentosPrestadorRecebidos.length,
-        orcamentosPrestadorPropostasEnviadas.length,
-        orcamentosPrestadorAprovados.length,
-        orcamentosPrestadorRecusados.length
-    ];
-    
-    dashboardElements.forEach((elementId, index) => {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = counts[index];
-        }
-    });
-    
-    // Atualizar contadores das abas (se existirem)
-    const tabElements = [
-        'orcamentos-prestador-recebidos-count-tab',
-        'orcamentos-prestador-propostas-enviadas-count-tab',
-        'orcamentos-prestador-aprovados-count-tab',
-        'orcamentos-prestador-recusados-count-tab'
-    ];
-    
-    tabElements.forEach((elementId, index) => {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = counts[index];
-        }
-    });
+    document.getElementById('orcamentos-prestador-recebidos-count-tab').textContent = orcamentosPrestadorRecebidos.length;
+    document.getElementById('orcamentos-prestador-propostas-enviadas-count-tab').textContent = orcamentosPrestadorPropostasEnviadas.length;
+    document.getElementById('orcamentos-prestador-aprovados-count-tab').textContent = orcamentosPrestadorAprovados.length;
+    document.getElementById('orcamentos-prestador-recusados-count-tab').textContent = orcamentosPrestadorRecusados.length;
 }
 
 function updateServicosHistoricoCounts() {
-    const finalizadosElement = document.getElementById('servicos-finalizados-count-tab');
-    if (finalizadosElement) {
-        finalizadosElement.textContent = servicosHistoricoCount;
-    }
-    
-    const recusadosElement = document.getElementById('servicos-recusados-count-tab');
-    if (recusadosElement) {
-        recusadosElement.textContent = orcamentosPrestadorRecusados.length; // Reutilizando para exemplo
-    }
-    
-    // Atualizar contador do dashboard também
-    const dashboardElement = document.getElementById('servicos-historico-count-dashboard');
-    if (dashboardElement) {
-        dashboardElement.textContent = servicosHistoricoCount;
-    }
+    document.getElementById('servicos-finalizados-count-tab').textContent = servicosHistoricoCount;
+    document.getElementById('servicos-recusados-count-tab').textContent = orcamentosPrestadorRecusados.length; // Reutilizando para exemplo
 }
 
 
@@ -3257,111 +3162,4 @@ function prestadorDisponivelParaOrcamento(dataHora = new Date()) {
     
     // Por enquanto, retorna true para manter a funcionalidade
     return true;
-}
-
-// Funções para lidar com os toggle switches do modo orçamento
-function handleModoOrcamentoChange(selectedMode) {
-  console.log('handleModoOrcamentoChange chamado com:', selectedMode);
-  
-  // Desmarcar todos os outros checkboxes
-  const allCheckboxes = ['sempre', 'horario-comercial', 'calendario'];
-  allCheckboxes.forEach(mode => {
-    const checkbox = document.getElementById(`modo-${mode}`);
-    if (checkbox && mode !== selectedMode) {
-      checkbox.checked = false;
-    }
-  });
-
-  // Mostrar/ocultar seções conforme necessário
-  const horarioSection = document.getElementById('horario-comercial-section');
-  const calendarSection = document.getElementById('calendar-section');
-  const horariosSemanaSection = document.getElementById('horarios-section');
-  const feriadosSection = document.getElementById('feriados-section');
-  const datasEspecificasSection = document.getElementById('datas-especificas-section');
-  const resumoSection = document.getElementById('resumo-section');
-  
-  console.log('Elementos encontrados:', {
-    horarioSection: !!horarioSection,
-    calendarSection: !!calendarSection,
-    horariosSemanaSection: !!horariosSemanaSection,
-    feriadosSection: !!feriadosSection
-  });
-  
-  if (selectedMode === 'horario-comercial') {
-    if (horarioSection) horarioSection.style.display = 'block';
-    if (calendarSection) calendarSection.style.display = 'none';
-    if (horariosSemanaSection) horariosSemanaSection.style.display = 'none';
-    if (feriadosSection) feriadosSection.style.display = 'none';
-    if (datasEspecificasSection) datasEspecificasSection.style.display = 'none';
-    if (resumoSection) resumoSection.style.display = 'none';
-  } else if (selectedMode === 'calendario') {
-    if (horarioSection) horarioSection.style.display = 'none';
-    if (calendarSection) calendarSection.style.display = 'block';
-    if (horariosSemanaSection) horariosSemanaSection.style.display = 'block';
-    if (feriadosSection) feriadosSection.style.display = 'block';
-    if (datasEspecificasSection) datasEspecificasSection.style.display = 'block';
-    if (resumoSection) resumoSection.style.display = 'block';
-  } else {
-    // Modo sempre
-    if (horarioSection) horarioSection.style.display = 'none';
-    if (calendarSection) calendarSection.style.display = 'none';
-    if (horariosSemanaSection) horariosSemanaSection.style.display = 'none';
-    if (feriadosSection) feriadosSection.style.display = 'none';
-    if (datasEspecificasSection) datasEspecificasSection.style.display = 'none';
-    if (resumoSection) resumoSection.style.display = 'none';
-  }
-}
-
-// Funções para lidar com os toggle switches dos feriados
-function handleFeriadosChange(selectedMode) {
-  console.log('handleFeriadosChange chamado com:', selectedMode);
-  
-  // Desmarcar todos os outros checkboxes
-  const allCheckboxes = ['nao', 'sim', 'personalizado'];
-  allCheckboxes.forEach(mode => {
-    const checkbox = document.getElementById(`feriados-${mode}`);
-    if (checkbox && mode !== selectedMode) {
-      checkbox.checked = false;
-    }
-  });
-
-  // Mostrar/ocultar seção personalizada
-  const customSection = document.getElementById('feriados-custom');
-  console.log('Elemento feriados-custom encontrado:', !!customSection);
-  
-  if (selectedMode === 'personalizado') {
-    if (customSection) customSection.style.display = 'block';
-  } else {
-    if (customSection) customSection.style.display = 'none';
-  }
-}
-
-// Função original do modo orçamento (manter compatibilidade)
-function toggleModoOrcamento() {
-  const modo = document.querySelector('input[name="modo"]:checked')?.value;
-  const horarioSection = document.getElementById('horario-comercial-section');
-  const calendarSection = document.getElementById('calendar-section');
-  
-  if (modo === 'horario-comercial') {
-    horarioSection.style.display = 'block';
-    calendarSection.style.display = 'none';
-  } else if (modo === 'calendario') {
-    horarioSection.style.display = 'none';
-    calendarSection.style.display = 'block';
-  } else {
-    horarioSection.style.display = 'none';
-    calendarSection.style.display = 'none';
-  }
-}
-
-// Função original dos feriados (manter compatibilidade)
-function toggleFeriadosPersonalizados() {
-  const feriados = document.querySelector('input[name="feriados"]:checked')?.value;
-  const customSection = document.getElementById('feriados-custom');
-  
-  if (feriados === 'personalizado') {
-    customSection.style.display = 'block';
-  } else {
-    customSection.style.display = 'none';
-  }
 }

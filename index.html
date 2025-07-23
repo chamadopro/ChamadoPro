@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ChamadoPro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="./style.css?v=20250723-1400">
+  <link rel="stylesheet" href="./style.css?v=20250722-1758">
   <style>
     /* Estilos para ocultar o conteúdo principal e modais por padrão */
     .main-content-wrapper {
@@ -976,49 +976,19 @@
         <div class="config-section">
           <h3>Configurações Gerais</h3>
           <div class="form-container">
-            <div class="toggle-option">
-              <label class="toggle-switch">
-                <input type="checkbox" id="modo-sempre" checked onchange="handleModoOrcamentoChange('sempre')">
-                <span class="slider"></span>
-                <span class="toggle-text">Receber orçamentos a qualquer momento</span>
+            <div class="input-group">
+              <label>
+                <input type="radio" name="modo-orcamento" value="sempre" id="modo-sempre" checked onchange="toggleModoOrcamento()">
+                <span>Receber orçamentos a qualquer momento</span>
               </label>
             </div>
-            <div class="toggle-option">
-              <label class="toggle-switch">
-                <input type="checkbox" id="modo-horario-comercial" onchange="handleModoOrcamentoChange('horario-comercial')">
-                <span class="slider"></span>
-                <span class="toggle-text">Apenas em horário comercial (8h às 18h)</span>
-              </label>
-            </div>
-            <div class="toggle-option">
-              <label class="toggle-switch">
-                <input type="checkbox" id="modo-calendario" onchange="handleModoOrcamentoChange('calendario')">
-                <span class="slider"></span>
-                <span class="toggle-text">Conforme meu calendário de trabalho</span>
+            <div class="input-group">
+              <label>
+                <input type="radio" name="modo-orcamento" value="horario" id="modo-horario" onchange="toggleModoOrcamento()">
+                <span>Receber orçamentos apenas nos horários configurados abaixo</span>
               </label>
             </div>
           </div>
-        </div>
-
-        <!-- Configuração de Horário Comercial -->
-        <div class="horario-comercial-section" id="horario-comercial-section" style="display: none;">
-          <h3>Horário Comercial</h3>
-          <div class="form-container">
-            <div class="time-input-group">
-              <label>Início:</label>
-              <input type="time" id="horario-comercial-inicio" value="08:00">
-            </div>
-            <div class="time-input-group">
-              <label>Fim:</label>
-              <input type="time" id="horario-comercial-fim" value="18:00">
-            </div>
-          </div>
-        </div>
-
-        <!-- Seção do Calendário de Trabalho -->
-        <div class="calendar-section" id="calendar-section" style="display: none;">
-          <h3>Configurar Calendário de Trabalho</h3>
-          <p>Configure seus horários detalhados abaixo.</p>
         </div>
 
         <!-- Configuração de Horários Semanais -->
@@ -1206,25 +1176,22 @@
         <div class="feriados-section" id="feriados-section" style="display: none;">
           <h3>Trabalho em Feriados</h3>
           <div class="form-container">
-            <div class="toggle-option">
-              <label class="toggle-switch">
-                <input type="checkbox" id="feriados-nao" checked onchange="handleFeriadosChange('nao')">
-                <span class="slider"></span>
-                <span class="toggle-text">Não trabalho em feriados</span>
+            <div class="input-group">
+              <label>
+                <input type="radio" name="feriados" value="nao" id="feriados-nao" checked>
+                <span>Não trabalho em feriados</span>
               </label>
             </div>
-            <div class="toggle-option">
-              <label class="toggle-switch">
-                <input type="checkbox" id="feriados-sim" onchange="handleFeriadosChange('sim')">
-                <span class="slider"></span>
-                <span class="toggle-text">Trabalho em feriados (mesmo horário dos dias úteis)</span>
+            <div class="input-group">
+              <label>
+                <input type="radio" name="feriados" value="sim" id="feriados-sim">
+                <span>Trabalho em feriados (mesmo horário dos dias úteis)</span>
               </label>
             </div>
-            <div class="toggle-option">
-              <label class="toggle-switch">
-                <input type="checkbox" id="feriados-personalizado" onchange="handleFeriadosChange('personalizado')">
-                <span class="slider"></span>
-                <span class="toggle-text">Horário personalizado para feriados</span>
+            <div class="input-group">
+              <label>
+                <input type="radio" name="feriados" value="personalizado" id="feriados-personalizado" onchange="toggleFeriadosPersonalizados()">
+                <span>Horário personalizado para feriados</span>
               </label>
             </div>
             <div class="feriados-custom" id="feriados-custom" style="display: none;">
@@ -1237,6 +1204,7 @@
                 <input type="time" id="feriados-fim" value="12:00">
               </div>
             </div>
+          </div>
         </div>
 
         <!-- Datas Específicas -->
@@ -1494,6 +1462,26 @@
     }
 
     // Funções do Calendário de Trabalho
+    function toggleModoOrcamento() {
+      const modoSempre = document.getElementById('modo-sempre');
+      const horariosSection = document.getElementById('horarios-section');
+      const feriadosSection = document.getElementById('feriados-section');
+      const datasEspecificasSection = document.getElementById('datas-especificas-section');
+      const resumoSection = document.getElementById('resumo-section');
+      
+      if (modoSempre.checked) {
+        horariosSection.style.display = 'none';
+        feriadosSection.style.display = 'none';
+        datasEspecificasSection.style.display = 'none';
+        resumoSection.style.display = 'none';
+      } else {
+        horariosSection.style.display = 'block';
+        feriadosSection.style.display = 'block';
+        datasEspecificasSection.style.display = 'block';
+        resumoSection.style.display = 'block';
+      }
+    }
+
     function toggleDayConfig(day) {
       const checkbox = document.getElementById(day);
       const config = document.getElementById('config-' + day);
