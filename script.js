@@ -1,86 +1,142 @@
-// Fecha o menu lateral ao clicar fora dele
-document.addEventListener('click', function(event) {
-    const sidebar = document.getElementById('sidebar');
-    const menuButton = document.querySelector('.menu-toggle');
-    if (!sidebar) return;
-    // Se o menu não está aberto, não faz nada
-    if (!sidebar.classList.contains('active')) return;
-    // Se clicou dentro do menu ou no botão de abrir, não fecha
-    if (sidebar.contains(event.target) || (menuButton && menuButton.contains(event.target))) return;
-    // Fecha o menu
-    sidebar.classList.remove('active');
-});
-// --- Função para remover arquivo selecionado nos campos de upload do cadastro de prestador ---
-function removeSelectedFile(inputId) {
-    const input = document.getElementById(inputId);
-    if (input) {
-        input.value = '';
-        // Esconde o botão de excluir
-        const btn = document.getElementById('remove-' + inputId.replace('provider-', '').replace('-', '-') + '-btn');
-        if (btn) btn.classList.remove('active');
-        // Remove destaque visual
-        const group = document.getElementById(inputId + '-group');
-        if (group) group.classList.remove('selected');
-    }
-}
+// Variável global para rastrear a tela ativa
+let activeScreenId = null; // Ou 'client' se a tela inicial padrão for a do cliente.
+let nomeDoClienteLogado = "Visitante"; // Variável global para o nome do cliente logado
+let currentUserType = null; // Adicionado para rastrear o tipo de usuário logado
+let screenHistory = []; // Histórico de telas para o botão Voltar
+let servicosHistoricoCount = 2; // Simulação de serviços finalizados para o histórico
 
-// Ativa/desativa botão de excluir e borda quando arquivo é selecionado (PF e PJ)
-const fileFields = [
-  'provider-pf-doc-foto',
-  'provider-pf-antecedentes',
-  'provider-pf-comprovante',
-  'provider-pj-contrato-social',
-  'provider-pj-doc-foto',
-  'provider-pj-comprovante'
+// Array de exemplo para propostas recebidas
+const propostasRecebidas = [
+  {
+    id: 1,
+    tipo: 'padrao',
+    prestador: 'Eletricista Silva',
+    servico: 'Instalação de Tomada',
+    valor: 'R$ 120,00',
+    prazo: '2 dias',
+    mensagem: 'Inclui material e mão de obra.'
+  },
+  {
+    id: 2,
+    tipo: 'visita',
+    prestador: 'Construtora Alfa',
+    servico: 'Orçamento com Visita para Reforma',
+    dataHora: '23/07/2025 às 14:00',
+    mensagem: 'Levaremos todo material necessário para avaliação.'
+  },
+  {
+    id: 3,
+    tipo: 'padrao',
+    prestador: 'Encanador Souza',
+    servico: 'Reparo de Vazamento',
+    valor: 'R$ 250,00',
+    prazo: '1 dia',
+    mensagem: 'Orçamento para reparo de vazamento em pia de cozinha.'
+  },
+  {
+    id: 4,
+    tipo: 'visita',
+    prestador: 'Jardineiro Flores',
+    servico: 'Avaliação de Paisagismo',
+    dataHora: '25/07/2025 às 10:00',
+    mensagem: 'Visita para discutir projeto de paisagismo completo.'
+  }
 ];
-fileFields.forEach(function(id) {
-    const input = document.getElementById(id);
-    if (input) {
-        input.addEventListener('change', function() {
-            const btn = document.getElementById('remove-' + id.split('provider-')[1] + '-btn');
-            const group = document.getElementById(id + '-group');
-            if (input.files && input.files.length > 0) {
-                if (btn) btn.classList.add('active');
-                if (group) group.classList.add('selected');
-            } else {
-                if (btn) btn.classList.remove('active');
-                if (group) group.classList.remove('selected');
-            }
-        });
-    }
-});
-// Variáveis globais para gerenciar o estado da aplicação
-let currentScreen = 'splash'; // Tela inicial
-let screenHistory = []; // Para o botão de voltar
-let currentUserType = null; // 'usuario' ou 'prestador'
 
-// Dados de exemplo para simulação
-let servicosAtivosCount = 1; // Exemplo de contador
-let ocorrenciasCount = 0; // Exemplo de contador
-let servicosHistoricoCount = 5; // Exemplo de contador
-
+// Array de exemplo para solicitações de orçamento do usuário
 let orcamentosUsuarioSolicitados = [
-    { id: 1, title: 'Instalação de Tomada', description: 'Preciso instalar uma tomada nova na cozinha.', client: 'Eu', address: 'Rua A, 123', date: '2024-07-15', photos: ['https://placehold.co/100x100/FF0000/FFFFFF?text=Foto1'], video: '' },
-    { id: 2, title: 'Pintura de Quarto', description: 'Pintar um quarto de 3x4m, cor branca.', client: 'Eu', address: 'Rua B, 456', date: '2024-07-14', photos: [], video: '' }
+    { id: 1, title: 'Instalação de Tomada', description: 'Preciso instalar uma tomada nova na cozinha.', client: 'Eu', address: 'Rua A, 123', date: '2024-07-15', photos: ['https://placehold.co/100x100/FF0000/FFFFFF?text=Foto1'], video: '', tipo: 'padrao' },
+    { id: 2, title: 'Pintura de Quarto', description: 'Pintar um quarto de 3x4m, cor branca.', client: 'Eu', address: 'Rua B, 456', date: '2024-07-14', photos: [], video: '', tipo: 'padrao' },
+    { id: 3, title: 'Conserto de Telhado', description: 'Vazamento no telhado da sala.', client: 'Eu', address: 'Rua C, 789', date: '2024-07-16', photos: ['https://placehold.co/100x100/0000FF/FFFFFF?text=FotoTelhado'], video: '', tipo: 'padrao' },
+    { id: 4, title: 'Avaliação de Reforma', description: 'Preciso de um orçamento com visita para avaliar reforma da cozinha.', client: 'Eu', address: 'Rua D, 100', date: '2024-07-17', photos: [], video: '', tipo: 'visita' }
 ];
 let orcamentosUsuarioRecebidos = [
-    { id: 101, prestador: 'Eletricista Silva', service: 'Instalação de Tomada', value: 'R$ 150,00', date: '2024-07-15', estimatedTime: 2, description: 'Proposta para instalação de tomada com material incluso.', materials: 'Fio 2.5mm, tomada 10A' },
-    { id: 102, prestador: 'Pintor João', service: 'Pintura de Quarto', value: 'R$ 400,00', date: '2024-07-14', estimatedTime: 8, description: 'Proposta para pintura completa do quarto, duas demãos.', materials: 'Tinta Suvinil Branca' }
+    { id: 101, prestador: 'Eletricista Silva', service: 'Instalação de Tomada', value: 'R$ 150,00', date: '2024-07-15', estimatedTime: 2, description: 'Proposta para instalação de tomada com material incluso.', materials: 'Fio 2.5mm, tomada 10A', tipo: 'padrao' },
+    { id: 102, prestador: 'Pintor João', service: 'Pintura de Quarto', value: 'R$ 400,00', date: '2024-07-14', estimatedTime: 8, description: 'Proposta para pintura completa do quarto, duas demãos.', materials: 'Tinta Suvinil Branca', tipo: 'padrao' },
+    { id: 103, prestador: 'Telhadista Carlos', service: 'Conserto de Telhado', value: 'R$ 600,00', date: '2024-07-17', estimatedTime: 4, description: 'Orçamento para reparo de telhado com troca de algumas telhas.', materials: 'Telhas, argamassa', tipo: 'padrao' },
+    { id: 104, prestador: 'Arquiteto Ana', service: 'Consultoria de Reforma', value: 'R$ 300,00', date: '2024-07-18', estimatedTime: 3, description: 'Orçamento com visita para avaliação de reforma.', materials: 'Relatório técnico', tipo: 'visita' }
 ];
-let orcamentosUsuarioAprovados = [];
-let orcamentosUsuarioRecusados = [];
-let orcamentosUsuarioVisitas = [];
+let orcamentosUsuarioAprovados = [
+    { id: 201, prestador: 'Eletricista Silva', service: 'Instalação de Tomada', value: 'R$ 150,00', date: '2024-07-15', estimatedTime: 2, description: 'Proposta para instalação de tomada com material incluso.', materials: 'Fio 2.5mm, tomada 10A', scheduleDate: '2024-07-25', scheduleTime: '09:00', tipo: 'padrao' },
+    { id: 202, prestador: 'Inspetor Técnico', service: 'Vistoria Predial', value: 'R$ 250,00', date: '2024-07-16', estimatedTime: 4, description: 'Vistoria técnica completa do imóvel.', materials: 'Relatório técnico', scheduleDate: '2024-07-26', scheduleTime: '14:00', tipo: 'visita' }
+];
+let orcamentosUsuarioRecusados = [
+    { id: 301, prestador: 'Encanador Souza', service: 'Reparo de Vazamento', value: 'R$ 280,00', date: '2024-07-16', estimatedTime: 3, description: 'Proposta para reparo de vazamento.', materials: 'Vedante, chave de grifo', reason: 'Preço muito alto.', tipo: 'padrao' },
+    { id: 302, prestador: 'Engenheiro Civil', service: 'Avaliação Estrutural', value: 'R$ 800,00', date: '2024-07-17', estimatedTime: 6, description: 'Avaliação estrutural completa.', materials: 'Laudo técnico', reason: 'Não disponível nas datas propostas.', tipo: 'visita' }
+];
+let orcamentosUsuarioVisitas = [
+    { id: 401, prestador: 'Construtora Alfa', suggestedDate1: '2024-07-28', suggestedTime1: '14:00', suggestedDate2: '2024-07-29', suggestedTime2: '10:00', suggestedDate3: '', suggestedTime3: '', obs: 'Para avaliação de reforma de cozinha.', status: 'Aguardando Confirmação' }
+];
+
+// Array de visitas marcadas (efetivadas com data e horário)
+let visitasMarcadas = [
+    {
+        id: 1,
+        prestador: 'Eletricista Silva',
+        service: 'Instalação de Tomada Especial',
+        date: '2024-07-25',
+        time: '09:00',
+        address: 'Rua A, 123',
+        value: 'R$ 150,00',
+        tipo: 'padrao',
+        status: 'Confirmada',
+        description: 'Instalação de tomada com material incluso.'
+    },
+    {
+        id: 2,
+        prestador: 'Arquiteto Ana',
+        service: 'Consultoria de Reforma',
+        date: '2024-07-26',
+        time: '14:00',
+        address: 'Rua D, 100',
+        value: 'R$ 300,00',
+        tipo: 'visita',
+        status: 'Confirmada',
+        description: 'Visita para avaliação completa de reforma da cozinha.'
+    }
+];
 
 let orcamentosPrestadorRecebidos = [
-    { id: 201, title: 'Reparo de Vazamento', description: 'Vazamento pequeno na pia do banheiro.', client: 'Maria Oliveira', address: 'Av. Principal, 789', date: '2024-07-16', photos: [], video: '' },
-    { id: 202, title: 'Limpeza de Jardim', description: 'Corte de grama e poda de arbustos.', client: 'Carlos Souza', address: 'Rua da Flores, 101', date: '2024-07-16', photos: ['https://placehold.co/100x100/00FF00/FFFFFF?text=Jardim'], video: '' }
+    { id: 501, title: 'Instalação de Chuveiro', description: 'Preciso instalar um chuveiro novo no banheiro.', client: 'Mariana Costa', address: 'Rua D, 10', date: '2024-07-18', photos: [], video: '', tipo: 'padrao' },
+    { id: 502, title: 'Manutenção de Ar Condicionado', description: 'Limpeza e verificação de um ar condicionado split.', client: 'Roberto Santos', address: 'Av. Brasil, 200', date: '2024-07-19', photos: [], video: '', tipo: 'padrao' },
+    { id: 503, title: 'Avaliação de Projeto Arquitetônico', description: 'Preciso de um orçamento com visita para avaliar viabilidade de projeto.', client: 'Ana Silva', address: 'Rua E, 50', date: '2024-07-20', photos: [], video: '', tipo: 'visita' }
 ];
-let orcamentosPrestadorPropostasEnviadas = [];
-let orcamentosPrestadorAprovados = [];
-let orcamentosPrestadorRecusados = [];
+let orcamentosPrestadorPropostasEnviadas = [
+    { id: 601, serviceTitle: 'Reparo de Vazamento', client: 'Maria Oliveira', value: 'R$ 250,00', deadline: '1 dia', estimatedTime: 2, obs: 'Orçamento detalhado para reparo.', date: '2024-07-17', status: 'Aguardando Cliente', tipo: 'padrao' }
+];
+let orcamentosPrestadorAprovados = [
+    { id: 701, service: 'Pintura de Quarto', client: 'Carlos Souza', value: 'R$ 400,00', scheduleDate: '2024-07-26', scheduleTime: '08:00', tipo: 'padrao' }
+];
+let orcamentosPrestadorRecusados = [
+    { id: 801, title: 'Limpeza de Jardim', client: 'Ana Paula', date: '2024-07-16', reason: 'Distância muito grande.', tipo: 'padrao' }
+];
 
-let userOccurrences = [];
-let providerOccurrences = [];
+let userOccurrences = [
+    { id: 1, service: 'Instalação de Tomada', title: 'Tomada não funciona', description: 'A tomada instalada parou de funcionar um dia após o serviço.', date: '2024-07-20', status: 'Em Análise', client: 'Usuário Atual', prestador: 'Eletricista Silva', attachments: [], chatHistory: [
+        { sender: 'Plataforma', message: 'Ocorrência aberta. Nossa equipe está analisando.', type: 'platform-highlight' },
+        { sender: 'Eu', message: 'A tomada está sem energia, já testei outros aparelhos.', type: 'sent' },
+        { sender: 'Eletricista Silva', message: 'Entendido. Verificarei a disponibilidade para retornar.', type: 'received' }
+    ]},
+    { id: 2, service: 'Pintura de Quarto', title: 'Mancha na parede', description: 'Apareceu uma mancha amarelada na parede pintada.', date: '2024-07-21', status: 'Resolvida', client: 'Usuário Atual', prestador: 'Pintor João', attachments: [], resolutionDate: '2024-07-22', chatHistory: [
+        { sender: 'Plataforma', message: 'Ocorrência aberta. Nossa equipe está analisando.', type: 'platform-highlight' },
+        { sender: 'Eu', message: 'A mancha está bem visível, preciso de um reparo.', type: 'sent' },
+        { sender: 'Pintor João', message: 'Já estou a caminho para verificar o problema.', type: 'received' },
+        { sender: 'Plataforma', message: 'Ocorrência resolvida pelo prestador.', type: 'platform-highlight' }
+    ]}
+];
+let providerOccurrences = [
+    { id: 1, service: 'Instalação de Tomada', title: 'Tomada não funciona', description: 'A tomada instalada parou de funcionar um dia após o serviço.', date: '2024-07-20', status: 'Em Análise', client: 'Usuário Atual', prestador: 'Eletricista Silva', attachments: [], chatHistory: [
+        { sender: 'Plataforma', message: 'Ocorrência aberta. Nossa equipe está analisando.', type: 'platform-highlight' },
+        { sender: 'Usuário Atual', message: 'A tomada está sem energia, já testei outros aparelhos.', type: 'received' },
+        { sender: 'Eu', message: 'Entendido. Verificarei a disponibilidade para retornar.', type: 'sent' }
+    ]},
+    { id: 2, service: 'Pintura de Quarto', title: 'Mancha na parede', description: 'Apareceu uma mancha amarelada na parede pintada.', date: '2024-07-21', status: 'Resolvida', client: 'Usuário Atual', prestador: 'Pintor João', attachments: [], resolutionDate: '2024-07-22', chatHistory: [
+        { sender: 'Plataforma', message: 'Ocorrência aberta. Nossa equipe está analisando.', type: 'platform-highlight' },
+        { sender: 'Usuário Atual', message: 'A mancha está bem visível, preciso de um reparo.', type: 'received' },
+        { sender: 'Eu', message: 'Já estou a caminho para verificar o problema.', type: 'sent' },
+        { sender: 'Plataforma', message: 'Ocorrência resolvida pelo prestador.', type: 'platform-highlight' }
+    ]}
+];
 
 let currentFinalizeServiceId = null;
 let currentChatPartner = '';
@@ -88,20 +144,24 @@ let currentRefusalRequestId = null; // Para prestador
 let currentUserRefusalBudgetId = null; // Para usuário
 let currentScheduleBudgetId = null; // Para agendamento
 
-let totalRecebimentos = 0;
-let aLiberar = 0;
-let bankAccounts = []; // Array para armazenar contas bancárias
+let totalRecebimentos = 1500.00; // Exemplo de valor inicial
+let aLiberar = 250.00; // Exemplo de valor inicial
+let bankAccounts = [
+    { banco: 'Banco do Brasil', agencia: '1234-5', conta: '98765-4', tipoConta: 'corrente' }
+]; // Array para armazenar contas bancárias
 
 // Dados de exemplo de anúncios
 const userAds = [
-    "Descubra as melhores ofertas de material de construção!",
-    "Precisa de um empréstimo rápido? Clique aqui!",
-    "Cursos online para aprimorar suas habilidades!"
+    "Descubra as melhores ofertas de material de construção! Descontos de até 30%!",
+    "Precisa de um empréstimo rápido e sem burocracia? Clique aqui e simule agora!",
+    "Cursos online para aprimorar suas habilidades e conseguir um emprego melhor!",
+    "Reformar sua casa nunca foi tão fácil! Encontre os melhores profissionais aqui."
 ];
 const prestadorAds = [
-    "Aumente sua clientela com nosso plano de marketing!",
-    "Ferramentas com 30% de desconto para prestadores!",
-    "Seguro de responsabilidade civil para o seu negócio!"
+    "Aumente sua clientela com nosso plano de marketing digital! Mais visibilidade para o seu negócio.",
+    "Ferramentas profissionais com 30% de desconto para prestadores cadastrados!",
+    "Seguro de responsabilidade civil para o seu negócio. Proteja-se contra imprevistos!",
+    "Capacitação e certificação para sua equipe. Invista no seu futuro profissional."
 ];
 let currentAdIndexUser = 0;
 let adIntervalUser;
@@ -115,21 +175,38 @@ const sponsoredServices = [
     { id: 3, name: "Montador de Móveis Profissional", description: "Montagem e desmontagem de todos os tipos de móveis.", type: "montador" },
     { id: 4, name: "Serviços de Limpeza Residencial", description: "Limpeza profunda para sua casa ou apartamento.", type: "limpeza" },
     { id: 5, name: "Jardineiro Completo", description: "Poda, paisagismo e manutenção de jardins.", type: "jardineiro" },
-    { id: 6, name: "Pedreiro para Pequenas Reformas", description: "Pequenos reparos e construções.", type: "pedreiro" }
+    { id: 6, name: "Pedreiro para Pequenas Reformas", description: "Pequenos reparos e construções.", type: "pedreiro" },
+    { id: 7, name: "Pintor de Interiores", description: "Pintura de paredes e tetos com acabamento impecável.", type: "pintor" },
+    { id: 8, name: "Técnico em Ar Condicionado", description: "Instalação, manutenção e reparo de sistemas de climatização.", type: "ar condicionado" }
 ];
 
 // Dados de exemplo de serviços de visita patrocinados
 const sponsoredVisitServices = [
-    { id: 1, name: "Construtora Alfa", description: "Grandes reformas e construções, com visita técnica.", type: "construcao", profile: { photos: ['https://placehold.co/150x100/FF0000/FFFFFF?text=Obra1', 'https://placehold.co/150x100/0000FF/FFFFFF?text=Obra2'], bio: 'Empresa com 10 anos de experiência em construção civil.' } },
-    { id: 2, name: "Arquiteto Urbano", description: "Projetos arquitetônicos e design de interiores.", type: "arquitetura", profile: { photos: ['https://placehold.co/150x100/00FF00/FFFFFF?text=Projeto1', 'https://placehold.co/150x100/FFFF00/000000?text=Projeto2'], bio: 'Criação de espaços funcionais e esteticamente agradáveis.' } },
-    { id: 3, name: "Engenharia Estrutural Beta", description: "Cálculos estruturais e laudos técnicos.", type: "engenharia", profile: { photos: [], bio: 'Segurança e inovação em projetos de engenharia.' } }
+    { id: 1, name: "Construtora Alfa", description: "Grandes reformas e construções, com orçamento com visita.", type: "construcao", profile: { photos: ['https://placehold.co/150x100/FF0000/FFFFFF?text=Obra1', 'https://placehold.co/150x100/0000FF/FFFFFF?text=Obra2'], bio: 'Empresa com 10 anos de experiência em construção civil, especializada em projetos residenciais e comerciais de grande porte.' } },
+    { id: 2, name: "Arquiteto Urbano", description: "Projetos arquitetônicos e design de interiores.", type: "arquitetura", profile: { photos: ['https://placehold.co/150x100/00FF00/FFFFFF?text=Projeto1', 'https://placehold.co/150x100/FFFF00/000000?text=Projeto2'], bio: 'Criação de espaços funcionais e esteticamente agradáveis, com foco em sustentabilidade e inovação.' } },
+    { id: 3, name: "Engenharia Estrutural Beta", description: "Cálculos estruturais e laudos técnicos.", type: "engenharia", profile: { photos: [], bio: 'Segurança e inovação em projetos de engenharia civil, garantindo a solidez e durabilidade da sua construção.' } },
+    { id: 4, name: "Designer de Interiores Criativo", description: "Transforme seu ambiente com um design exclusivo.", type: "design" , profile: { photos: ['https://placehold.co/150x100/FF00FF/FFFFFF?text=Design1'], bio: 'Especialista em criar ambientes personalizados que refletem sua personalidade e estilo de vida.' }}
 ];
 
 // --- FUNÇÃO DE ALERTA PERSONALIZADA ---
-function showAlert(message, title = 'Aviso') {
+function showAlert(message, title = 'Aviso', onOkCallback = null) {
     document.getElementById('custom-alert-title').textContent = title;
     document.getElementById('custom-alert-message').textContent = message;
     document.getElementById('custom-alert-modal').style.display = 'flex';
+
+    const okBtn = document.querySelector('#custom-alert-modal .primary-btn');
+    if (okBtn) {
+        // Remove qualquer listener anterior para evitar múltiplos disparos
+        const newOkBtn = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+
+        newOkBtn.onclick = function() {
+            closeModal('custom-alert-modal');
+            if (onOkCallback) {
+                onOkCallback();
+            }
+        };
+    }
 }
 
 // Funções de controle de tela e histórico
@@ -143,7 +220,7 @@ function showScreen(screenId, title = '') {
     // Esconde o cabeçalho se for a splash screen ou a tela de login
     const appHeader = document.getElementById('app-header');
     if (appHeader) {
-        if (screenId === 'splash' || screenId === 'login-screen-v2') {
+        if (screenId === 'splash' || screenId === 'login-screen-v2' || screenId === 'login-choice-screen' || screenId === 'login-client-screen' || screenId === 'login-provider-screen') {
             appHeader.style.display = 'none';
         } else {
             appHeader.style.display = 'flex';
@@ -151,7 +228,7 @@ function showScreen(screenId, title = '') {
     }
 
     // Adiciona ou remove a classe 'app-active' do body
-    if (screenId === 'splash' || screenId === 'login-screen-v2') {
+    if (screenId === 'splash' || screenId === 'login-screen-v2' || screenId === 'login-choice-screen' || screenId === 'login-client-screen' || screenId === 'login-provider-screen') {
         document.body.classList.remove('app-active');
     } else {
         document.body.classList.add('app-active');
@@ -160,7 +237,7 @@ function showScreen(screenId, title = '') {
     // Esconde todos os conteúdos principais primeiro
     const mainContentWrapper = document.querySelector('.main-content-wrapper');
     if (mainContentWrapper) {
-        if (screenId === 'splash' || screenId === 'login-screen-v2') {
+        if (screenId === 'splash' || screenId === 'login-screen-v2' || screenId === 'login-choice-screen' || screenId === 'login-client-screen' || screenId === 'login-provider-screen') {
             mainContentWrapper.style.display = 'none';
         } else {
             mainContentWrapper.style.display = 'flex'; // Usar flex para o layout principal
@@ -176,49 +253,88 @@ function showScreen(screenId, title = '') {
         // Atualiza o título do cabeçalho
         const headerTitleElement = document.getElementById('header-title');
         if (headerTitleElement) {
-            if (screenId === 'dashboard-usuario') {
-                headerTitleElement.textContent = 'Dashboard do Usuário';
-            } else if (screenId === 'dashboard-prestador') {
-                headerTitleElement.textContent = 'Dashboard do Prestador';
-            } else if (screenId === 'orcamentos-usuario') {
-                headerTitleElement.textContent = 'Minhas Solicitações e Retornos';
-            } else if (screenId === 'orcamentos-prestador') {
-                headerTitleElement.textContent = 'Orçamentos';
-            } else if (screenId === 'servicos-ativos') {
-                headerTitleElement.textContent = 'Serviços Ativos';
-            } else if (screenId === 'servicos-contratados') {
-                headerTitleElement.textContent = 'Serviços Contratados';
-            } else if (screenId === 'ocorrencias-usuario' || screenId === 'ocorrencias-prestador') {
-                headerTitleElement.textContent = 'Minhas Ocorrências';
-            } else if (screenId === 'abrir-ocorrencia') {
-                headerTitleElement.textContent = 'Abrir Ocorrência';
-            } else if (screenId === 'buscar-servicos-unificado') { // Novo ID de tela unificada
-                headerTitleElement.textContent = 'Buscar Serviços e Orçamentos';
-            } else if (screenId === 'solicitacao-orcamento') {
-                headerTitleElement.textContent = 'Solicitar Orçamento'; // Renomeado
-            } else if (screenId === 'cadastro-especialidades') {
-                headerTitleElement.textContent = 'Cadastro de Especialidades';
-            } else if (screenId === 'servicos-historico') {
-                headerTitleElement.textContent = 'Histórico de Serviços';
-            } else if (screenId === 'financeiro') {
-                headerTitleElement.textContent = 'Financeiro';
-            } else if (screenId === 'ajuda') {
-                headerTitleElement.textContent = 'Ajuda e Suporte';
-            } else if (screenId === 'fluxo-servico-detalhes') {
-                headerTitleElement.textContent = 'Fluxo de Serviço';
-            } else if (screenId === 'anunciantes') {
-                headerTitleElement.textContent = 'Anunciantes';
-            } else {
-                headerTitleElement.textContent = title; // Título genérico se não for um dos acima
+            switch (screenId) {
+                case 'dashboard-usuario':
+                    headerTitleElement.textContent = 'Dashboard do Usuário';
+                    break;
+                case 'dashboard-prestador':
+                    headerTitleElement.textContent = 'Dashboard do Prestador';
+                    break;
+                case 'orcamentos-usuario':
+                    headerTitleElement.textContent = 'Meus Orçamentos';
+                    break;
+                case 'orcamentos-prestador':
+                    headerTitleElement.textContent = 'Orçamentos';
+                    break;
+                case 'servicos-ativos':
+                    headerTitleElement.textContent = 'Serviços Ativos';
+                    break;
+                case 'servicos-contratados':
+                    headerTitleElement.textContent = 'Serviços Contratados';
+                    break;
+                case 'ocorrencias-usuario':
+                    headerTitleElement.textContent = 'Minhas Ocorrências';
+                    break;
+                case 'ocorrencias-prestador':
+                    headerTitleElement.textContent = 'Ocorrências';
+                    break;
+                case 'abrir-ocorrencia':
+                    headerTitleElement.textContent = 'Abrir Ocorrência';
+                    break;
+                case 'buscar-servicos-unificado':
+                    headerTitleElement.textContent = 'Buscar Serviço e Orçamento';
+                    break;
+                case 'solicitacao-orcamento':
+                    headerTitleElement.textContent = 'Solicitar Orçamento';
+                    break;
+                case 'cadastro-especialidades':
+                    headerTitleElement.textContent = 'Cadastro de Especialidades';
+                    break;
+                case 'calendario-trabalho':
+                    headerTitleElement.textContent = 'Calendário de Trabalho';
+                    break;
+                case 'servicos-historico':
+                    headerTitleElement.textContent = 'Histórico de Serviços';
+                    break;
+                case 'financeiro':
+                    headerTitleElement.textContent = 'Financeiro';
+                    break;
+                case 'ajuda':
+                    headerTitleElement.textContent = 'Ajuda e Suporte';
+                    break;
+                case 'fluxo-servico-detalhes':
+                    headerTitleElement.textContent = 'Fluxo de Serviço';
+                    break;
+                case 'anunciantes':
+                    headerTitleElement.textContent = 'Anunciantes';
+                    break;
+                case 'visitas-marcadas':
+                    headerTitleElement.textContent = 'Visitas Marcadas';
+                    break;
+                case 'orcamentos-prestador-recebidos':
+                    headerTitleElement.textContent = 'Orçamentos Recebidos';
+                    break;
+                case 'orcamentos-prestador-propostas-enviadas':
+                    headerTitleElement.textContent = 'Propostas Enviadas';
+                    break;
+                case 'orcamentos-prestador-aprovados':
+                    headerTitleElement.textContent = 'Orçamentos Aprovados';
+                    break;
+                case 'orcamentos-prestador-recusados':
+                    headerTitleElement.textContent = 'Orçamentos Recusados';
+                    break;
+                default:
+                    headerTitleElement.textContent = 'ChamadoPro'; // Título padrão
             }
         }
     }
 
     // Gerencia o histórico de telas
-    if (screenId !== currentScreen && screenId !== 'splash' && screenId !== 'login-screen-v2') { // Não adiciona splash ou login ao histórico
-        screenHistory.push(currentScreen);
+    // Adiciona a tela ANTERIOR ao histórico, exceto se for uma tela de login/splash
+    if (activeScreenId && activeScreenId !== screenId && !['splash', 'login-screen-v2', 'login-choice-screen', 'login-client-screen', 'login-provider-screen'].includes(activeScreenId)) {
+        screenHistory.push(activeScreenId);
     }
-    currentScreen = screenId;
+    activeScreenId = screenId; // Atualiza a tela ativa
 
     // Atualiza o estado dos cards e abas ao mudar de tela
     if (screenId === 'dashboard-usuario') {
@@ -231,22 +347,35 @@ function showScreen(screenId, title = '') {
         stopAdRotations();
     }
 
-    if (screenId.startsWith('orcamentos-usuario')) {
-        renderOrcamentosUsuarioSolicitados();
-        renderOrcamentosUsuarioRecebidos();
-        renderOrcamentosUsuarioAprovados();
-        renderOrcamentosUsuarioRecusados();
-        renderOrcamentosUsuarioVisitas();
-        updateUserBudgetCounts(); // Atualiza os contadores das abas
-        showTab('orcamentos-usuario', 'solicitados'); // Garante que a primeira aba esteja ativa
-    } else if (screenId.startsWith('orcamentos-prestador')) {
+    // Renderiza as abas de orçamentos do prestador
+    if (screenId === 'orcamentos-prestador') {
         renderOrcamentosPrestadorRecebidos();
         renderOrcamentosPrestadorPropostasEnviadas();
         renderOrcamentosPrestadorAprovados();
         renderOrcamentosPrestadorRecusados();
         updatePrestadorBudgetCounts(); // Atualiza os contadores das abas
         showTab('orcamentos-prestador', 'recebidos'); // Garante que a primeira aba esteja ativa
-    } else if (screenId === 'servicos-historico') {
+    }
+    // Adiciona a renderização para as abas de orçamentos do usuário
+    else if (screenId === 'orcamentos-usuario') {
+        renderOrcamentosUsuarioSolicitados();
+        renderOrcamentosUsuarioRecebidos();
+        renderOrcamentosUsuarioAprovados();
+        renderOrcamentosUsuarioRecusados();
+        renderOrcamentosUsuarioVisitas();
+        updateUserBudgetCounts(); // Atualiza os contadores das abas
+        // Use um pequeno timeout para garantir que o DOM seja atualizado antes de ativar a aba
+        setTimeout(() => {
+            // Verifica se a aba 'recebidos' deve ser ativada se o clique veio do dashboard
+            if (document.activeElement && document.activeElement.closest('.dashboard-cards')) {
+                 // Se o clique veio de um card do dashboard, a função showTab já foi chamada pelo onclick do card
+                 // Não é necessário chamar showTab novamente aqui, pois isso sobrescreveria a aba correta
+            } else {
+                showTab('orcamentos-usuario', 'solicitados'); // Garante que a primeira aba padrão esteja ativa
+            }
+        }, 50); // Pequeno atraso de 50ms
+    }
+    else if (screenId === 'servicos-historico') {
         renderServicosHistoricoFinalizados();
         renderServicosHistoricoRecusados();
         updateServicosHistoricoCounts(); // Atualiza os contadores das abas
@@ -256,25 +385,64 @@ function showScreen(screenId, title = '') {
     } else if (screenId === 'ocorrencias-prestador') {
         renderProviderOccurrences();
     } else if (screenId === 'buscar-servicos-unificado') { // Lógica para a nova tela unificada
+        renderSponsoredServices(); // Garante que os serviços padrão sejam renderizados
+        renderSponsoredVisitServices(); // Garante que os serviços de visita sejam renderizados
         showTab('buscar-servicos-unificado', 'padrao'); // Ativa a aba padrão por default
     } else if (screenId === 'financeiro') {
         updateFinanceiroDashboard();
         renderBankAccounts();
+    } else if (screenId === 'visitas-marcadas') {
+        renderVisitasMarcadas();
+    } else if (screenId === 'orcamentos-prestador-recebidos') {
+        renderOrcamentosPrestadorRecebidos();
+    } else if (screenId === 'orcamentos-prestador-propostas-enviadas') {
+        renderOrcamentosPrestadorPropostasEnviadas();
+    } else if (screenId === 'orcamentos-prestador-aprovados') {
+        renderOrcamentosPrestadorAprovados();
+    } else if (screenId === 'orcamentos-prestador-recusados') {
+        renderOrcamentosPrestadorRecusados();
+    } else if (screenId === 'calendario-trabalho') {
+        carregarCalendarioTrabalho();
+    }
+
+    // Atualiza títulos de seção específicos baseados no contexto
+    updateSectionTitle(screenId, title);
+}
+
+// Função para atualizar títulos de seção baseados no contexto do card clicado
+function updateSectionTitle(screenId, contextTitle = '') {
+    if (screenId === 'orcamentos-usuario') {
+        const titleElement = document.getElementById('orcamentos-usuario-title');
+        if (titleElement) {
+            if (contextTitle) {
+                titleElement.textContent = contextTitle;
+            } else {
+                titleElement.textContent = 'Meus Orçamentos';
+            }
+        }
+    } else if (screenId === 'orcamentos-prestador') {
+        const titleElement = document.getElementById('orcamentos-prestador-title');
+        if (titleElement) {
+            if (contextTitle) {
+                titleElement.textContent = contextTitle;
+            } else {
+                titleElement.textContent = 'Orçamentos';
+            }
+        }
     }
 }
 
 function goBack() {
     // Se está no dashboard principal, não faz nada
-    if (currentScreen === 'dashboard-usuario' || currentScreen === 'dashboard-prestador') {
+    if (activeScreenId === 'dashboard-usuario' || activeScreenId === 'dashboard-prestador') {
         return;
     }
     if (screenHistory.length > 0) {
         const prevScreenId = screenHistory.pop();
-        // Se o anterior é dashboard, vai para ele normalmente
         showScreen(prevScreenId);
     } else {
-        // Se não há histórico, não faz nada (não sai do sistema)
-        return;
+        // Se não há histórico, e não está no dashboard, volta para a tela de escolha de login
+        showLoginChoiceScreen();
     }
 }
 
@@ -287,7 +455,12 @@ function goToHome() {
         showScreen('dashboard-prestador');
     } else {
         // Se o tipo de usuário não estiver definido, volta para a tela de login
-        showLoginScreenV2();
+        showLoginChoiceScreen(); // Volta para a tela de escolha de login
+    }
+    // Garante que o menu lateral seja fechado ao ir para a home
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.remove('active');
     }
 }
 
@@ -312,57 +485,127 @@ function showLoginScreenV2() {
     if (selectUserClientRadio) selectUserClientRadio.checked = true;
     if (typeof updateUserTypePillHighlight === 'function') updateUserTypePillHighlight();
     switchTab('access'); // Ativa a aba "Acessar"
-    if (typeof updateTabHighlight === 'function') updateTabHighlight();
+    if (typeof updateTabHighlight === 'function') updateTabHighlight(); // Esta função não existe na sua versão, pode ser removida ou implementada
     updateFormVisibility(); // Garante que o formulário correto (cliente social) seja exibido
 }
 
 // Função para alternar entre as abas Acessar/Cadastrar na tela de login V2
-function switchTab(activeTabId) {
-    document.querySelectorAll('.auth-tabs .tab-button').forEach(button => button.classList.remove('active'));
-    document.querySelectorAll('#login-screen-v2 .form-section').forEach(section => section.classList.remove('active'));
+function switchTab(activeTabBaseId) { // activeTabBaseId será 'access' ou 'register'
+    let currentActiveScreenId = null; // 'client' ou 'provider'
+    const clientScreen = document.getElementById('login-client-screen');
+    const providerScreen = document.getElementById('login-provider-screen');
 
-    const progressBarFill = document.querySelector('.progress-bar-fill');
-    if (activeTabId === 'access') {
-        document.getElementById('access-tab').classList.add('active');
-        document.getElementById('access-section').classList.add('active');
-        if (progressBarFill) progressBarFill.style.width = '50%';
-    } else if (activeTabId === 'register') {
-        document.getElementById('register-tab').classList.add('active');
-        document.getElementById('register-section').classList.add('active');
-        if (progressBarFill) progressBarFill.style.width = '100%';
+    // Identifica qual tela de login (cliente ou prestador) está visível/ativa
+    if (clientScreen && clientScreen.style.display !== 'none') {
+        currentActiveScreenId = 'client';
+    } else if (providerScreen && providerScreen.style.display !== 'none') {
+        currentActiveScreenId = 'provider';
+    } else {
+        console.warn("Nenhuma tela de login (cliente/prestador) está ativa. Não é possível alternar abas.");
+        return; // Sai da função se nenhuma tela estiver ativa
     }
-    updateFormVisibility(); // Atualiza a visibilidade dos formulários internos
-}
 
+    // Obtém o elemento da tela atualmente ativa
+    const currentScreenElement = document.getElementById(`login-${currentActiveScreenId}-screen`);
+    if (!currentScreenElement) {
+        console.error(`Elemento da tela 'login-${currentActiveScreenId}-screen' não encontrado.`);
+        return;
+    }
+
+    // Remove a classe 'active' de todos os botões de aba dentro da tela ativa
+    currentScreenElement.querySelectorAll('.auth-tabs .tab-button').forEach(button => {
+        if (button) button.classList.remove('active');
+    });
+    // Remove a classe 'active' de todas as seções de formulário dentro da tela ativa
+    currentScreenElement.querySelectorAll('.form-sections .form-section').forEach(section => {
+        if (section) section.classList.remove('active');
+    });
+
+    // Constrói os IDs específicos da aba e seção alvo com base na tela ativa
+    const targetTabId = `${activeTabBaseId}-tab-${currentActiveScreenId}`;
+    const targetSectionId = `${activeTabBaseId}-section-${currentActiveScreenId}`;
+
+    const targetTabElement = document.getElementById(targetTabId);
+    const targetSectionElement = document.getElementById(targetSectionId);
+    const progressBarFill = document.querySelector('.progress-bar-fill'); // Presumindo que seja um elemento global
+
+    // Adiciona a classe 'active' aos elementos corretos
+    if (targetTabElement) targetTabElement.classList.add('active');
+    if (targetSectionElement) targetSectionElement.classList.add('active');
+
+    // Atualiza a barra de progresso (se aplicável)
+    if (progressBarFill) {
+        if (activeTabBaseId === 'access') {
+            progressBarFill.style.width = '50%'; // Largura para 'Acessar'
+        } else if (activeTabBaseId === 'register') {
+            progressBarFill.style.width = '100%'; // Largura para 'Cadastrar'
+        }
+    }
+}
 // Função para controlar a visibilidade dos formulários de acordo com o tipo de usuário e a aba ativa
 function updateFormVisibility() {
-    const isAccessTabActive = document.getElementById('access-tab').classList.contains('active');
-    const isClientSelected = document.getElementById('select-user-client').checked;
+    let currentActiveScreenId = null;
+    const clientScreen = document.getElementById('login-client-screen');
+    const providerScreen = document.getElementById('login-provider-screen');
 
-    // Oculta todos os formulários primeiro
-    document.getElementById('client-access-form').style.display = 'none';
-    document.getElementById('provider-access-form').style.display = 'none';
-    document.getElementById('client-register-form').style.display = 'none';
-    document.getElementById('provider-register-form').style.display = 'none';
+    // 1. Determina qual tela de login (cliente ou prestador) está visível
+    if (clientScreen && clientScreen.style.display !== 'none') {
+        currentActiveScreenId = 'client';
+    } else if (providerScreen && providerScreen.style.display !== 'none') {
+        currentActiveScreenId = 'provider';
+    } else {
+        console.warn("Nenhuma tela de login (cliente/prestador) está ativa para atualizar visibilidade do formulário.");
+        return; // Sai da função se nenhuma tela estiver ativa
+    }
 
-    if (isAccessTabActive) {
-        if (isClientSelected) {
-            document.getElementById('client-access-form').style.display = 'flex';
+    // 2. Obtém o estado da aba "Acessar" (se está ativa ou não)
+    const accessSectionElement = document.getElementById(`access-section-${currentActiveScreenId}`);
+    let isAccessTabActive = false;
+    if (accessSectionElement && accessSectionElement.classList.contains('active')) {
+        isAccessTabActive = true;
+    }
+
+    // 3. Determina se o usuário selecionado é o Cliente
+    const selectUserClientRadio = document.getElementById('select-user-client');
+    let isClientSelected = false; // DECLARAÇÃO E INICIALIZAÇÃO DE isClientSelected
+    if (selectUserClientRadio) {
+        isClientSelected = selectUserClientRadio.checked;
+    } else {
+        console.warn("Radio button #select-user-client não encontrado para determinar tipo de usuário.");
+        // Se o rádio não for encontrado, podemos tentar inferir do currentActiveScreenId
+        isClientSelected = (currentActiveScreenId === 'client');
+    }
+
+    // 4. Oculta todos os formulários (`.auth-form`) dentro da tela atualmente ativa
+    const currentScreenElement = document.getElementById(`login-${currentActiveScreenId}-screen`);
+    if (currentScreenElement) {
+        currentScreenElement.querySelectorAll('.auth-form').forEach(form => {
+            form.style.display = 'none'; // Define o estilo display para 'none'
+        });
+    }
+
+    // 5. Exibe o formulário correto com base na aba ativa e no tipo de tela
+    if (currentActiveScreenId === 'client') {
+        if (isAccessTabActive) {
+            const clientAccessForm = document.getElementById('client-access-form');
+            if (clientAccessForm) clientAccessForm.style.display = 'block';
         } else {
-            document.getElementById('provider-access-form').style.display = 'flex';
+            const clientRegisterForm = document.getElementById('client-register-form');
+            if (clientRegisterForm) clientRegisterForm.style.display = 'block';
         }
-    } else { // Aba "Cadastrar"
-        if (isClientSelected) {
-            document.getElementById('client-register-form').style.display = 'flex';
+    } else { // currentActiveScreenId === 'provider'
+        if (isAccessTabActive) {
+            const providerAccessForm = document.getElementById('provider-access-form');
+            if (providerAccessForm) providerAccessForm.style.display = 'block';
         } else {
-            document.getElementById('provider-register-form').style.display = 'flex';
+            const providerRegisterForm = document.getElementById('provider-register-form');
+            if (providerRegisterForm) providerRegisterForm.style.display = 'block';
         }
     }
     // Atualiza o destaque visual dos pills
     if (typeof updateUserTypePillHighlight === 'function') updateUserTypePillHighlight();
     if (typeof updatePrestadorTypePillHighlight === 'function') updatePrestadorTypePillHighlight();
 }
-
 
 function performLoginV2(event) {
     const isClientSelected = document.getElementById('select-user-client').checked;
@@ -377,6 +620,7 @@ function performLoginV2(event) {
             console.log('Tentando login cliente:', email, password);
             if (email.toLowerCase() === 'cliente@chamadopro.com.br' && password === '123') { // Novo usuário de exemplo para cliente
                 currentUserType = 'usuario';
+                nomeDoClienteLogado = "João Silva"; // Define o nome do cliente logado
                 setTimeout(function() {
                 // Oculta todas as telas de login/cadastro
                 var loginScreen = document.getElementById('login-screen-v2');
@@ -389,6 +633,7 @@ function performLoginV2(event) {
                 if (mainContent) mainContent.style.display = 'flex';
                 document.body.classList.add('app-active');
                 showScreen('dashboard-usuario');
+                updateUserDashboardCounts(); // Atualiza contadores após login
                 }, 100);
             } else {
                 showAlert('E-mail ou senha incorretos para Usuário. Tente novamente.');
@@ -397,11 +642,13 @@ function performLoginV2(event) {
             // Social login for client (Google, Facebook, Apple)
             showAlert('Simulando login de Cliente via social. Você será redirecionado para a dashboard de usuário.');
             currentUserType = 'usuario';
+            nomeDoClienteLogado = "Maria Oliveira"; // Define o nome do cliente logado
             setTimeout(function() {
                 document.getElementById('login-screen-v2').style.display = 'none';
                 document.querySelector('.main-content-wrapper').style.display = 'flex';
                 document.body.classList.add('app-active');
                 showScreen('dashboard-usuario');
+                updateUserDashboardCounts(); // Atualiza contadores após login
             }, 100);
         }
     } else {
@@ -411,6 +658,7 @@ function performLoginV2(event) {
         console.log('Tentando login prestador:', email, password);
         if (email.toLowerCase() === 'prestador@chamadopro.com.br' && password === '123') { // Novo usuário de exemplo para prestador
             currentUserType = 'prestador';
+            nomeDoClienteLogado = "Eletricista Silva"; // Define o nome do prestador logado
             setTimeout(function() {
                 // Oculta todas as telas de login/cadastro
                 var loginScreen = document.getElementById('login-screen-v2');
@@ -423,11 +671,14 @@ function performLoginV2(event) {
                 if (mainContent) mainContent.style.display = 'flex';
                 document.body.classList.add('app-active');
                 showScreen('dashboard-prestador');
+                updatePrestadorDashboardCounts(); // Atualiza contadores após login
             }, 100);
         } else {
             showAlert('E-mail ou senha incorretos para Prestador. Tente novamente.');
         }
     }
+    // Atualiza o menu lateral após o login
+    updateSidebarMenu();
 }
 
 // Função de registro (adaptada para a nova tela de login)
@@ -436,41 +687,48 @@ function registerUserV2() {
 
     if (isClientSelected) {
         const clientEmail = document.getElementById('client-email-register').value;
-        if (clientEmail) {
-            showAlert(`Usuário (Cliente) registrado com e-mail: ${clientEmail}. Você será redirecionado para a dashboard de usuário.`);
+        const clientName = document.getElementById('client-name-register').value; // Novo campo de nome para cliente
+        if (clientEmail && clientName) {
+            showAlert(`Usuário (Cliente) ${clientName} registrado com e-mail: ${clientEmail}. Você será redirecionado para a dashboard de usuário.`);
             currentUserType = 'usuario';
+            nomeDoClienteLogado = clientName; // Define o nome do cliente logado
             document.getElementById('login-screen-v2').style.display = 'none';
             document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
             document.body.classList.add('app-active');
             showScreen('dashboard-usuario');
+            updateUserDashboardCounts(); // Atualiza contadores após registro
         } else {
-            showAlert('Por favor, insira um e-mail para o cadastro do Usuário.');
+            showAlert('Por favor, insira seu nome e e-mail para o cadastro do Usuário.');
         }
     } else {
-        const providerName = document.getElementById('provider-name-register').value;
-        const providerEmail = document.getElementById('provider-email-register').value;
-        const providerPassword = document.getElementById('provider-password-register').value;
+        const providerName = document.getElementById('provider-pf-name').value || document.getElementById('provider-pj-nome-fantasia').value;
+        const providerEmail = document.getElementById('provider-pf-email').value || document.getElementById('provider-pj-email').value;
+        const providerPassword = document.getElementById('provider-pf-password').value || document.getElementById('provider-pj-password').value;
 
         if (providerName && providerEmail && providerPassword) {
             showAlert(`Prestador registrado: ${providerName} (${providerEmail}). Você será redirecionado para a dashboard de prestador.`);
             currentUserType = 'prestador';
+            nomeDoClienteLogado = providerName; // Define o nome do prestador logado
             document.getElementById('login-screen-v2').style.display = 'none';
             document.querySelector('.main-content-wrapper').style.display = 'flex'; // Alterado para flex
             document.body.classList.add('app-active');
             showScreen('dashboard-prestador');
+            updatePrestadorDashboardCounts(); // Atualiza contadores após registro
         } else {
             showAlert('Por favor, preencha todos os campos para o cadastro do Prestador.');
         }
     }
+    // Atualiza o menu lateral após o registro
+    updateSidebarMenu();
 }
 
 
 function logout() {
     // Usando o modal de alerta personalizado para a confirmação de saída
-    const confirmLogout = confirm('Tem certeza que deseja sair?'); // Manter o confirm nativo para esta ação crítica
-    if (confirmLogout) {
+    showAlert('Tem certeza que deseja sair?', 'Confirmação', () => {
         currentUserType = null;
-        screenHistory = [];
+        nomeDoClienteLogado = "Visitante"; // Reseta o nome ao deslogar
+        screenHistory = []; // Limpa o histórico de telas
         // Esconde todas as telas principais
         const mainContent = document.querySelector('.main-content-wrapper');
         if (mainContent) mainContent.style.display = 'none';
@@ -479,57 +737,163 @@ function logout() {
         document.body.classList.remove('app-active');
         // Esconde dashboards e telas de conteúdo
         document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
-        // Exibe a tela de login principal (login-choice-screen se existir, senão login-screen-v2)
-        const loginChoice = document.getElementById('login-choice-screen');
-        const loginScreenV2 = document.getElementById('login-screen-v2');
-        if (loginChoice) {
-            loginChoice.style.display = 'flex';
-            if (loginScreenV2) loginScreenV2.style.display = 'none';
-        } else if (loginScreenV2) {
-            loginScreenV2.style.display = 'flex';
+        // Exibe a tela de login principal (login-choice-screen)
+        showLoginChoiceScreen();
+        // Garante que o menu lateral seja fechado ao deslogar
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.classList.remove('active');
         }
+        // Reinicia os contadores do dashboard para 0 ao deslogar
+        updateUserDashboardCounts();
+        updatePrestadorDashboardCounts();
+        // Exibe mensagem de logout
+        showAlert('Logout realizado com sucesso! Você foi redirecionado para a tela de login.');
+    });
+}
+
+
+// Inicializar contadores de sub-abas (apenas para solicitados)
+function initializeSubTabs() {
+    updateSubTabCounts();
+    
+    // Mostrar sub-aba padrão para usuário (Orçamento Padrão na aba Solicitados)
+    const userSolicitadosTab = document.getElementById('orcamentos-usuario-solicitados-content');
+    if (userSolicitadosTab) {
+        showSubTab('orcamentos-usuario', 'solicitados', 'padrao');
     }
 }
 
-
 // Funções de Dashboard e Conteúdo
 function updateUserDashboardCounts() {
-    document.getElementById('orcamentos-usuario-solicitados-count-dashboard').textContent = orcamentosUsuarioSolicitados.length;
-    document.getElementById('orcamentos-usuario-recebidos-count-dashboard').textContent = orcamentosUsuarioRecebidos.length;
-    document.getElementById('orcamentos-usuario-aprovados-count-dashboard').textContent = orcamentosUsuarioAprovados.length;
-    document.getElementById('orcamentos-usuario-recusados-count-dashboard').textContent = orcamentosUsuarioRecusados.length;
-    document.getElementById('orcamentos-usuario-visitas-count-dashboard').textContent = orcamentosUsuarioVisitas.length;
-    document.getElementById('ocorrencias-usuario-count-dashboard').textContent = userOccurrences.length;
+    const totalSolicitacoesAbertas = orcamentosUsuarioSolicitados.length + orcamentosUsuarioRecebidos.length;
+    
+    const solicitadosElement = document.getElementById('orcamentos-usuario-solicitados-count-dashboard');
+    if (solicitadosElement) {
+        solicitadosElement.textContent = totalSolicitacoesAbertas;
+    }
+    
+    const totalAprovadosRecusados = orcamentosUsuarioAprovados.length + orcamentosUsuarioRecusados.length;
+    const aprovadosRecusadosElement = document.getElementById('orcamentos-aprovados-recusados-count-dashboard');
+    if (aprovadosRecusadosElement) {
+        aprovadosRecusadosElement.textContent = totalAprovadosRecusados;
+    }
+    
+    const ocorrenciasElement = document.getElementById('ocorrencias-usuario-count-dashboard');
+    if (ocorrenciasElement) {
+        ocorrenciasElement.textContent = userOccurrences.length;
+    }
+    
+    const visitasElement = document.getElementById('orcamentos-usuario-visitas-count-dashboard');
+    if (visitasElement) {
+        visitasElement.textContent = visitasMarcadas.length;
+    }
 }
 
 function updatePrestadorDashboardCounts() {
-    document.getElementById('servicos-ativos-count-dashboard').textContent = servicosAtivosCount;
-    document.getElementById('orcamentos-prestador-recebidos-count-dashboard').textContent = orcamentosPrestadorRecebidos.length;
-    document.getElementById('orcamentos-prestador-propostas-enviadas-count-dashboard').textContent = orcamentosPrestadorPropostasEnviadas.length;
-    document.getElementById('orcamentos-prestador-aprovados-count-dashboard').textContent = orcamentosPrestadorAprovados.length;
-    document.getElementById('orcamentos-prestador-recusados-count-dashboard').textContent = orcamentosPrestadorRecusados.length;
-    document.getElementById('ocorrencias-prestador-count-dashboard').textContent = providerOccurrences.length;
-    document.getElementById('servicos-historico-count-dashboard').textContent = servicosHistoricoCount;
+    const servicosAtivosElement = document.getElementById('servicos-ativos-count-dashboard');
+    if (servicosAtivosElement) {
+        servicosAtivosElement.textContent = Object.keys(serviceStatuses).length;
+    }
+    
+    const orcamentosRecebidosElement = document.getElementById('orcamentos-prestador-recebidos-count-dashboard');
+    if (orcamentosRecebidosElement) {
+        orcamentosRecebidosElement.textContent = orcamentosPrestadorRecebidos.length;
+    }
+    
+    const propostasEnviadasElement = document.getElementById('orcamentos-prestador-propostas-enviadas-count-dashboard');
+    if (propostasEnviadasElement) {
+        propostasEnviadasElement.textContent = orcamentosPrestadorPropostasEnviadas.length;
+    }
+    
+    const aprovadosElement = document.getElementById('orcamentos-prestador-aprovados-count-dashboard');
+    if (aprovadosElement) {
+        aprovadosElement.textContent = orcamentosPrestadorAprovados.length;
+    }
+    
+    const recusadosElement = document.getElementById('orcamentos-prestador-recusados-count-dashboard');
+    if (recusadosElement) {
+        recusadosElement.textContent = orcamentosPrestadorRecusados.length;
+    }
+    
+    const ocorrenciasPrestadorElement = document.getElementById('ocorrencias-prestador-count-dashboard');
+    if (ocorrenciasPrestadorElement) {
+        ocorrenciasPrestadorElement.textContent = providerOccurrences.length;
+    }
+    
+    const historicoElement = document.getElementById('servicos-historico-count-dashboard');
+    if (historicoElement) {
+        historicoElement.textContent = servicosHistoricoCount;
+    }
 }
 
 function updateUserBudgetCounts() {
-    document.getElementById('orcamentos-usuario-solicitados-count-tab').textContent = orcamentosUsuarioSolicitados.length;
-    document.getElementById('orcamentos-usuario-recebidos-count-tab').textContent = orcamentosUsuarioRecebidos.length;
-    document.getElementById('orcamentos-usuario-aprovados-count-tab').textContent = orcamentosUsuarioAprovados.length;
-    document.getElementById('orcamentos-usuario-recusados-count-tab').textContent = orcamentosUsuarioRecusados.length;
-    document.getElementById('orcamentos-usuario-visitas-count-tab').textContent = orcamentosUsuarioVisitas.length;
+    const solicitadosTabElement = document.getElementById('orcamentos-usuario-solicitados-count-tab');
+    if (solicitadosTabElement) {
+        solicitadosTabElement.textContent = orcamentosUsuarioSolicitados.length;
+    }
+    
+    const recebidosTabElement = document.getElementById('orcamentos-usuario-recebidos-count-tab');
+    if (recebidosTabElement) {
+        recebidosTabElement.textContent = orcamentosUsuarioRecebidos.length;
+    }
 }
 
 function updatePrestadorBudgetCounts() {
-    document.getElementById('orcamentos-prestador-recebidos-count-tab').textContent = orcamentosPrestadorRecebidos.length;
-    document.getElementById('orcamentos-prestador-propostas-enviadas-count-tab').textContent = orcamentosPrestadorPropostasEnviadas.length;
-    document.getElementById('orcamentos-prestador-aprovados-count-tab').textContent = orcamentosPrestadorAprovados.length;
-    document.getElementById('orcamentos-prestador-recusados-count-tab').textContent = orcamentosPrestadorRecusados.length;
+    // Atualizar contadores do dashboard
+    const dashboardElements = [
+        'orcamentos-prestador-recebidos-count-dashboard',
+        'orcamentos-prestador-propostas-enviadas-count-dashboard',
+        'orcamentos-prestador-aprovados-count-dashboard',
+        'orcamentos-prestador-recusados-count-dashboard'
+    ];
+    
+    const counts = [
+        orcamentosPrestadorRecebidos.length,
+        orcamentosPrestadorPropostasEnviadas.length,
+        orcamentosPrestadorAprovados.length,
+        orcamentosPrestadorRecusados.length
+    ];
+    
+    dashboardElements.forEach((elementId, index) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = counts[index];
+        }
+    });
+    
+    // Atualizar contadores das abas (se existirem)
+    const tabElements = [
+        'orcamentos-prestador-recebidos-count-tab',
+        'orcamentos-prestador-propostas-enviadas-count-tab',
+        'orcamentos-prestador-aprovados-count-tab',
+        'orcamentos-prestador-recusados-count-tab'
+    ];
+    
+    tabElements.forEach((elementId, index) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = counts[index];
+        }
+    });
 }
 
 function updateServicosHistoricoCounts() {
-    document.getElementById('servicos-finalizados-count-tab').textContent = servicosHistoricoCount;
-    document.getElementById('servicos-recusados-count-tab').textContent = orcamentosPrestadorRecusados.length; // Reutilizando para exemplo
+    const finalizadosElement = document.getElementById('servicos-finalizados-count-tab');
+    if (finalizadosElement) {
+        finalizadosElement.textContent = servicosHistoricoCount;
+    }
+    
+    const recusadosElement = document.getElementById('servicos-recusados-count-tab');
+    if (recusadosElement) {
+        recusadosElement.textContent = orcamentosPrestadorRecusados.length; // Reutilizando para exemplo
+    }
+    
+    // Atualizar contador do dashboard também
+    const dashboardElement = document.getElementById('servicos-historico-count-dashboard');
+    if (dashboardElement) {
+        dashboardElement.textContent = servicosHistoricoCount;
+    }
 }
 
 
@@ -559,7 +923,7 @@ function startAdRotations() {
             prestadorAdContent.classList.remove('active');
             setTimeout(() => {
                 currentAdIndexPrestador = (currentAdIndexPrestador + 1) % prestadorAds.length;
-                prestadorAdContent.textContent = prestadorAds[currentAdIndexPrestador];
+                prestadorAdContent.textContent = prestadorAds[currentAdIndexPrestador]; // Corrigido para prestadorAds
                 prestadorAdContent.classList.add('active');
             }, 500); // Tempo para a transição de saída
         }, 5000); // Troca a cada 5 segundos
@@ -574,18 +938,27 @@ function stopAdRotations() {
 // Funções de Orçamentos (Usuário)
 function renderOrcamentosUsuarioSolicitados() {
     const container = document.getElementById('orcamentos-usuario-solicitados-content');
+    if (!container) return;
     container.innerHTML = '';
     if (orcamentosUsuarioSolicitados.length === 0) {
-        container.innerHTML = '<p>Nenhum orçamento solicitado ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhum orçamento solicitado ainda.</p>';
         return;
     }
     orcamentosUsuarioSolicitados.forEach(req => {
         const card = document.createElement('div');
-        card.classList.add('card');
+        const isVisita = req.tipo === 'visita';
+        const tipoClass = isVisita ? 'orcamento-visita' : 'orcamento-padrao';
+        const tipoTextClass = isVisita ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
+        const tipoIcon = isVisita ? '<i class="fas fa-calendar-check"></i>' : '<i class="fas fa-tools"></i>';
+        const tipoLabel = isVisita ? 'Orçamento com Visita' : 'Orçamento Padrão';
+        
+        card.classList.add('card', tipoClass);
+        
         card.innerHTML = `
             <div class="card-header">
-                <h3>${req.title}</h3>
-                <div class="status aguardando">Aguardando Propostas</div>
+                <h3>${req.title} ${tipoIcon}</h3>
+                <div class="status aguardando">Aguardando ${isVisita ? 'Agendamento' : 'Propostas'}</div>
+                <small class="${tipoTextClass}" style="font-style: italic;">${tipoLabel}</small>
             </div>
             <div class="info">
                 <p><i class="fas fa-calendar-alt"></i> Data: ${req.date}</p>
@@ -602,18 +975,27 @@ function renderOrcamentosUsuarioSolicitados() {
 
 function renderOrcamentosUsuarioRecebidos() {
     const container = document.getElementById('orcamentos-usuario-recebidos-content');
+    if (!container) return;
     container.innerHTML = '';
     if (orcamentosUsuarioRecebidos.length === 0) {
-        container.innerHTML = '<p>Nenhuma proposta de orçamento recebida ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhuma proposta de orçamento recebida ainda.</p>';
         return;
     }
     orcamentosUsuarioRecebidos.forEach(budget => {
         const card = document.createElement('div');
-        card.classList.add('card');
+        const isVisita = budget.tipo === 'visita';
+        const tipoClass = isVisita ? 'orcamento-visita' : 'orcamento-padrao';
+        const tipoTextClass = isVisita ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
+        const tipoIcon = isVisita ? '<i class="fas fa-calendar-check"></i>' : '<i class="fas fa-tools"></i>';
+        const tipoLabel = isVisita ? 'Proposta de Visita' : 'Orçamento Padrão';
+        
+        card.classList.add('card', tipoClass);
+        
         card.innerHTML = `
             <div class="card-header">
-                <h3>${budget.service} - ${budget.value}</h3>
+                <h3>${tipoIcon} ${budget.service} - ${budget.value}</h3>
                 <div class="status em-analise">Em Análise</div>
+                <small class="${tipoTextClass}" style="font-weight: bold;">${tipoLabel}</small>
             </div>
             <div class="info">
                 <p><i class="fas fa-user"></i> Prestador: ${budget.prestador}</p>
@@ -621,7 +1003,7 @@ function renderOrcamentosUsuarioRecebidos() {
             </div>
             <div class="actions">
                 <button class="btn" onclick="openReceivedBudgetDetailsModal(${budget.id})"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
-                <button class="btn" style="background-color: #28a745;" onclick="openScheduleProposalModal(${budget.id})"><i class="fas fa-check"></i> Aprovar e Agendar</button>
+                <button class="btn" style="background-color: #28a745;" onclick="openScheduleProposalModal(${budget.id})"><i class="fas fa-check"></i> ${isVisita ? 'Agendar Visita' : 'Aprovar e Agendar'}</button>
                 <button class="btn btn-finalizar" onclick="openUserRefusalReasonModal(${budget.id})"><i class="fas fa-times"></i> Recusar</button>
             </div>
         `;
@@ -631,9 +1013,10 @@ function renderOrcamentosUsuarioRecebidos() {
 
 function renderOrcamentosUsuarioAprovados() {
     const container = document.getElementById('orcamentos-usuario-aprovados-content');
+    if (!container) return;
     container.innerHTML = '';
     if (orcamentosUsuarioAprovados.length === 0) {
-        container.innerHTML = '<p>Nenhum orçamento aprovado ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhum orçamento aprovado ainda.</p>';
         return;
     }
     orcamentosUsuarioAprovados.forEach(budget => {
@@ -659,9 +1042,10 @@ function renderOrcamentosUsuarioAprovados() {
 
 function renderOrcamentosUsuarioRecusados() {
     const container = document.getElementById('orcamentos-usuario-recusados-content');
+    if (!container) return;
     container.innerHTML = '';
     if (orcamentosUsuarioRecusados.length === 0) {
-        container.innerHTML = '<p>Nenhum orçamento recusado ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhum orçamento recusado ainda.</p>';
         return;
     }
     orcamentosUsuarioRecusados.forEach(budget => {
@@ -687,9 +1071,10 @@ function renderOrcamentosUsuarioRecusados() {
 
 function renderOrcamentosUsuarioVisitas() {
     const container = document.getElementById('orcamentos-usuario-visitas-content');
+    if (!container) return;
     container.innerHTML = '';
     if (orcamentosUsuarioVisitas.length === 0) {
-        container.innerHTML = '<p>Nenhuma visita agendada ou solicitada ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhuma visita agendada ou solicitada ainda.</p>';
         return;
     }
     orcamentosUsuarioVisitas.forEach(visit => {
@@ -716,21 +1101,320 @@ function renderOrcamentosUsuarioVisitas() {
 }
 
 
+// === NOVAS FUNÇÕES PARA SUB-ABAS ===
+
+// Funções para renderizar Solicitados por tipo
+function renderOrcamentosSolicitadosPadrao() {
+    const container = document.getElementById('orcamentos-usuario-solicitados-padrao-content');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const solicitadosPadrao = orcamentosUsuarioSolicitados.filter(req => req.tipo === 'padrao');
+    
+    if (solicitadosPadrao.length === 0) {
+        container.innerHTML = '<p class="no-content-message">Nenhum orçamento padrão solicitado ainda.</p>';
+        return;
+    }
+    
+    solicitadosPadrao.forEach(req => {
+        const card = document.createElement('div');
+        card.classList.add('card', 'orcamento-padrao');
+        card.innerHTML = `
+            <div class="card-header">
+                <h3><i class="fas fa-tools"></i> ${req.title}</h3>
+                <div class="status aguardando">Aguardando Propostas</div>
+                <small class="tipo-orcamento-padrao" style="font-weight: bold;">Orçamento Padrão</small>
+            </div>
+            <div class="info">
+                <p><i class="fas fa-calendar-alt"></i> Data: ${req.date}</p>
+                <p><i class="fas fa-map-marker-alt"></i> Endereço: ${req.address}</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="openRequestDetailsModal(${req.id}, 'solicitado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn btn-finalizar" onclick="showAlert('Cancelar solicitação ${req.id}')"><i class="fas fa-times-circle"></i> Cancelar</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function renderOrcamentosSolicitadosVisita() {
+    const container = document.getElementById('orcamentos-usuario-solicitados-visita-content');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const solicitadosVisita = orcamentosUsuarioSolicitados.filter(req => req.tipo === 'visita');
+    
+    if (solicitadosVisita.length === 0) {
+        container.innerHTML = '<p class="no-content-message">Nenhum orçamento com visita solicitado ainda.</p>';
+        return;
+    }
+    
+    solicitadosVisita.forEach(req => {
+        const card = document.createElement('div');
+        card.classList.add('card', 'orcamento-visita');
+        card.innerHTML = `
+            <div class="card-header">
+                <h3><i class="fas fa-calendar-check"></i> ${req.title}</h3>
+                <div class="status aguardando">Aguardando Agendamento</div>
+                <small class="tipo-orcamento-visita" style="font-weight: bold;">Orçamento com Visita</small>
+            </div>
+            <div class="info">
+                <p><i class="fas fa-calendar-alt"></i> Data: ${req.date}</p>
+                <p><i class="fas fa-map-marker-alt"></i> Endereço: ${req.address}</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="openRequestDetailsModal(${req.id}, 'solicitado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn btn-finalizar" onclick="showAlert('Cancelar solicitação ${req.id}')"><i class="fas fa-times-circle"></i> Cancelar</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Funções para renderizar Recebidos por tipo
+function renderOrcamentosRecebidosPadrao() {
+    const container = document.getElementById('recebidos-padrao-content');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const recebidosPadrao = orcamentosUsuarioRecebidos.filter(budget => budget.tipo === 'padrao');
+    
+    if (recebidosPadrao.length === 0) {
+        container.innerHTML = '<p class="no-content-message">Nenhuma proposta de orçamento padrão recebida ainda.</p>';
+        return;
+    }
+    
+    recebidosPadrao.forEach(budget => {
+        const card = document.createElement('div');
+        card.classList.add('card', 'orcamento-padrao');
+        card.innerHTML = `
+            <div class="card-header">
+                <h3><i class="fas fa-tools"></i> ${budget.service} - ${budget.value}</h3>
+                <div class="status em-analise">Em Análise</div>
+                <small class="tipo-orcamento-padrao" style="font-style: italic;">Orçamento Padrão</small>
+            </div>
+            <div class="info">
+                <p><i class="fas fa-user"></i> Prestador: ${budget.prestador}</p>
+                <p><i class="fas fa-calendar-alt"></i> Proposta em: ${budget.date}</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="openReceivedBudgetDetailsModal(${budget.id})"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" style="background-color: #28a745;" onclick="openScheduleProposalModal(${budget.id})"><i class="fas fa-check"></i> Aprovar e Agendar</button>
+                <button class="btn btn-finalizar" onclick="openUserRefusalReasonModal(${budget.id})"><i class="fas fa-times"></i> Recusar</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function renderOrcamentosRecebidosVisita() {
+    const container = document.getElementById('recebidos-visita-content');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const recebidosVisita = orcamentosUsuarioRecebidos.filter(budget => budget.tipo === 'visita');
+    
+    if (recebidosVisita.length === 0) {
+        container.innerHTML = '<p class="no-content-message">Nenhuma proposta de visita recebida ainda.</p>';
+        return;
+    }
+    
+    recebidosVisita.forEach(budget => {
+        const card = document.createElement('div');
+        card.classList.add('card', 'orcamento-visita');
+        card.innerHTML = `
+            <div class="card-header">
+                <h3><i class="fas fa-calendar-check"></i> ${budget.service} - ${budget.value}</h3>
+                <div class="status em-analise">Em Análise</div>
+                <small class="tipo-orcamento-visita" style="font-style: italic;">Proposta de Visita</small>
+            </div>
+            <div class="info">
+                <p><i class="fas fa-user"></i> Prestador: ${budget.prestador}</p>
+                <p><i class="fas fa-calendar-alt"></i> Proposta em: ${budget.date}</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="openReceivedBudgetDetailsModal(${budget.id})"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" style="background-color: #28a745;" onclick="openScheduleProposalModal(${budget.id})"><i class="fas fa-check"></i> Agendar Visita</button>
+                <button class="btn btn-finalizar" onclick="openUserRefusalReasonModal(${budget.id})"><i class="fas fa-times"></i> Recusar</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Função para atualizar contadores das sub-abas
+function updateSubTabCounts() {
+    // Contadores apenas para Solicitados (única aba com sub-abas)
+    const solicitadosPadrao = orcamentosUsuarioSolicitados.filter(req => req.tipo === 'padrao');
+    const solicitadosVisita = orcamentosUsuarioSolicitados.filter(req => req.tipo === 'visita');
+    
+    // Atualiza elementos DOM
+    const elemSolPadrao = document.getElementById('solicitados-padrao-count');
+    const elemSolVisita = document.getElementById('solicitados-visita-count');
+    
+    if (elemSolPadrao) elemSolPadrao.textContent = solicitadosPadrao.length;
+    if (elemSolVisita) elemSolVisita.textContent = solicitadosVisita.length;
+}
+
+// Função para atualizar contadores da tela Aprovados/Recusados
+function updateAprovadosRecusadosCounts() {
+    const aprovadosElement = document.getElementById('orcamentos-aprovados-count-tab');
+    const recusadosElement = document.getElementById('orcamentos-recusados-count-tab');
+    
+    if (aprovadosElement) {
+        aprovadosElement.textContent = orcamentosUsuarioAprovados.length;
+    }
+    
+    if (recusadosElement) {
+        recusadosElement.textContent = orcamentosUsuarioRecusados.length;
+    }
+}
+
+// Função para renderizar orçamentos aprovados
+function renderOrcamentosAprovados() {
+    const container = document.getElementById('orcamentos-aprovados-recusados-aprovados-content');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (orcamentosUsuarioAprovados.length === 0) {
+        container.innerHTML = '<p class="no-content-message">Nenhum orçamento aprovado ainda.</p>';
+        return;
+    }
+    
+    orcamentosUsuarioAprovados.forEach(orcamento => {
+        const tipoClass = orcamento.tipo === 'visita' ? 'orcamento-visita' : 'orcamento-padrao';
+        const tipoLabel = orcamento.tipo === 'visita' ? 'Orçamento com Visita' : 'Orçamento Padrão';
+        const tipoTextClass = orcamento.tipo === 'visita' ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
+        const iconeTipo = orcamento.tipo === 'visita' ? 'fas fa-calendar-check' : 'fas fa-tools';
+        
+        const card = document.createElement('div');
+        card.classList.add('card', tipoClass);
+        card.innerHTML = `
+            <div class="card-header">
+                <h3><i class="${iconeTipo}"></i> ${orcamento.service} - ${orcamento.value}</h3>
+                <div class="status aprovado">Aprovado</div>
+                <small class="${tipoTextClass}" style="font-style: italic;">${tipoLabel}</small>
+            </div>
+            <div class="info">
+                <p><i class="fas fa-user"></i> Prestador: ${orcamento.prestador}</p>
+                <p><i class="fas fa-calendar-alt"></i> Aprovado em: ${orcamento.date}</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="openBudgetDetailsModal(${orcamento.id})"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" onclick="openChat('${orcamento.prestador}')"><i class="fas fa-comments"></i> Chat</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Função para renderizar orçamentos recusados
+function renderOrcamentosRecusados() {
+    const container = document.getElementById('orcamentos-aprovados-recusados-recusados-content');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (orcamentosUsuarioRecusados.length === 0) {
+        container.innerHTML = '<p class="no-content-message">Nenhum orçamento recusado ainda.</p>';
+        return;
+    }
+    
+    orcamentosUsuarioRecusados.forEach(orcamento => {
+        const tipoClass = orcamento.tipo === 'visita' ? 'orcamento-visita' : 'orcamento-padrao';
+        const tipoLabel = orcamento.tipo === 'visita' ? 'Orçamento com Visita' : 'Orçamento Padrão';
+        const tipoTextClass = orcamento.tipo === 'visita' ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
+        const iconeTipo = orcamento.tipo === 'visita' ? 'fas fa-calendar-check' : 'fas fa-tools';
+        
+        const card = document.createElement('div');
+        card.classList.add('card', tipoClass);
+        card.innerHTML = `
+            <div class="card-header">
+                <h3><i class="${iconeTipo}"></i> ${orcamento.service} - ${orcamento.value}</h3>
+                <div class="status recusado">Recusado</div>
+                <small class="${tipoTextClass}" style="font-style: italic;">${tipoLabel}</small>
+            </div>
+            <div class="info">
+                <p><i class="fas fa-user"></i> Prestador: ${orcamento.prestador}</p>
+                <p><i class="fas fa-calendar-alt"></i> Recusado em: ${orcamento.date}</p>
+                <p><i class="fas fa-info-circle"></i> Motivo: ${orcamento.motivoRecusa || 'Não informado'}</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="openBudgetDetailsModal(${orcamento.id})"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Função para renderizar visitas marcadas
+function renderVisitasMarcadas() {
+    const container = document.getElementById('visitas-marcadas-content');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (visitasMarcadas.length === 0) {
+        container.innerHTML = '<p class="no-content-message">Nenhuma visita marcada ainda.</p>';
+        return;
+    }
+    
+    visitasMarcadas.forEach(visita => {
+        const tipoClass = visita.tipo === 'visita' ? 'orcamento-visita' : 'orcamento-padrao';
+        const tipoLabel = visita.tipo === 'visita' ? 'Orçamento com Visita' : 'Orçamento Padrão';
+        const tipoTextClass = visita.tipo === 'visita' ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
+        const iconeTipo = visita.tipo === 'visita' ? 'fas fa-calendar-check' : 'fas fa-tools';
+        
+        const card = document.createElement('div');
+        card.classList.add('card', tipoClass);
+        card.innerHTML = `
+            <div class="card-header">
+                <h3><i class="${iconeTipo}"></i> ${visita.service} - ${visita.value}</h3>
+                <div class="status confirmado">${visita.status}</div>
+                <small class="${tipoTextClass}" style="font-weight: bold;">${tipoLabel}</small>
+            </div>
+            <div class="info">
+                <p><i class="fas fa-user"></i> Prestador: ${visita.prestador}</p>
+                <p><i class="fas fa-calendar-alt"></i> Data: ${visita.date} às ${visita.time}</p>
+                <p><i class="fas fa-map-marker-alt"></i> Endereço: ${visita.address}</p>
+                <p><i class="fas fa-info-circle"></i> ${visita.description}</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="openChat('${visita.prestador}')"><i class="fas fa-comments"></i> Chat</button>
+                <button class="btn" onclick="showAlert('Detalhes da visita ${visita.id}')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// === FIM DAS NOVAS FUNÇÕES ===
+
+
 // Funções de Orçamentos (Prestador)
 function renderOrcamentosPrestadorRecebidos() {
     const container = document.getElementById('orcamentos-prestador-recebidos-content');
+    if (!container) return;
     container.innerHTML = '';
     if (orcamentosPrestadorRecebidos.length === 0) {
-        container.innerHTML = '<p>Nenhuma nova solicitação de orçamento aguardando.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhuma nova solicitação de orçamento aguardando.</p>';
         return;
     }
     orcamentosPrestadorRecebidos.forEach(req => {
         const card = document.createElement('div');
         card.classList.add('card');
+        const isVisita = req.tipo === 'visita';
+        const tipoClass = isVisita ? 'orcamento-visita' : 'orcamento-padrao';
+        const tipoTextClass = isVisita ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
+        const tipoIcon = isVisita ? '<i class="fas fa-calendar-check"></i>' : '<i class="fas fa-tools"></i>';
+        const tipoLabel = isVisita ? 'Orçamento com Visita' : 'Orçamento Padrão';
+        const actionText = isVisita ? 'Propor Visita' : 'Enviar Proposta';
+        
+        card.classList.add(tipoClass);
         card.innerHTML = `
             <div class="card-header">
-                <h3>${req.title}</h3>
+                <h3>${req.title} ${tipoIcon}</h3>
                 <div class="status aguardando">Nova Solicitação</div>
+                <small class="${tipoTextClass}" style="font-style: italic;">${tipoLabel}</small>
             </div>
             <div class="info">
                 <p><i class="fas fa-user"></i> Cliente: ${req.client}</p>
@@ -739,7 +1423,7 @@ function renderOrcamentosPrestadorRecebidos() {
             </div>
             <div class="actions">
                 <button class="btn" onclick="openRequestDetailsModal(${req.id}, 'recebido')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
-                <button class="btn" style="background-color: #28a745;" onclick="openProposalFormModal(${req.id})"><i class="fas fa-paper-plane"></i> Enviar Proposta</button>
+                <button class="btn" style="background-color: #28a745;" onclick="openProposalFormModal(${req.id})"><i class="fas fa-paper-plane"></i> ${actionText}</button>
                 <button class="btn btn-finalizar" onclick="openRefusalReasonModal(${req.id})"><i class="fas fa-times"></i> Recusar</button>
             </div>
         `;
@@ -749,9 +1433,10 @@ function renderOrcamentosPrestadorRecebidos() {
 
 function renderOrcamentosPrestadorPropostasEnviadas() {
     const container = document.getElementById('orcamentos-prestador-propostas-enviadas-content');
+    if (!container) return;
     container.innerHTML = '';
     if (orcamentosPrestadorPropostasEnviadas.length === 0) {
-        container.innerHTML = '<p>Nenhuma proposta enviada ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhuma proposta enviada ainda.</p>';
         return;
     }
     orcamentosPrestadorPropostasEnviadas.forEach(proposal => {
@@ -777,9 +1462,10 @@ function renderOrcamentosPrestadorPropostasEnviadas() {
 
 function renderOrcamentosPrestadorAprovados() {
     const container = document.getElementById('orcamentos-prestador-aprovados-content');
+    if (!container) return;
     container.innerHTML = '';
     if (orcamentosPrestadorAprovados.length === 0) {
-        container.innerHTML = '<p>Nenhum orçamento aprovado por clientes ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhum orçamento aprovado por clientes ainda.</p>';
         return;
     }
     orcamentosPrestadorAprovados.forEach(budget => {
@@ -805,9 +1491,10 @@ function renderOrcamentosPrestadorAprovados() {
 
 function renderOrcamentosPrestadorRecusados() {
     const container = document.getElementById('orcamentos-prestador-recusados-content');
+    if (!container) return;
     container.innerHTML = '';
     if (orcamentosPrestadorRecusados.length === 0) {
-        container.innerHTML = '<p>Nenhum orçamento recusado por você ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhum orçamento recusado por você ainda.</p>';
         return;
     }
     orcamentosPrestadorRecusados.forEach(req => {
@@ -836,7 +1523,8 @@ function renderOrcamentosPrestadorRecusados() {
 let serviceStatuses = {
     1: { status: 'Aguardando Início', alert: false },
     2: { status: 'Em Andamento', alert: false },
-    3: { status: 'Aguardando Confirmação', alert: true }
+    3: { status: 'Aguardando Confirmação', alert: true },
+    4: { status: 'Aguardando Início', alert: false } // Novo serviço de exemplo
 };
 
 function updateServiceCard(serviceId) {
@@ -918,16 +1606,57 @@ document.getElementById('confirm-finalize-btn').addEventListener('click', () => 
 
 
 // Funções de Chat
+const chatHistories = {
+    'Eletricista Silva': [
+        { sender: 'received', message: 'Olá! Em que posso ajudar com a instalação da tomada?' },
+        { sender: 'sent', message: 'Olá! A tomada que você instalou parou de funcionar. Poderia verificar?' },
+        { sender: 'received', message: 'Certo, estou verificando minha agenda. Qual o melhor horário para você amanhã?' },
+        { sender: 'sent', message: 'Qualquer horário após as 14h seria ótimo.' }
+    ],
+    'Pintor João': [
+        { sender: 'received', message: 'Bom dia! Recebi seu pedido de orçamento para pintura. Alguma cor específica em mente?' },
+        { sender: 'sent', message: 'Bom dia! Sim, quero um tom de cinza claro. Você tem um catálogo de cores?' },
+        { sender: 'received', message: 'Tenho sim, levarei algumas amostras na visita. Confirmamos a visita para quinta-feira?' },
+        { sender: 'sent', message: 'Perfeito! Quinta-feira às 10h está ótimo.' }
+    ],
+    'Construtora Alfa': [
+        { sender: 'received', message: 'Olá! Recebemos sua solicitação de visita para a reforma. Poderia nos dar mais detalhes sobre o projeto?' },
+        { sender: 'sent', message: 'Olá! É uma reforma completa da cozinha e dois banheiros. Preciso de um orçamento detalhado.' },
+        { sender: 'received', message: 'Entendido. Nossa equipe técnica fará a avaliação no local. As datas sugeridas estão boas para você?' },
+        { sender: 'sent', message: 'Sim, a primeira opção de data está ótima. Aguardo vocês!' }
+    ],
+    'Maria Oliveira': [
+        { sender: 'received', message: 'Olá! Gostaria de saber se você já conseguiu analisar a proposta para o reparo de vazamento.' },
+        { sender: 'sent', message: 'Olá Maria! Sim, estou finalizando o orçamento. Devo enviar em breve.' },
+        { sender: 'received', message: 'Ok, fico no aguardo. Obrigada!' }
+    ],
+    'Roberto Santos': [
+        { sender: 'received', message: 'Boa tarde! Sobre a manutenção do ar condicionado, qual a sua disponibilidade para a visita?' },
+        { sender: 'sent', message: 'Boa tarde Roberto! Posso ir na sexta-feira pela manhã, entre 9h e 12h. Seria bom para você?' },
+        { sender: 'received', message: 'Sim, sexta pela manhã é ótimo! Pode vir. Obrigado!' }
+    ]
+};
+
 function openChat(partnerName) {
     currentChatPartner = partnerName;
     document.getElementById('chat-header-title').textContent = `Chat com ${partnerName}`;
     document.getElementById('chat-modal').style.display = 'flex';
-    // Limpar e carregar mensagens do chat (simulado)
+    
     const chatBody = document.getElementById('chat-body');
-    chatBody.innerHTML = `
-        <div class="message received">Olá! Como posso ajudar?</div>
-        <div class="message sent">Olá ${partnerName}! Preciso de uma atualização sobre o serviço.</div>
-    `;
+    chatBody.innerHTML = ''; // Limpa o chat
+
+    const history = chatHistories[partnerName] || [
+        { sender: 'received', message: `Olá! Sou ${partnerName}. Como posso ajudar?` },
+        { sender: 'sent', message: `Olá ${nomeDoClienteLogado}! Gostaria de conversar sobre um serviço.` }
+    ];
+
+    history.forEach(msg => {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', msg.sender);
+        messageDiv.textContent = msg.message;
+        chatBody.appendChild(messageDiv);
+    });
+
     chatBody.scrollTop = chatBody.scrollHeight; // Rola para o final
 }
 
@@ -940,17 +1669,42 @@ function sendMessage() {
         messageDiv.classList.add('message', 'sent');
         messageDiv.textContent = messageText;
         chatBody.appendChild(messageDiv);
+
+        // Adiciona a mensagem ao histórico simulado
+        if (!chatHistories[currentChatPartner]) {
+            chatHistories[currentChatPartner] = [];
+        }
+        chatHistories[currentChatPartner].push({ sender: 'sent', message: messageText });
+
         chatInput.value = '';
         chatBody.scrollTop = chatBody.scrollHeight; // Rola para o final
+
+        // Simula uma resposta do "parceiro" após um pequeno atraso
+        setTimeout(() => {
+            const simulatedResponse = `Ok, ${nomeDoClienteLogado}. Entendido!`;
+            const responseDiv = document.createElement('div');
+            responseDiv.classList.add('message', 'received');
+            responseDiv.textContent = simulatedResponse;
+            chatBody.appendChild(responseDiv);
+            chatHistories[currentChatPartner].push({ sender: 'received', message: simulatedResponse });
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }, 1500); // Responde após 1.5 segundos
     }
 }
 
 // Funções de Ocorrências
 function renderUserOccurrences() {
     const container = document.getElementById('ocorrencias-usuario');
-    container.innerHTML = '<div class="section-header"><h2>Minhas Ocorrências</h2><button class="btn primary-btn" onclick="showScreen(\'abrir-ocorrencia\')"><i class="fas fa-plus-circle"></i> Abrir Nova Ocorrência</button></div>'; // Mantém o título
+    // Limpa o conteúdo existente, mas mantém o section-header
+    let headerHtml = '';
+    const sectionHeader = container.querySelector('.section-header');
+    if (sectionHeader) {
+        headerHtml = sectionHeader.outerHTML;
+    }
+    container.innerHTML = headerHtml; // Limpa e adiciona o header de volta
+
     if (userOccurrences.length === 0) {
-        container.innerHTML += '<p>Nenhuma ocorrência registrada ainda.</p>';
+        container.innerHTML += '<p class="no-content-message">Nenhuma ocorrência registrada ainda.</p>';
         return;
     }
     userOccurrences.forEach(occurrence => {
@@ -975,9 +1729,16 @@ function renderUserOccurrences() {
 
 function renderProviderOccurrences() {
     const container = document.getElementById('ocorrencias-prestador');
-    container.innerHTML = '<div class="section-header"><h2>Ocorrências para Meus Serviços</h2></div>'; // Mantém o título
+    // Limpa o conteúdo existente, mas mantém o section-header
+    let headerHtml = '';
+    const sectionHeader = container.querySelector('.section-header');
+    if (sectionHeader) {
+        headerHtml = sectionHeader.outerHTML;
+    }
+    container.innerHTML = headerHtml; // Limpa e adiciona o header de volta
+
     if (providerOccurrences.length === 0) {
-        container.innerHTML += '<p>Nenhuma ocorrência registrada para seus serviços ainda.</p>';
+        container.innerHTML += '<p class="no-content-message">Nenhuma ocorrência registrada para seus serviços ainda.</p>';
         return;
     }
     providerOccurrences.forEach(occurrence => {
@@ -1006,7 +1767,7 @@ function submitNewOccurrence() {
     const service = document.getElementById('ocorrencia-servico').value;
     const title = document.getElementById('ocorrencia-titulo').value.trim();
     const description = document.getElementById('ocorrencia-descricao').value.trim();
-    const attachments = document.getElementById('ocorrencia-anexos').files;
+    const anexos = document.getElementById('ocorrencia-anexos').files;
 
     if (!service || !title || !description) {
         showAlert('Por favor, preencha todos os campos obrigatórios (Serviço, Título, Descrição).');
@@ -1020,9 +1781,9 @@ function submitNewOccurrence() {
         description: description,
         date: new Date().toLocaleDateString('pt-BR'),
         status: 'Em Análise',
-        client: 'Usuário Atual', // Simulação
-        prestador: 'Prestador do Serviço', // Simulação
-        attachments: Array.from(attachments).map(file => URL.createObjectURL(file)), // Salva URLs temporárias
+        client: nomeDoClienteLogado, // Simulação
+        prestador: 'Suporte ChamadoPro', // Simulação
+        attachments: Array.from(anexos).map(file => URL.createObjectURL(file)), // Salva URLs temporárias
         chatHistory: [{ sender: 'Plataforma', message: 'Ocorrência aberta. Nossa equipe está analisando.', type: 'platform-highlight' }]
     };
 
@@ -1062,7 +1823,7 @@ function openOccurrenceDetailsModal(occurrenceId, userType) {
     chatHistoryContainer.innerHTML = ''; // Limpa o chat
     occurrence.chatHistory.forEach(msg => {
         const msgDiv = document.createElement('div');
-        msgDiv.classList.add('message', msg.sender === 'Plataforma' ? 'platform-highlight' : (msg.sender === 'Eu' ? 'sent' : 'received'));
+        msgDiv.classList.add('message', msg.sender === 'Plataforma' ? 'platform-highlight' : (msg.sender === nomeDoClienteLogado ? 'sent' : 'received'));
         msgDiv.textContent = msg.message;
         chatHistoryContainer.appendChild(msgDiv);
     });
@@ -1106,6 +1867,7 @@ function performServiceSearch() {
 
 function renderSponsoredServices(searchTerm = '') {
     const container = document.getElementById('sponsored-services-list');
+    if (!container) return;
     container.innerHTML = '';
     const filteredServices = sponsoredServices.filter(service =>
         service.name.toLowerCase().includes(searchTerm) ||
@@ -1114,7 +1876,7 @@ function renderSponsoredServices(searchTerm = '') {
     );
 
     if (filteredServices.length === 0) {
-        container.innerHTML = '<p>Nenhum serviço encontrado para sua busca.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhum serviço encontrado para sua busca.</p>';
         return;
     }
 
@@ -1132,6 +1894,7 @@ function renderSponsoredServices(searchTerm = '') {
 
 function renderSponsoredVisitServices(searchTerm = '') {
     const container = document.getElementById('sponsored-visit-services-list');
+    if (!container) return;
     container.innerHTML = '';
     const filteredServices = sponsoredVisitServices.filter(service =>
         service.name.toLowerCase().includes(searchTerm) ||
@@ -1140,7 +1903,7 @@ function renderSponsoredVisitServices(searchTerm = '') {
     );
 
     if (filteredServices.length === 0) {
-        container.innerHTML = '<p>Nenhum profissional encontrado para sua busca.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhum profissional encontrado para sua busca.</p>';
         return;
     }
 
@@ -1201,7 +1964,7 @@ function submitBudgetRequest() {
         id: newRequestId,
         title: title,
         description: description,
-        client: 'Usuário Atual', // Simulação
+        client: nomeDoClienteLogado, // Simulação
         address: 'Endereço do Usuário Atual', // Simulação
         date: new Date().toLocaleDateString('pt-BR'),
         photos: photos,
@@ -1227,9 +1990,10 @@ function submitBudgetRequest() {
 // Funções de Histórico de Serviços (Prestador)
 function renderServicosHistoricoFinalizados() {
     const container = document.getElementById('servicos-historico-finalizados-content');
+    if (!container) return;
     container.innerHTML = '';
     if (servicosHistoricoCount === 0) { // Usando a variável de contagem simulada
-        container.innerHTML = '<p>Nenhum serviço finalizado ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhum serviço finalizado ainda.</p>';
         return;
     }
     // Exemplo de cards de serviços finalizados
@@ -1256,9 +2020,15 @@ function renderServicosHistoricoFinalizados() {
 
 function renderServicosHistoricoRecusados() {
     const container = document.getElementById('servicos-historico-recusados-content');
+    
+    if (!container) {
+        console.warn("Container 'servicos-historico-recusados-content' não encontrado. Não foi possível renderizar serviços recusados.");
+        return; // Sai da função se o contêiner não for encontrado
+    }
+
     container.innerHTML = '';
     if (orcamentosPrestadorRecusados.length === 0) {
-        container.innerHTML = '<p>Nenhum serviço recusado ainda.</p>';
+        container.innerHTML = '<p class="no-content-message">Nenhum serviço recusado ainda.</p>';
         return;
     }
     orcamentosPrestadorRecusados.forEach(req => {
@@ -1282,7 +2052,6 @@ function renderServicosHistoricoRecusados() {
     });
 }
 
-
 // Funções Financeiras
 function updateFinanceiroDashboard() {
     document.getElementById('total-recebimentos').textContent = `R$ ${totalRecebimentos.toFixed(2).replace('.', ',')}`;
@@ -1303,8 +2072,13 @@ function simulateServiceCompletion(amount) {
 
 function showBankDetailsForm() {
     const formContainer = document.getElementById('bank-details-form-container');
-    formContainer.style.display = 'block';
-    document.getElementById('cancel-bank-details-edit-btn').style.display = 'inline-flex';
+    if (formContainer) {
+        formContainer.style.display = 'block';
+    }
+    const cancelBtn = document.getElementById('cancel-bank-details-edit-btn');
+    if (cancelBtn) {
+        cancelBtn.style.display = 'inline-flex';
+    }
 }
 
 function clearBankDetailsForm() {
@@ -1312,18 +2086,27 @@ function clearBankDetailsForm() {
     document.getElementById('agencia').value = '';
     document.getElementById('conta').value = '';
     document.getElementById('tipo-conta').value = 'corrente';
-    document.getElementById('bank-details-form-container').style.display = 'none';
-    document.getElementById('cancel-bank-details-edit-btn').style.display = 'none';
+    const formContainer = document.getElementById('bank-details-form-container');
+    if (formContainer) {
+        formContainer.style.display = 'none';
+    }
+    const cancelBtn = document.getElementById('cancel-bank-details-edit-btn');
+    if (cancelBtn) {
+        cancelBtn.style.display = 'none';
+    }
 }
 
 function renderBankAccounts() {
     const container = document.getElementById('bank-accounts-container');
+    if (!container) return;
     container.innerHTML = '';
     if (bankAccounts.length === 0) {
-        document.getElementById('no-bank-accounts-message').style.display = 'block';
+        const noAccountsMessage = document.getElementById('no-bank-accounts-message');
+        if (noAccountsMessage) noAccountsMessage.style.display = 'block';
         return;
     }
-    document.getElementById('no-bank-accounts-message').style.display = 'none';
+    const noAccountsMessage = document.getElementById('no-bank-accounts-message');
+    if (noAccountsMessage) noAccountsMessage.style.display = 'none';
     bankAccounts.forEach((account, index) => {
         const item = document.createElement('div');
         item.classList.add('account-item');
@@ -1380,12 +2163,11 @@ function editBankAccount(index) {
 
 function deleteBankAccount(index) {
     // Usando o modal de alerta personalizado para a confirmação de exclusão
-    const confirmDelete = confirm('Tem certeza que deseja excluir esta conta bancária?'); // Manter o confirm nativo para esta ação crítica
-    if (confirmDelete) {
+    showAlert('Tem certeza que deseja excluir esta conta bancária?', 'Confirmação', () => {
         bankAccounts.splice(index, 1);
         renderBankAccounts();
         showAlert('Conta bancária excluída.');
-    }
+    });
 }
 
 
@@ -1414,7 +2196,7 @@ function updateSimulationDisplay() {
         }
     });
 
-    document.getElementById('start-simulation-btn').style.display = currentSimulationStep === 0 ? 'inline-flex' : 'none';
+    document.getElementById('start-simulation-btn').style.display = currentSimulationStep ===  0 ? 'inline-flex' : 'none';
     document.getElementById('next-step-btn').style.display = currentSimulationStep < simulationSteps.length ? 'inline-flex' : 'none';
     document.getElementById('reset-simulation-btn').style.display = currentSimulationStep > 0 ? 'inline-flex' : 'none';
 
@@ -1430,7 +2212,7 @@ function startSimulation() {
 }
 
 function nextSimulationStep() {
-    if (currentSimulationStep < simulationSteps) { // Changed to < simulationSteps.length
+    if (currentSimulationStep < simulationSteps.length) { // Corrigido para .length
         currentSimulationStep++;
         updateSimulationDisplay();
     }
@@ -1874,7 +2656,7 @@ function openPrestadorProfileModal(serviceId) {
         photosGallery.innerHTML = '<p style="text-align: center; color: #888;">Nenhuma foto disponível.</p>';
     }
 
-    document.getElementById('request-visit-from-profile-btn').onclick = () => openRequestVisitScheduleModal(prestador.name);
+    document.getElementById('request-visit-from-profile-btn').onclick = () => solicitarVisitaComAviso(prestador.name);
     document.getElementById('prestador-profile-modal').style.display = 'flex';
 }
 
@@ -1933,28 +2715,28 @@ function sendVisitRequest(prestadorName) {
 
 // Funções de Abas (tabs)
 function showTab(screenPrefix, tabId) {
-    // Esconde todos os conteúdos de abas para a tela atual
-    document.querySelectorAll(`#${screenPrefix} .tab-content`).forEach(content => {
-        content.classList.remove('active');
-    });
-    // Remove a classe 'active' de todas as abas
-    document.querySelectorAll(`#${screenPrefix} .tab`).forEach(tab => {
-        tab.classList.remove('active');
-    });
+    // Remove 'active' de todas as abas e conteúdos
+    document.querySelectorAll(`#${screenPrefix} .tab`).forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll(`#${screenPrefix} .tab-content`).forEach(content => content.classList.remove('active'));
 
-    // Ativa a aba e o conteúdo selecionados
-    document.getElementById(`tab-${screenPrefix}-${tabId}`).classList.add('active');
-    document.getElementById(`${screenPrefix}-${tabId}-content`).classList.add('active');
+    // Adiciona 'active' na aba e conteúdo selecionados
+    const targetTabElement = document.querySelector(`#${screenPrefix} .tab[onclick*="${tabId}"]`);
+    const targetContentElement = document.getElementById(`${screenPrefix}-${tabId}-content`);
+
+    if (targetTabElement) {
+        targetTabElement.classList.add('active');
+    } else {
+        console.warn(`Aba com ID de clique para "${tabId}" não encontrada para o prefixo "${screenPrefix}".`);
+    }
+
+    if (targetContentElement) {
+        targetContentElement.classList.add('active');
+    } else {
+        console.warn(`Conteúdo da aba com ID "${screenPrefix}-${tabId}-content" não encontrado.`);
+    }
 
     // Renderiza o conteúdo da aba se necessário
-    if (screenPrefix === 'orcamentos-usuario') {
-        if (tabId === 'solicitados') renderOrcamentosUsuarioSolicitados();
-        else if (tabId === 'recebidos') renderOrcamentosUsuarioRecebidos();
-        else if (tabId === 'aprovados') renderOrcamentosUsuarioAprovados();
-        else if (tabId === 'recusados') renderOrcamentosUsuarioRecusados();
-        else if (tabId === 'visitas') renderOrcamentosUsuarioVisitas();
-        updateUserBudgetCounts(); // Garante que os contadores das abas sejam atualizados ao trocar
-    } else if (screenPrefix === 'orcamentos-prestador') {
+    if (screenPrefix === 'orcamentos-prestador') {
         if (tabId === 'recebidos') renderOrcamentosPrestadorRecebidos();
         else if (tabId === 'propostas-enviadas') renderOrcamentosPrestadorPropostasEnviadas();
         else if (tabId === 'aprovados') renderOrcamentosPrestadorAprovados();
@@ -1969,6 +2751,52 @@ function showTab(screenPrefix, tabId) {
             renderSponsoredServices(); // Renderiza os serviços padrão
         } else if (tabId === 'visita') {
             renderSponsoredVisitServices(); // Renderiza os serviços de visita
+        }
+    } else if (screenPrefix === 'orcamentos-usuario') {
+        if (tabId === 'solicitados') {
+            // Inicializa as sub-abas apenas para solicitados
+            showSubTab('orcamentos-usuario', 'solicitados', 'padrao');
+            updateSubTabCounts();
+        } else if (tabId === 'recebidos') {
+            renderOrcamentosUsuarioRecebidos();
+        }
+        updateUserBudgetCounts();
+    } else if (screenPrefix === 'orcamentos-aprovados-recusados') {
+        if (tabId === 'aprovados') {
+            renderOrcamentosAprovados();
+        } else if (tabId === 'recusados') {
+            renderOrcamentosRecusados();
+        }
+        updateAprovadosRecusadosCounts();
+        updateSubTabCounts();
+    }
+}
+
+// Função para controlar sub-abas (Padrão vs Visita)
+function showSubTab(screenId, tabId, subTabId) {
+    // Funciona apenas para a aba solicitados do usuário
+    if (screenId === 'orcamentos-usuario' && tabId === 'solicitados') {
+        // Remove 'active' de todas as sub-abas desta aba
+        document.querySelectorAll(`#orcamentos-usuario-solicitados-content .sub-tab`).forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll(`#orcamentos-usuario-solicitados-content .sub-tab-content`).forEach(content => content.classList.remove('active'));
+
+        // Adiciona 'active' na sub-aba clicada
+        const targetSubTabElement = document.querySelector(`#orcamentos-usuario-solicitados-content .sub-tab[onclick*="${subTabId}"]`);
+        const targetSubContentElement = document.getElementById(`orcamentos-usuario-solicitados-${subTabId}-content`);
+
+        if (targetSubTabElement) {
+            targetSubTabElement.classList.add('active');
+        }
+
+        if (targetSubContentElement) {
+            targetSubContentElement.classList.add('active');
+        }
+
+        // Renderiza o conteúdo específico
+        if (subTabId === 'padrao') {
+            renderOrcamentosSolicitadosPadrao();
+        } else if (subTabId === 'visita') {
+            renderOrcamentosSolicitadosVisita();
         }
     }
 }
@@ -1987,26 +2815,88 @@ function toggleMenu() {
     sidebar.classList.toggle('active');
 }
 
+// Função para fechar o menu lateral ao clicar fora dele
+document.addEventListener('click', (event) => {
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.querySelector('.menu-toggle');
+
+    // Verifica se o clique não foi dentro da sidebar e não foi no botão de toggle
+    if (sidebar && !sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+        sidebar.classList.remove('active');
+    }
+});
+
+
+// Função global para atualizar a visibilidade dos itens do menu lateral com base no tipo de usuário
+function updateSidebarMenu() {
+    // Esconde todos os itens de menu específicos de usuário/prestador
+    document.getElementById('menu-item-orcamentos-usuario').style.display = 'none';
+    document.getElementById('menu-item-servicos-contratados').style.display = 'none';
+    document.getElementById('menu-item-ocorrencias-usuario').style.display = 'none';
+    document.getElementById('menu-item-buscar-servicos').style.display = 'none';
+    
+    document.getElementById('menu-item-servicos-ativos').style.display = 'none';
+    document.getElementById('menu-item-orcamentos-prestador').style.display = 'none';
+    document.getElementById('menu-item-ocorrencias-prestador').style.display = 'none';
+    document.getElementById('menu-item-cadastro-especialidades').style.display = 'none';
+    document.getElementById('menu-item-calendario-trabalho').style.display = 'none';
+    document.getElementById('menu-item-servicos-historico').style.display = 'none';
+    document.getElementById('menu-item-financeiro').style.display = 'none';
+
+    // Exibe os itens de menu relevantes com base no currentUserType
+    if (currentUserType === 'usuario') {
+        document.getElementById('sidebar-username').textContent = nomeDoClienteLogado;
+        document.getElementById('sidebar-usertype').textContent = 'Tipo: Cliente';
+        document.getElementById('menu-item-orcamentos-usuario').style.display = 'list-item';
+        document.getElementById('menu-item-servicos-contratados').style.display = 'list-item';
+        document.getElementById('menu-item-ocorrencias-usuario').style.display = 'list-item';
+        document.getElementById('menu-item-buscar-servicos').style.display = 'list-item';
+        updateUserDashboardCounts();
+        updateUserBudgetCounts();
+    } else if (currentUserType === 'prestador') {
+        document.getElementById('sidebar-username').textContent = nomeDoClienteLogado;
+        document.getElementById('sidebar-usertype').textContent = 'Tipo: Prestador';
+        document.getElementById('menu-item-servicos-ativos').style.display = 'list-item';
+        document.getElementById('menu-item-orcamentos-prestador').style.display = 'list-item';
+        document.getElementById('menu-item-ocorrencias-prestador').style.display = 'list-item';
+        document.getElementById('menu-item-cadastro-especialidades').style.display = 'list-item';
+        document.getElementById('menu-item-calendario-trabalho').style.display = 'list-item';
+        document.getElementById('menu-item-servicos-historico').style.display = 'list-item';
+        document.getElementById('menu-item-financeiro').style.display = 'list-item';
+        updatePrestadorDashboardCounts();
+        updatePrestadorBudgetCounts();
+        updateServicosHistoricoCounts();
+    }
+}
+
+// Função global para mostrar tela de escolha de login
+function showLoginChoiceScreen() {
+    document.getElementById('login-choice-screen').style.display = 'flex';
+    document.getElementById('login-client-screen').style.display = 'none';
+    document.getElementById('login-provider-screen').style.display = 'none';
+    if (document.getElementById('login-screen-v2')) document.getElementById('login-screen-v2').style.display = 'none';
+    screenHistory = []; // Limpa o histórico ao voltar para a escolha de login
+    activeScreenId = 'login-choice-screen'; // Define a tela ativa
+}
 
 // Event Listeners (DOM Content Loaded)
 document.addEventListener('DOMContentLoaded', () => {
     // --- NOVO FLUXO PROGRESSIVO DE LOGIN ---
-    // Função para mostrar apenas uma tela de login/cadastro
-    function showLoginChoiceScreen() {
-        document.getElementById('login-choice-screen').style.display = 'flex';
-        document.getElementById('login-client-screen').style.display = 'none';
-        document.getElementById('login-provider-screen').style.display = 'none';
-        if (document.getElementById('login-screen-v2')) document.getElementById('login-screen-v2').style.display = 'none';
-    }
     function showLoginClientScreen() {
         document.getElementById('login-choice-screen').style.display = 'none';
         document.getElementById('login-client-screen').style.display = 'flex';
         document.getElementById('login-provider-screen').style.display = 'none';
+        screenHistory = []; // Limpa o histórico ao ir para a tela de login
+        activeScreenId = 'login-client-screen'; // Define a tela ativa
+        switchTab('access'); // Garante que a aba de acesso esteja ativa
     }
     function showLoginProviderScreen() {
         document.getElementById('login-choice-screen').style.display = 'none';
         document.getElementById('login-client-screen').style.display = 'none';
         document.getElementById('login-provider-screen').style.display = 'flex';
+        screenHistory = []; // Limpa o histórico ao ir para a tela de login
+        activeScreenId = 'login-provider-screen'; // Define a tela ativa
+        switchTab('access'); // Garante que a aba de acesso esteja ativa
     }
 
     // Inicializa mostrando a tela de escolha
@@ -2020,30 +2910,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tabs do CLIENTE
     document.getElementById('access-tab-client').onclick = function() {
-        document.getElementById('access-tab-client').classList.add('active');
-        document.getElementById('register-tab-client').classList.remove('active');
-        document.getElementById('access-section-client').classList.add('active');
-        document.getElementById('register-section-client').classList.remove('active');
+        switchTab('access');
     };
     document.getElementById('register-tab-client').onclick = function() {
-        document.getElementById('register-tab-client').classList.add('active');
-        document.getElementById('access-tab-client').classList.remove('active');
-        document.getElementById('register-section-client').classList.add('active');
-        document.getElementById('access-section-client').classList.remove('active');
+        switchTab('register');
     };
 
     // Tabs do PRESTADOR
     document.getElementById('access-tab-provider').onclick = function() {
-        document.getElementById('access-tab-provider').classList.add('active');
-        document.getElementById('register-tab-provider').classList.remove('active');
-        document.getElementById('access-section-provider').classList.add('active');
-        document.getElementById('register-section-provider').classList.remove('active');
+        switchTab('access');
     };
     document.getElementById('register-tab-provider').onclick = function() {
-        document.getElementById('register-tab-provider').classList.add('active');
-        document.getElementById('access-tab-provider').classList.remove('active');
-        document.getElementById('register-section-provider').classList.add('active');
-        document.getElementById('access-section-provider').classList.remove('active');
+        switchTab('register');
     };
 
     // Ajustar exibição do login/cadastro antigo (caso ainda exista)
@@ -2056,10 +2934,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             email = document.getElementById('provider-email-login').value;
         }
-        const inputEmail = prompt('Digite seu e-mail para recuperar a senha:', email || '');
-        if (inputEmail) {
-            showAlert('Se este e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.', 'Recuperação de Senha');
-        }
+        showAlert('Se este e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.', 'Recuperação de Senha');
     }
 
     // Adiciona listeners para os links "Esqueceu a senha?"
@@ -2081,7 +2956,7 @@ document.addEventListener('DOMContentLoaded', () => {
             splash.style.opacity = '0';
             setTimeout(() => {
                 splash.style.display = 'none';
-                showLoginScreenV2(); // Exibe a nova tela de login
+                showLoginChoiceScreen(); // Agora transiciona para a tela de escolha
             }, 500); // Tempo da transição de opacidade
         }
     }, 2000); // Exibe a splash por 2 segundos
@@ -2098,9 +2973,20 @@ document.addEventListener('DOMContentLoaded', () => {
         providerLoginButtonV2.addEventListener('click', performLoginV2);
     }
 
-    const registerUserBtn = document.getElementById('register-user-btn');
-    if (registerUserBtn) {
-        registerUserBtn.addEventListener('click', registerUserV2);
+    const clientRegisterForm = document.getElementById('client-register-form');
+    if (clientRegisterForm) {
+        clientRegisterForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Impede o envio padrão do formulário
+            registerUserV2();
+        });
+    }
+
+    const providerRegisterForm = document.getElementById('provider-register-form');
+    if (providerRegisterForm) {
+        providerRegisterForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Impede o envio padrão do formulário
+            registerUserV2();
+        });
     }
 
     // Listeners para os botões de login social (para cliente)
@@ -2126,8 +3012,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUserTypePillHighlight() {
         const clientRadio = document.getElementById('select-user-client');
         const providerRadio = document.getElementById('select-user-provider');
-        const clientLabel = document.querySelector('label[for="select-user-client"]');
-        const providerLabel = document.querySelector('label[for="select-user-provider"]');
+        const clientLabel = document.querySelector('#login-choice-screen #choose-client-btn');
+        const providerLabel = document.querySelector('#login-choice-screen #choose-provider-btn');
         if (clientRadio && providerRadio && clientLabel && providerLabel) {
             if (clientRadio.checked) {
                 clientLabel.classList.add('active');
@@ -2163,29 +3049,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     updatePrestadorTypePillHighlight();
-
-    // Listeners para as abas Acessar/Cadastrar
-    const accessTab = document.getElementById('access-tab');
-    const registerTab = document.getElementById('register-tab');
-    if (accessTab) accessTab.addEventListener('click', () => {
-        switchTab('access');
-        updateTabHighlight();
-    });
-    if (registerTab) registerTab.addEventListener('click', () => {
-        switchTab('register');
-        updateTabHighlight();
-    });
-    function updateTabHighlight() {
-        // Remove a classe active de todos
-        document.querySelectorAll('.auth-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
-        // Adiciona a classe active apenas na aba atualmente ativa
-        if (document.getElementById('access-section').classList.contains('active')) {
-            document.getElementById('access-tab').classList.add('active');
-        } else if (document.getElementById('register-section').classList.contains('active')) {
-            document.getElementById('register-tab').classList.add('active');
-        }
-    }
-    updateTabHighlight();
 
     // Outros Listeners (mantidos do seu código original)
     document.getElementById('confirm-finalize-btn').addEventListener('click', () => {
@@ -2259,42 +3122,246 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializa a simulação do fluxo de serviço
     updateSimulationDisplay();
 
-
-    // Configurações iniciais do usuário/prestador para o menu
-    // O tipo de usuário é definido no login (simulado)
-    // Para testes, você pode definir manualmente aqui para ver o menu
-    // currentUserType = 'usuario'; // Descomente para testar como usuário
-    // currentUserType = 'prestador'; // Descomente para testar como prestador
-
-    // Atualiza os contadores iniciais com base no tipo de usuário padrão (ou após login)
-    if (currentUserType === 'usuario') {
-        document.getElementById('sidebar-username').textContent = 'Usuário Cliente';
-        document.getElementById('sidebar-usertype').textContent = 'Tipo: Cliente';
-        document.getElementById('menu-item-orcamentos-usuario').style.display = 'list-item';
-        document.getElementById('menu-item-servicos-contratados').style.display = 'list-item';
-        document.getElementById('menu-item-ocorrencias-usuario').style.display = 'list-item';
-        document.getElementById('menu-item-buscar-servicos').style.display = 'list-item';
-        updateUserDashboardCounts();
-        updateUserBudgetCounts();
-    } else if (currentUserType === 'prestador') {
-        document.getElementById('sidebar-username').textContent = 'Prestador Exemplo';
-        document.getElementById('sidebar-usertype').textContent = 'Tipo: Prestador';
-        document.getElementById('menu-item-servicos-ativos').style.display = 'list-item';
-        document.getElementById('menu-item-orcamentos-prestador').style.display = 'list-item';
-        document.getElementById('menu-item-ocorrencias-prestador').style.display = 'list-item';
-        document.getElementById('menu-item-cadastro-especialidades').style.display = 'list-item';
-        document.getElementById('menu-item-servicos-historico').style.display = 'list-item';
-        document.getElementById('menu-item-financeiro').style.display = 'list-item';
-        updatePrestadorDashboardCounts();
-        updatePrestadorBudgetCounts();
-        updateServicosHistoricoCounts();
-    }
+    // Chama a função para atualizar o menu lateral e os contadores assim que o DOM é carregado
+    // Isso garante que, se o usuário já estiver "logado" (simulado), o menu e dashboard sejam corretos
+    updateSidebarMenu();
+    document.getElementById('dashboard-client-name').textContent = nomeDoClienteLogado;
+    
+    // Inicializa as sub-abas
+    initializeSubTabs();
 });
 
 // Alterna os campos PF/PJ no cadastro do prestador
 function togglePrestadorFields() {
-  const tipo = document.querySelector('input[name="tipo-prestador"]:checked').value;
-  document.getElementById('campos-pf').style.display = (tipo === 'pf') ? 'block' : 'none';
-  document.getElementById('campos-pj').style.display = (tipo === 'pj') ? 'block' : 'none';
+  const tipo = document.querySelector('input[name="tipo-prestador"]:checked');
+  if (tipo) { // Adiciona verificação para garantir que 'tipo' não é nulo
+    document.getElementById('campos-pf').style.display = (tipo.value === 'pf') ? 'block' : 'none';
+    document.getElementById('campos-pj').style.display = (tipo.value === 'pj') ? 'block' : 'none';
+
+    // Garante que os campos obrigatórios sejam definidos corretamente
+    const pfInputs = document.querySelectorAll('#campos-pf input, #campos-pf select, #campos-pf textarea');
+    const pjInputs = document.querySelectorAll('#campos-pj input, #campos-pj select, #campos-pj textarea');
+
+    if (tipo.value === 'pf') {
+        pfInputs.forEach(input => {
+            if (input.id !== 'provider-pf-password-confirm') input.setAttribute('required', 'true');
+        });
+        pjInputs.forEach(input => input.removeAttribute('required'));
+    } else { // pj
+        pjInputs.forEach(input => {
+            if (input.id !== 'provider-pj-password-confirm') input.setAttribute('required', 'true');
+        });
+        pfInputs.forEach(input => input.removeAttribute('required'));
+    }
+  }
 }
 document.addEventListener('DOMContentLoaded', togglePrestadorFields);
+
+// Nova função para solicitar visita com aviso
+function solicitarVisitaComAviso(prestadorName) {
+  showAlert(
+    'Você está solicitando uma visita presencial apenas para que o prestador avalie o serviço e gere um orçamento. Nesse modelo, qualquer negociação, valor ou forma de pagamento será tratada diretamente entre você e o prestador, sem envolvimento ou garantias da plataforma.\\n\\nApós o orçamento, se desejar, você poderá migrar para o modo protegido do ChamadoPro, com pagamentos parcelados, suporte e garantias oferecidas pela plataforma.',
+    'Orientação sobre Visita',
+    () => { // Callback para abrir o modal de agendamento após o alerta ser fechado
+        openRequestVisitScheduleModal(prestadorName);
+    }
+  );
+}
+
+// --- Funções utilitárias para pills, pop-up, orçamentos e migração --- //
+
+// 1. Alternar pills (radio visual)
+function setupPillGroup(pillGroupSelector, onChange) {
+  document.querySelectorAll(pillGroupSelector).forEach(group => {
+    group.addEventListener('change', e => {
+      if (e.target.classList.contains('pill-radio')) {
+        group.querySelectorAll('.pill-label').forEach(label => label.classList.remove('active'));
+        if (e.target.nextElementSibling) e.target.nextElementSibling.classList.add('active');
+        if (onChange) onChange(e.target.value);
+      }
+    });
+  });
+}
+
+// 2. Mostrar pop-up antes de agendar visita
+// Adicionei um callback para simular o comportamento de confirmação
+function showScheduleVisitPopup(onConfirm) {
+  showAlert('Deseja realmente agendar uma visita?', 'Confirmação', () => {
+    if (onConfirm) onConfirm();
+  });
+}
+
+// 3. Separar orçamentos padrão e por visita
+function filterBudgets(budgets, type) {
+  // type: 'padrao' ou 'visita'
+  return budgets.filter(b => b.tipo === type);
+}
+
+// 4. Migrar orçamento de visita para padrão
+function migrateVisitBudgetToStandard(budgetId, budgets, onSuccess) {
+  const budget = budgets.find(b => b.id === budgetId && b.tipo === 'visita');
+  if (budget) {
+    budget.tipo = 'padrao';
+    showAlert('Orçamento migrado para padrão com sucesso!', 'Sucesso');
+    if (onSuccess) onSuccess(budget);
+  } else {
+    showAlert('Orçamento não encontrado ou já é padrão.', 'Erro');
+  }
+}
+
+// Funções do Calendário de Trabalho
+function carregarCalendarioTrabalho() {
+    // Carrega configurações salvas do localStorage
+    const configuracoesSalvas = localStorage.getItem('calendarioTrabalho');
+    if (configuracoesSalvas) {
+        const config = JSON.parse(configuracoesSalvas);
+        
+        // Aplicar configurações salvas
+        if (config.modoSempre) {
+            document.getElementById('modo-sempre').checked = true;
+        } else {
+            document.getElementById('modo-horario').checked = true;
+        }
+        
+        if (config.datasEspecificas) {
+            datasEspecificas = config.datasEspecificas;
+            renderizarDatasEspecificas();
+        }
+        
+        toggleModoOrcamento();
+    }
+}
+
+// Função para verificar se o prestador está disponível para receber orçamentos
+function prestadorDisponivelParaOrcamento(dataHora = new Date()) {
+    const configuracoesSalvas = localStorage.getItem('calendarioTrabalho');
+    
+    // Se não há configurações ou está em modo "sempre", aceita orçamentos
+    if (!configuracoesSalvas) {
+        return true;
+    }
+    
+    const config = JSON.parse(configuracoesSalvas);
+    
+    // Se está em modo "sempre", aceita orçamentos
+    if (config.modoSempre) {
+        return true;
+    }
+    
+    // Aqui você implementaria a lógica completa de verificação
+    // Por exemplo:
+    // - Verificar se é um dia da semana configurado
+    // - Verificar se está dentro do horário configurado
+    // - Verificar se não é um feriado (se não trabalha em feriados)
+    // - Verificar datas específicas bloqueadas
+    
+    // Por enquanto, retorna true para manter a funcionalidade
+    return true;
+}
+
+// Funções para lidar com os toggle switches do modo orçamento
+function handleModoOrcamentoChange(selectedMode) {
+  console.log('handleModoOrcamentoChange chamado com:', selectedMode);
+  
+  // Desmarcar todos os outros checkboxes
+  const allCheckboxes = ['sempre', 'horario-comercial', 'calendario'];
+  allCheckboxes.forEach(mode => {
+    const checkbox = document.getElementById(`modo-${mode}`);
+    if (checkbox && mode !== selectedMode) {
+      checkbox.checked = false;
+    }
+  });
+
+  // Mostrar/ocultar seções conforme necessário
+  const horarioSection = document.getElementById('horario-comercial-section');
+  const calendarSection = document.getElementById('calendar-section');
+  const horariosSemanaSection = document.getElementById('horarios-section');
+  const feriadosSection = document.getElementById('feriados-section');
+  const datasEspecificasSection = document.getElementById('datas-especificas-section');
+  const resumoSection = document.getElementById('resumo-section');
+  
+  console.log('Elementos encontrados:', {
+    horarioSection: !!horarioSection,
+    calendarSection: !!calendarSection,
+    horariosSemanaSection: !!horariosSemanaSection,
+    feriadosSection: !!feriadosSection
+  });
+  
+  if (selectedMode === 'horario-comercial') {
+    if (horarioSection) horarioSection.style.display = 'block';
+    if (calendarSection) calendarSection.style.display = 'none';
+    if (horariosSemanaSection) horariosSemanaSection.style.display = 'none';
+    if (feriadosSection) feriadosSection.style.display = 'none';
+    if (datasEspecificasSection) datasEspecificasSection.style.display = 'none';
+    if (resumoSection) resumoSection.style.display = 'none';
+  } else if (selectedMode === 'calendario') {
+    if (horarioSection) horarioSection.style.display = 'none';
+    if (calendarSection) calendarSection.style.display = 'block';
+    if (horariosSemanaSection) horariosSemanaSection.style.display = 'block';
+    if (feriadosSection) feriadosSection.style.display = 'block';
+    if (datasEspecificasSection) datasEspecificasSection.style.display = 'block';
+    if (resumoSection) resumoSection.style.display = 'block';
+  } else {
+    // Modo sempre
+    if (horarioSection) horarioSection.style.display = 'none';
+    if (calendarSection) calendarSection.style.display = 'none';
+    if (horariosSemanaSection) horariosSemanaSection.style.display = 'none';
+    if (feriadosSection) feriadosSection.style.display = 'none';
+    if (datasEspecificasSection) datasEspecificasSection.style.display = 'none';
+    if (resumoSection) resumoSection.style.display = 'none';
+  }
+}
+
+// Funções para lidar com os toggle switches dos feriados
+function handleFeriadosChange(selectedMode) {
+  console.log('handleFeriadosChange chamado com:', selectedMode);
+  
+  // Desmarcar todos os outros checkboxes
+  const allCheckboxes = ['nao', 'sim', 'personalizado'];
+  allCheckboxes.forEach(mode => {
+    const checkbox = document.getElementById(`feriados-${mode}`);
+    if (checkbox && mode !== selectedMode) {
+      checkbox.checked = false;
+    }
+  });
+
+  // Mostrar/ocultar seção personalizada
+  const customSection = document.getElementById('feriados-custom');
+  console.log('Elemento feriados-custom encontrado:', !!customSection);
+  
+  if (selectedMode === 'personalizado') {
+    if (customSection) customSection.style.display = 'block';
+  } else {
+    if (customSection) customSection.style.display = 'none';
+  }
+}
+
+// Função original do modo orçamento (manter compatibilidade)
+function toggleModoOrcamento() {
+  const modo = document.querySelector('input[name="modo"]:checked')?.value;
+  const horarioSection = document.getElementById('horario-comercial-section');
+  const calendarSection = document.getElementById('calendar-section');
+  
+  if (modo === 'horario-comercial') {
+    horarioSection.style.display = 'block';
+    calendarSection.style.display = 'none';
+  } else if (modo === 'calendario') {
+    horarioSection.style.display = 'none';
+    calendarSection.style.display = 'block';
+  } else {
+    horarioSection.style.display = 'none';
+    calendarSection.style.display = 'none';
+  }
+}
+
+// Função original dos feriados (manter compatibilidade)
+function toggleFeriadosPersonalizados() {
+  const feriados = document.querySelector('input[name="feriados"]:checked')?.value;
+  const customSection = document.getElementById('feriados-custom');
+  
+  if (feriados === 'personalizado') {
+    customSection.style.display = 'block';
+  } else {
+    customSection.style.display = 'none';
+  }
+}

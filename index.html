@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChamadoPro - Versão Melhorada com Anúncios</title>
+  <title>ChamadoPro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="./style.css"> <!-- Certifique-se de que style.css está na mesma pasta -->
+  <link rel="stylesheet" href="./style.css?v=20250723-1400">
   <style>
     /* Estilos para ocultar o conteúdo principal e modais por padrão */
     .main-content-wrapper {
@@ -212,14 +212,14 @@
 </head>
 <body>
   <!-- Tela de Splash -->
-  <div id="splash" class="splash-screen">
+  <div id="splash" class="splash-screen active">
     <div class="splash-content">
       <div class="splash-logo logo-animated-container">
         <div class="logo-placeholder"><span class="logo-placeholder-text">logo</span></div>
         <div class="logo-animated-shine"></div>
       </div>
       <h1>ChamadoPro</h1>
-      <p>Conectando você aos melhores profissionais!</p>
+      <p>Sua conexão confiável para serviços de excelência.!</p>
       <div class="spinner"></div>
     </div>
   </div>
@@ -363,50 +363,6 @@
       <button class="btn" id="back-to-choice-provider" style="margin-bottom:10px; float:right;">Voltar</button>
       <div class="logo-area">
         <div class="logo-placeholder small"><span class="logo-placeholder-text">logo</span></div>
-</body>
-<style>
-  .logo-placeholder {
-    width: 96px;
-    height: 96px;
-    border: 3px dashed #bbb;
-    border-radius: 50%;
-    background: transparent;
-    margin: 0 auto;
-    box-sizing: border-box;
-    display: block;
-  }
-  .logo-placeholder.small {
-    width: 72px;
-    height: 72px;
-    border-width: 2px;
-  }
-  .logo-animated-container {
-    position: relative;
-    display: inline-block;
-  }
-  .logo-animated-shine {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-  }
-  .logo-animated-shine::before {
-    content: '';
-    position: absolute;
-    left: -60%;
-    top: 0;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 100%);
-    animation: logo-shine-move 2.2s cubic-bezier(.4,0,.2,1) infinite;
-  }
-  @keyframes logo-shine-move {
-    0% { left: -60%; }
-    60% { left: 110%; }
-    100% { left: 110%; }
-  }
-</style>
         <h2>Prestador</h2>
       </div>
       <div class="auth-tabs">
@@ -426,23 +382,6 @@
               <input type="password" id="provider-password-login" placeholder="Sua senha" required>
             </div>
             <button type="button" id="provider-login-button-v2" class="btn primary-btn">Entrar</button>
-  <script>
-    // Garante que o botão Entrar chama performLoginV2 corretamente
-    document.addEventListener('DOMContentLoaded', function() {
-      var clientLoginBtn = document.getElementById('client-login-button-v2');
-      if (clientLoginBtn) {
-        clientLoginBtn.addEventListener('click', function(event) {
-          performLoginV2(event);
-        });
-      }
-      var providerLoginBtn = document.getElementById('provider-login-button-v2');
-      if (providerLoginBtn) {
-        providerLoginBtn.addEventListener('click', function(event) {
-          performLoginV2(event);
-        });
-      }
-    });
-  </script>
             <a href="#" class="forgot-password">Esqueceu a senha?</a>
           </form>
         </div>
@@ -528,7 +467,10 @@
     <header id="app-header">
       <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
       <h1 id="header-title">ChamadoPro</h1>
-      <button class="back-button" onclick="goBack()"><i class="fas fa-arrow-left"></i> Voltar</button>
+      <div class="header-buttons">
+        <button class="home-button" onclick="goToHome()"><i class="fas fa-home"></i> Home</button>
+        <button class="back-button" onclick="goBack()"><i class="fas fa-arrow-left"></i> Voltar</button>
+      </div>
     </header>
 
     <!-- Menu Lateral (Sidebar) -->
@@ -541,13 +483,14 @@
       <ul class="sidebar-menu">
         <li><a href="#" onclick="goToHome()"><i class="fas fa-home"></i> Home</a></li>
         <li id="menu-item-orcamentos-usuario" style="display: none;"><a href="#" onclick="showScreen('orcamentos-usuario')"><i class="fas fa-file-invoice-dollar"></i> Meus Orçamentos</a></li>
-        <li id="menu-item-orcamentos-prestador" style="display: none;"><a href="#" onclick="showScreen('orcamentos-prestador')"><i class="fas fa-file-invoice-dollar"></i> Orçamentos</a></li>
+        <li id="menu-item-orcamentos-prestador" style="display: none;"><a href="#" onclick="showScreen('orcamentos-prestador-recebidos')"><i class="fas fa-file-invoice-dollar"></i> Orçamentos</a></li>
         <li id="menu-item-servicos-ativos" style="display: none;"><a href="#" onclick="showScreen('servicos-ativos')"><i class="fas fa-tools"></i> Serviços Ativos</a></li>
         <li id="menu-item-servicos-contratados" style="display: none;"><a href="#" onclick="showScreen('servicos-contratados')"><i class="fas fa-handshake"></i> Serviços Contratados</a></li>
         <li id="menu-item-ocorrencias-usuario" style="display: none;"><a href="#" onclick="showScreen('ocorrencias-usuario')"><i class="fas fa-exclamation-triangle"></i> Minhas Ocorrências</a></li>
         <li id="menu-item-ocorrencias-prestador" style="display: none;"><a href="#" onclick="showScreen('ocorrencias-prestador')"><i class="fas fa-exclamation-triangle"></i> Ocorrências</a></li>
         <li id="menu-item-buscar-servicos" style="display: none;"><a href="#" onclick="showScreen('buscar-servicos-unificado')"><i class="fas fa-search"></i> Buscar Serviços</a></li>
         <li id="menu-item-cadastro-especialidades" style="display: none;"><a href="#" onclick="showScreen('cadastro-especialidades')"><i class="fas fa-clipboard-list"></i> Cad. Especialidades</a></li>
+        <li id="menu-item-calendario-trabalho" style="display: none;"><a href="#" onclick="showScreen('calendario-trabalho')"><i class="fas fa-calendar-alt"></i> Calendário Trabalho</a></li>
         <li id="menu-item-servicos-historico" style="display: none;"><a href="#" onclick="showScreen('servicos-historico')"><i class="fas fa-history"></i> Histórico de Serviços</a></li>
         <li id="menu-item-financeiro" style="display: none;"><a href="#" onclick="showScreen('financeiro')"><i class="fas fa-wallet"></i> Financeiro</a></li>
         <li><a href="#" onclick="showScreen('ajuda')"><i class="fas fa-question-circle"></i> Ajuda e Suporte</a></li>
@@ -560,37 +503,33 @@
     <!-- Conteúdo das Telas -->
     <div class="screen-content">
       <!-- Dashboard do Usuário -->
-      <div id="dashboard-usuario" class="screen active">
+      <div id="dashboard-usuario" class="screen">
+        <div class="section-header">
+          <h2><span id="dashboard-client-name"></span></h2>
+        </div>
         <div class="dashboard-cards">
-          <div class="card" onclick="showScreen('orcamentos-usuario')">
-            <h3>Minhas Solicitações</h3>
+          <!-- Card Buscar Serviços como primeiro -->
+          <div class="card" onclick="showScreen('buscar-servicos-unificado')">
+            <h3>Buscar Serviços</h3>
+            <p><i class="fas fa-search"></i></p>
+          </div>
+          <!-- Os outros cards vêm depois -->
+          <div class="card" onclick="showScreen('orcamentos-usuario', 'Minhas Solicitações em Aberto')">
+            <h3>Minhas Solicitações em Aberto</h3>
             <p><span id="orcamentos-usuario-solicitados-count-dashboard">0</span></p>
           </div>
-          <div class="card" onclick="showScreen('orcamentos-usuario')">
-            <h3>Propostas Recebidas</h3>
-            <p><span id="orcamentos-usuario-recebidos-count-dashboard">0</span></p>
+          <div class="card" onclick="showScreen('orcamentos-aprovados-recusados', 'Orçamentos Aprovados/Recusados')">
+            <h3>Orçamentos Aprovados/Recusados</h3>
+            <p><span id="orcamentos-aprovados-recusados-count-dashboard">0</span></p>
           </div>
-          <div class="card" onclick="showScreen('orcamentos-usuario')">
-            <h3>Orçamentos Aprovados</h3>
-            <p><span id="orcamentos-usuario-aprovados-count-dashboard">0</span></p>
-          </div>
-          <div class="card" onclick="showScreen('orcamentos-usuario')">
-            <h3>Orçamentos Recusados</h3>
-            <p><span id="orcamentos-usuario-recusados-count-dashboard">0</span></p>
-          </div>
-          <div class="card" onclick="showScreen('orcamentos-usuario')">
-            <h3>Visitas Solicitadas</h3>
+          <div class="card" onclick="showScreen('visitas-marcadas', 'Visitas Marcadas')">
+            <h3>Visitas Marcadas</h3>
             <p><span id="orcamentos-usuario-visitas-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('ocorrencias-usuario')">
             <h3>Minhas Ocorrências</h3>
             <p><span id="ocorrencias-usuario-count-dashboard">0</span></p>
           </div>
-          <div class="card" onclick="showScreen('buscar-servicos-unificado')">
-            <h3>Buscar Serviços</h3>
-            <p><i class="fas fa-search"></i></p>
-          </div>
-          <!-- O card "Solicitar Orçamento" será removido conforme instruído -->
         </div>
         <div class="ad-banner user-ad-banner">
           <p id="user-ad-content">Anúncio para Usuários</p>
@@ -604,19 +543,19 @@
             <h3>Serviços Ativos</h3>
             <p><span id="servicos-ativos-count-dashboard">0</span></p>
           </div>
-          <div class="card" id="card-orcamentos" onclick="showScreen('orcamentos-prestador')">
+          <div class="card" id="card-orcamentos" onclick="showScreen('orcamentos-prestador-recebidos', 'Orçamentos Recebidos')">
             <h3>Orçamentos Recebidos</h3>
             <p><span id="orcamentos-prestador-recebidos-count-dashboard">0</span></p>
           </div>
-          <div class="card" onclick="showScreen('orcamentos-prestador')">
+          <div class="card" onclick="showScreen('orcamentos-prestador-propostas-enviadas', 'Propostas Enviadas')">
             <h3>Propostas Enviadas</h3>
             <p><span id="orcamentos-prestador-propostas-enviadas-count-dashboard">0</span></p>
           </div>
-          <div class="card" onclick="showScreen('orcamentos-prestador')">
+          <div class="card" onclick="showScreen('orcamentos-prestador-aprovados', 'Orçamentos Aprovados')">
             <h3>Orçamentos Aprovados</h3>
             <p><span id="orcamentos-prestador-aprovados-count-dashboard">0</span></p>
           </div>
-          <div class="card" onclick="showScreen('orcamentos-prestador')">
+          <div class="card" onclick="showScreen('orcamentos-prestador-recusados', 'Orçamentos Recusados')">
             <h3>Orçamentos Recusados</h3>
             <p><span id="orcamentos-prestador-recusados-count-dashboard">0</span></p>
           </div>
@@ -636,6 +575,10 @@
             <h3>Minhas Especialidades</h3>
             <p><i class="fas fa-clipboard-list"></i></p>
           </div>
+          <div class="card" onclick="showScreen('calendario-trabalho')">
+            <h3>Calendário de Trabalho</h3>
+            <p><i class="fas fa-calendar-alt"></i></p>
+          </div>
         </div>
         <div class="ad-banner prestador-ad-banner">
           <p id="prestador-ad-content">Anúncio para Prestadores</p>
@@ -644,68 +587,100 @@
 
       <!-- Tela de Orçamentos do Usuário -->
       <div id="orcamentos-usuario" class="screen">
+        <div class="section-header">
+          <h2 id="orcamentos-usuario-title">Meus Orçamentos</h2>
+        </div>
         <div class="tab-bar">
           <button class="tab active" id="tab-orcamentos-usuario-solicitados" onclick="showTab('orcamentos-usuario', 'solicitados')">
-            Solicitados (<span id="orcamentos-usuario-solicitados-count-tab">0</span>)
+            Solicitadas (<span id="orcamentos-usuario-solicitados-count-tab">0</span>)
           </button>
           <button class="tab" id="tab-orcamentos-usuario-recebidos" onclick="showTab('orcamentos-usuario', 'recebidos')">
-            Recebidos (<span id="orcamentos-usuario-recebidos-count-tab">0</span>)
-          </button>
-          <button class="tab" id="tab-orcamentos-usuario-aprovados" onclick="showTab('orcamentos-usuario', 'aprovados')">
-            Aprovados (<span id="orcamentos-usuario-aprovados-count-tab">0</span>)
-          </button>
-          <button class="tab" id="tab-orcamentos-usuario-recusados" onclick="showTab('orcamentos-usuario', 'recusados')">
-            Recusados (<span id="orcamentos-usuario-recusados-count-tab">0</span>)
-          </button>
-          <button class="tab" id="tab-orcamentos-usuario-visitas" onclick="showTab('orcamentos-usuario', 'visitas')">
-            Visitas (<span id="orcamentos-usuario-visitas-count-tab">0</span>)
+            Recebidas (<span id="orcamentos-usuario-recebidos-count-tab">0</span>)
           </button>
         </div>
 
         <div id="orcamentos-usuario-solicitados-content" class="tab-content active">
-          <!-- Conteúdo de orçamentos solicitados -->
+          <!-- Sub-abas APENAS para Solicitados -->
+          <div class="sub-tab-bar">
+            <button class="sub-tab active" onclick="showSubTab('orcamentos-usuario', 'solicitados', 'padrao')">
+              <i class="fas fa-tools"></i> Orçamento Padrão (<span id="solicitados-padrao-count">0</span>)
+            </button>
+            <button class="sub-tab" onclick="showSubTab('orcamentos-usuario', 'solicitados', 'visita')">
+              <i class="fas fa-calendar-check"></i> Orçamento com Visita (<span id="solicitados-visita-count">0</span>)
+            </button>
+          </div>
+          <div id="orcamentos-usuario-solicitados-padrao-content" class="sub-tab-content active">
+            <!-- Conteúdo de orçamentos padrão solicitados -->
+          </div>
+          <div id="orcamentos-usuario-solicitados-visita-content" class="sub-tab-content">
+            <!-- Conteúdo de orçamentos com visita solicitados -->
+          </div>
         </div>
+        
         <div id="orcamentos-usuario-recebidos-content" class="tab-content">
-          <!-- Conteúdo de propostas recebidas -->
-        </div>
-        <div id="orcamentos-usuario-aprovados-content" class="tab-content">
-          <!-- Conteúdo de orçamentos aprovados -->
-        </div>
-        <div id="orcamentos-usuario-recusados-content" class="tab-content">
-          <!-- Conteúdo de orçamentos recusados -->
-        </div>
-        <div id="orcamentos-usuario-visitas-content" class="tab-content">
-          <!-- Conteúdo de visitas -->
+          <!-- Conteúdo de orçamentos recebidos (sem sub-abas) -->
         </div>
       </div>
 
-      <!-- Tela de Orçamentos do Prestador -->
-      <div id="orcamentos-prestador" class="screen">
+      <!-- Nova Tela de Orçamentos Aprovados/Recusados -->
+      <div id="orcamentos-aprovados-recusados" class="screen">
+        <div class="section-header">
+          <h2 id="orcamentos-aprovados-recusados-title">Orçamentos Aprovados/Recusados</h2>
+        </div>
         <div class="tab-bar">
-          <button class="tab active" id="tab-orcamentos-prestador-recebidos" onclick="showTab('orcamentos-prestador', 'recebidos')">
-            Recebidos (<span id="orcamentos-prestador-recebidos-count-tab">0</span>)
+          <button class="tab active" id="tab-orcamentos-aprovados" onclick="showTab('orcamentos-aprovados-recusados', 'aprovados')">
+            Aprovados (<span id="orcamentos-aprovados-count-tab">0</span>)
           </button>
-          <button class="tab" id="tab-orcamentos-prestador-propostas-enviadas" onclick="showTab('orcamentos-prestador', 'propostas-enviadas')">
-            Propostas Enviadas (<span id="orcamentos-prestador-propostas-enviadas-count-tab">0</span>)
-          </button>
-          <button class="tab" id="tab-orcamentos-prestador-aprovados" onclick="showTab('orcamentos-prestador', 'aprovados')">
-            Aprovados (<span id="orcamentos-prestador-aprovados-count-tab">0</span>)
-          </button>
-          <button class="tab" id="tab-orcamentos-prestador-recusados" onclick="showTab('orcamentos-prestador', 'recusados')">
-            Recusados (<span id="orcamentos-prestador-recusados-count-tab">0</span>)
+          <button class="tab" id="tab-orcamentos-recusados" onclick="showTab('orcamentos-aprovados-recusados', 'recusados')">
+            Recusados (<span id="orcamentos-recusados-count-tab">0</span>)
           </button>
         </div>
 
-        <div id="orcamentos-prestador-recebidos-content" class="tab-content active">
+        <div id="orcamentos-aprovados-recusados-aprovados-content" class="tab-content active">
+          <!-- Conteúdo de orçamentos aprovados -->
+        </div>
+        
+        <div id="orcamentos-aprovados-recusados-recusados-content" class="tab-content">
+          <!-- Conteúdo de orçamentos recusados -->
+        </div>
+      </div>
+
+      <!-- Tela de Orçamentos Recebidos (Prestador) -->
+      <div id="orcamentos-prestador-recebidos" class="screen">
+        <div class="section-header">
+          <h2>Orçamentos Recebidos</h2>
+        </div>
+        <div id="orcamentos-prestador-recebidos-content">
           <!-- Conteúdo de orçamentos recebidos pelo prestador -->
         </div>
-        <div id="orcamentos-prestador-propostas-enviadas-content" class="tab-content">
+      </div>
+
+      <!-- Tela de Propostas Enviadas (Prestador) -->
+      <div id="orcamentos-prestador-propostas-enviadas" class="screen">
+        <div class="section-header">
+          <h2>Propostas Enviadas</h2>
+        </div>
+        <div id="orcamentos-prestador-propostas-enviadas-content">
           <!-- Conteúdo de propostas enviadas pelo prestador -->
         </div>
-        <div id="orcamentos-prestador-aprovados-content" class="tab-content">
+      </div>
+
+      <!-- Tela de Orçamentos Aprovados (Prestador) -->
+      <div id="orcamentos-prestador-aprovados" class="screen">
+        <div class="section-header">
+          <h2>Orçamentos Aprovados</h2>
+        </div>
+        <div id="orcamentos-prestador-aprovados-content">
           <!-- Conteúdo de orçamentos aprovados pelo cliente -->
         </div>
-        <div id="orcamentos-prestador-recusados-content" class="tab-content">
+      </div>
+
+      <!-- Tela de Orçamentos Recusados (Prestador) -->
+      <div id="orcamentos-prestador-recusados" class="screen">
+        <div class="section-header">
+          <h2>Orçamentos Recusados</h2>
+        </div>
+        <div id="orcamentos-prestador-recusados-content">
           <!-- Conteúdo de orçamentos recusados pelo prestador -->
         </div>
       </div>
@@ -782,6 +757,16 @@
               <button class="btn btn-finalizar btn-disabled" id="finalize-btn-3" onclick="openFinalizeModal(3)" style="cursor: not-allowed;"><i class="fas fa-check-circle"></i> Finalizar</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Tela de Visitas Marcadas -->
+      <div id="visitas-marcadas" class="screen">
+        <div class="section-header">
+          <h2>Visitas Marcadas</h2>
+        </div>
+        <div id="visitas-marcadas-content" class="service-list">
+          <!-- Conteúdo das visitas marcadas será inserido aqui pelo JavaScript -->
         </div>
       </div>
 
@@ -980,6 +965,342 @@
         <button class="btn primary-btn" onclick="showAlert('Especialidades salvas!')">Salvar Especialidades</button>
       </div>
 
+      <!-- Tela de Calendário de Trabalho (Prestador) -->
+      <div id="calendario-trabalho" class="screen">
+        <div class="section-header">
+          <h2>Calendário de Trabalho</h2>
+          <p>Configure seus horários de disponibilidade para receber solicitações de orçamento.</p>
+        </div>
+
+        <!-- Configurações Gerais -->
+        <div class="config-section">
+          <h3>Configurações Gerais</h3>
+          <div class="form-container">
+            <div class="toggle-option">
+              <label class="toggle-switch">
+                <input type="checkbox" id="modo-sempre" checked onchange="handleModoOrcamentoChange('sempre')">
+                <span class="slider"></span>
+                <span class="toggle-text">Receber orçamentos a qualquer momento</span>
+              </label>
+            </div>
+            <div class="toggle-option">
+              <label class="toggle-switch">
+                <input type="checkbox" id="modo-horario-comercial" onchange="handleModoOrcamentoChange('horario-comercial')">
+                <span class="slider"></span>
+                <span class="toggle-text">Apenas em horário comercial (8h às 18h)</span>
+              </label>
+            </div>
+            <div class="toggle-option">
+              <label class="toggle-switch">
+                <input type="checkbox" id="modo-calendario" onchange="handleModoOrcamentoChange('calendario')">
+                <span class="slider"></span>
+                <span class="toggle-text">Conforme meu calendário de trabalho</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuração de Horário Comercial -->
+        <div class="horario-comercial-section" id="horario-comercial-section" style="display: none;">
+          <h3>Horário Comercial</h3>
+          <div class="form-container">
+            <div class="time-input-group">
+              <label>Início:</label>
+              <input type="time" id="horario-comercial-inicio" value="08:00">
+            </div>
+            <div class="time-input-group">
+              <label>Fim:</label>
+              <input type="time" id="horario-comercial-fim" value="18:00">
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção do Calendário de Trabalho -->
+        <div class="calendar-section" id="calendar-section" style="display: none;">
+          <h3>Configurar Calendário de Trabalho</h3>
+          <p>Configure seus horários detalhados abaixo.</p>
+        </div>
+
+        <!-- Configuração de Horários Semanais -->
+        <div class="horarios-section" id="horarios-section" style="display: none;">
+          <h3>Horários da Semana</h3>
+          <div class="days-grid">
+            <div class="day-config">
+              <h4><input type="checkbox" id="segunda" checked onchange="toggleDayConfig('segunda')"> Segunda-feira</h4>
+              <div class="time-config" id="config-segunda">
+                <div class="time-input-group">
+                  <label>Início:</label>
+                  <input type="time" id="segunda-inicio" value="08:00">
+                </div>
+                <div class="time-input-group">
+                  <label>Fim:</label>
+                  <input type="time" id="segunda-fim" value="18:00">
+                </div>
+                <div class="break-config">
+                  <label>
+                    <input type="checkbox" id="segunda-almoco" onchange="toggleBreakTime('segunda')">
+                    Intervalo para almoço
+                  </label>
+                  <div class="break-times" id="break-segunda" style="display: none;">
+                    <input type="time" id="segunda-almoco-inicio" value="12:00">
+                    <span>até</span>
+                    <input type="time" id="segunda-almoco-fim" value="13:00">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="day-config">
+              <h4><input type="checkbox" id="terca" checked onchange="toggleDayConfig('terca')"> Terça-feira</h4>
+              <div class="time-config" id="config-terca">
+                <div class="time-input-group">
+                  <label>Início:</label>
+                  <input type="time" id="terca-inicio" value="08:00">
+                </div>
+                <div class="time-input-group">
+                  <label>Fim:</label>
+                  <input type="time" id="terca-fim" value="18:00">
+                </div>
+                <div class="break-config">
+                  <label>
+                    <input type="checkbox" id="terca-almoco" onchange="toggleBreakTime('terca')">
+                    Intervalo para almoço
+                  </label>
+                  <div class="break-times" id="break-terca" style="display: none;">
+                    <input type="time" id="terca-almoco-inicio" value="12:00">
+                    <span>até</span>
+                    <input type="time" id="terca-almoco-fim" value="13:00">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="day-config">
+              <h4><input type="checkbox" id="quarta" checked onchange="toggleDayConfig('quarta')"> Quarta-feira</h4>
+              <div class="time-config" id="config-quarta">
+                <div class="time-input-group">
+                  <label>Início:</label>
+                  <input type="time" id="quarta-inicio" value="08:00">
+                </div>
+                <div class="time-input-group">
+                  <label>Fim:</label>
+                  <input type="time" id="quarta-fim" value="18:00">
+                </div>
+                <div class="break-config">
+                  <label>
+                    <input type="checkbox" id="quarta-almoco" onchange="toggleBreakTime('quarta')">
+                    Intervalo para almoço
+                  </label>
+                  <div class="break-times" id="break-quarta" style="display: none;">
+                    <input type="time" id="quarta-almoco-inicio" value="12:00">
+                    <span>até</span>
+                    <input type="time" id="quarta-almoco-fim" value="13:00">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="day-config">
+              <h4><input type="checkbox" id="quinta" checked onchange="toggleDayConfig('quinta')"> Quinta-feira</h4>
+              <div class="time-config" id="config-quinta">
+                <div class="time-input-group">
+                  <label>Início:</label>
+                  <input type="time" id="quinta-inicio" value="08:00">
+                </div>
+                <div class="time-input-group">
+                  <label>Fim:</label>
+                  <input type="time" id="quinta-fim" value="18:00">
+                </div>
+                <div class="break-config">
+                  <label>
+                    <input type="checkbox" id="quinta-almoco" onchange="toggleBreakTime('quinta')">
+                    Intervalo para almoço
+                  </label>
+                  <div class="break-times" id="break-quinta" style="display: none;">
+                    <input type="time" id="quinta-almoco-inicio" value="12:00">
+                    <span>até</span>
+                    <input type="time" id="quinta-almoco-fim" value="13:00">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="day-config">
+              <h4><input type="checkbox" id="sexta" checked onchange="toggleDayConfig('sexta')"> Sexta-feira</h4>
+              <div class="time-config" id="config-sexta">
+                <div class="time-input-group">
+                  <label>Início:</label>
+                  <input type="time" id="sexta-inicio" value="08:00">
+                </div>
+                <div class="time-input-group">
+                  <label>Fim:</label>
+                  <input type="time" id="sexta-fim" value="18:00">
+                </div>
+                <div class="break-config">
+                  <label>
+                    <input type="checkbox" id="sexta-almoco" onchange="toggleBreakTime('sexta')">
+                    Intervalo para almoço
+                  </label>
+                  <div class="break-times" id="break-sexta" style="display: none;">
+                    <input type="time" id="sexta-almoco-inicio" value="12:00">
+                    <span>até</span>
+                    <input type="time" id="sexta-almoco-fim" value="13:00">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="day-config">
+              <h4><input type="checkbox" id="sabado" onchange="toggleDayConfig('sabado')"> Sábado</h4>
+              <div class="time-config" id="config-sabado" style="display: none;">
+                <div class="time-input-group">
+                  <label>Início:</label>
+                  <input type="time" id="sabado-inicio" value="08:00">
+                </div>
+                <div class="time-input-group">
+                  <label>Fim:</label>
+                  <input type="time" id="sabado-fim" value="12:00">
+                </div>
+                <div class="break-config">
+                  <label>
+                    <input type="checkbox" id="sabado-almoco" onchange="toggleBreakTime('sabado')">
+                    Intervalo para almoço
+                  </label>
+                  <div class="break-times" id="break-sabado" style="display: none;">
+                    <input type="time" id="sabado-almoco-inicio" value="12:00">
+                    <span>até</span>
+                    <input type="time" id="sabado-almoco-fim" value="13:00">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="day-config">
+              <h4><input type="checkbox" id="domingo" onchange="toggleDayConfig('domingo')"> Domingo</h4>
+              <div class="time-config" id="config-domingo" style="display: none;">
+                <div class="time-input-group">
+                  <label>Início:</label>
+                  <input type="time" id="domingo-inicio" value="08:00">
+                </div>
+                <div class="time-input-group">
+                  <label>Fim:</label>
+                  <input type="time" id="domingo-fim" value="12:00">
+                </div>
+                <div class="break-config">
+                  <label>
+                    <input type="checkbox" id="domingo-almoco" onchange="toggleBreakTime('domingo')">
+                    Intervalo para almoço
+                  </label>
+                  <div class="break-times" id="break-domingo" style="display: none;">
+                    <input type="time" id="domingo-almoco-inicio" value="12:00">
+                    <span>até</span>
+                    <input type="time" id="domingo-almoco-fim" value="13:00">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuração de Feriados -->
+        <div class="feriados-section" id="feriados-section" style="display: none;">
+          <h3>Trabalho em Feriados</h3>
+          <div class="form-container">
+            <div class="toggle-option">
+              <label class="toggle-switch">
+                <input type="checkbox" id="feriados-nao" checked onchange="handleFeriadosChange('nao')">
+                <span class="slider"></span>
+                <span class="toggle-text">Não trabalho em feriados</span>
+              </label>
+            </div>
+            <div class="toggle-option">
+              <label class="toggle-switch">
+                <input type="checkbox" id="feriados-sim" onchange="handleFeriadosChange('sim')">
+                <span class="slider"></span>
+                <span class="toggle-text">Trabalho em feriados (mesmo horário dos dias úteis)</span>
+              </label>
+            </div>
+            <div class="toggle-option">
+              <label class="toggle-switch">
+                <input type="checkbox" id="feriados-personalizado" onchange="handleFeriadosChange('personalizado')">
+                <span class="slider"></span>
+                <span class="toggle-text">Horário personalizado para feriados</span>
+              </label>
+            </div>
+            <div class="feriados-custom" id="feriados-custom" style="display: none;">
+              <div class="time-input-group">
+                <label>Início:</label>
+                <input type="time" id="feriados-inicio" value="08:00">
+              </div>
+              <div class="time-input-group">
+                <label>Fim:</label>
+                <input type="time" id="feriados-fim" value="12:00">
+              </div>
+            </div>
+        </div>
+
+        <!-- Datas Específicas -->
+        <div class="datas-especificas-section" id="datas-especificas-section" style="display: none;">
+          <h3>Datas Específicas</h3>
+          <p>Configure datas específicas com horários diferentes ou bloqueios.</p>
+          
+          <div class="add-date-section">
+            <h4>Adicionar Data Especial</h4>
+            <div class="form-container">
+              <div class="input-group">
+                <label for="data-especifica">Data:</label>
+                <input type="date" id="data-especifica">
+              </div>
+              <div class="input-group">
+                <label>
+                  <input type="radio" name="tipo-data" value="bloqueado" id="tipo-bloqueado" checked>
+                  <span>Bloqueado (não receber orçamentos)</span>
+                </label>
+              </div>
+              <div class="input-group">
+                <label>
+                  <input type="radio" name="tipo-data" value="personalizado" id="tipo-personalizado" onchange="toggleHorarioPersonalizado()">
+                  <span>Horário personalizado</span>
+                </label>
+              </div>
+              <div class="horario-personalizado" id="horario-personalizado" style="display: none;">
+                <div class="time-input-group">
+                  <label>Início:</label>
+                  <input type="time" id="data-inicio" value="08:00">
+                </div>
+                <div class="time-input-group">
+                  <label>Fim:</label>
+                  <input type="time" id="data-fim" value="18:00">
+                </div>
+              </div>
+              <button class="btn primary-btn" onclick="adicionarDataEspecifica()"><i class="fas fa-plus"></i> Adicionar Data</button>
+            </div>
+          </div>
+
+          <div class="datas-list">
+            <h4>Datas Configuradas</h4>
+            <div id="lista-datas-especificas">
+              <p>Nenhuma data especial configurada.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo da Configuração -->
+        <div class="resumo-section" id="resumo-section" style="display: none;">
+          <h3>Resumo da Configuração</h3>
+          <div id="resumo-calendario">
+            <!-- Resumo será preenchido dinamicamente -->
+          </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="action-buttons">
+          <button class="btn primary-btn" onclick="salvarCalendarioTrabalho()"><i class="fas fa-save"></i> Salvar Calendário</button>
+          <button class="btn" onclick="gerarResumoCalendario()"><i class="fas fa-eye"></i> Visualizar Resumo</button>
+          <button class="btn btn-finalizar" onclick="resetarCalendario()"><i class="fas fa-undo"></i> Resetar para Padrão</button>
+        </div>
+      </div>
+
       <!-- Tela de Histórico de Serviços (Prestador) -->
       <div id="servicos-historico" class="screen">
         <div class="tab-bar">
@@ -1161,6 +1482,255 @@
       </div>
     </div>
   </div>
+
+  <!-- Funções globais -->
+  <script>
+    // Função para mostrar/ocultar opções de recusa de visita
+    function toggleRecusarVisita(btn) {
+      var opcoes = btn.parentElement.nextElementSibling;
+      if (opcoes && opcoes.style) {
+        opcoes.style.display = (opcoes.style.display === 'none' || opcoes.style.display === '') ? 'block' : 'none';
+      }
+    }
+
+    // Funções do Calendário de Trabalho
+    function toggleDayConfig(day) {
+      const checkbox = document.getElementById(day);
+      const config = document.getElementById('config-' + day);
+      
+      if (checkbox.checked) {
+        config.style.display = 'block';
+      } else {
+        config.style.display = 'none';
+      }
+    }
+
+    function toggleBreakTime(day) {
+      const checkbox = document.getElementById(day + '-almoco');
+      const breakTime = document.getElementById('break-' + day);
+      
+      if (checkbox.checked) {
+        breakTime.style.display = 'block';
+      } else {
+        breakTime.style.display = 'none';
+      }
+    }
+
+    function toggleFeriadosPersonalizados() {
+      const personalizado = document.getElementById('feriados-personalizado');
+      const customDiv = document.getElementById('feriados-custom');
+      
+      if (personalizado.checked) {
+        customDiv.style.display = 'block';
+      } else {
+        customDiv.style.display = 'none';
+      }
+    }
+
+    function toggleHorarioPersonalizado() {
+      const personalizado = document.getElementById('tipo-personalizado');
+      const horarioDiv = document.getElementById('horario-personalizado');
+      
+      if (personalizado.checked) {
+        horarioDiv.style.display = 'block';
+      } else {
+        horarioDiv.style.display = 'none';
+      }
+    }
+
+    var datasEspecificas = [];
+
+    function adicionarDataEspecifica() {
+      const data = document.getElementById('data-especifica').value;
+      const tipoBloqueado = document.getElementById('tipo-bloqueado').checked;
+      const inicio = document.getElementById('data-inicio').value;
+      const fim = document.getElementById('data-fim').value;
+      
+      if (!data) {
+        alert('Por favor, selecione uma data.');
+        return;
+      }
+      
+      // Verifica se a data já existe
+      const dataExistente = datasEspecificas.find(d => d.data === data);
+      if (dataExistente) {
+        alert('Esta data já está configurada.');
+        return;
+      }
+      
+      const dataConfig = {
+        data: data,
+        tipo: tipoBloqueado ? 'bloqueado' : 'personalizado',
+        inicio: tipoBloqueado ? null : inicio,
+        fim: tipoBloqueado ? null : fim
+      };
+      
+      datasEspecificas.push(dataConfig);
+      renderizarDatasEspecificas();
+      
+      // Limpar formulário
+      document.getElementById('data-especifica').value = '';
+      document.getElementById('tipo-bloqueado').checked = true;
+      document.getElementById('horario-personalizado').style.display = 'none';
+    }
+
+    function renderizarDatasEspecificas() {
+      const lista = document.getElementById('lista-datas-especificas');
+      
+      if (datasEspecificas.length === 0) {
+        lista.innerHTML = '<p>Nenhuma data especial configurada.</p>';
+        return;
+      }
+      
+      let html = '';
+      datasEspecificas.forEach((dataConfig, index) => {
+        const dataFormatada = new Date(dataConfig.data + 'T00:00:00').toLocaleDateString('pt-BR');
+        const statusTexto = dataConfig.tipo === 'bloqueado' ? 
+          'Bloqueado' : 
+          `${dataConfig.inicio} às ${dataConfig.fim}`;
+        
+        html += `
+          <div class="data-item">
+            <span><strong>${dataFormatada}</strong> - ${statusTexto}</span>
+            <button class="btn btn-small btn-finalizar" onclick="removerDataEspecifica(${index})">
+              <i class="fas fa-trash"></i> Remover
+            </button>
+          </div>
+        `;
+      });
+      
+      lista.innerHTML = html;
+    }
+
+    function removerDataEspecifica(index) {
+      datasEspecificas.splice(index, 1);
+      renderizarDatasEspecificas();
+    }
+
+    function gerarResumoCalendario() {
+      const modoSempre = document.getElementById('modo-sempre').checked;
+      const resumoDiv = document.getElementById('resumo-calendario');
+      
+      if (modoSempre) {
+        resumoDiv.innerHTML = `
+          <div class="resumo-item">
+            <h4>Modo de Recebimento</h4>
+            <p>Recebendo orçamentos a qualquer momento (24 horas por dia, 7 dias por semana)</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '<div class="resumo-item"><h4>Horários de Trabalho</h4><ul>';
+      
+      const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+      const nomesDias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
+      
+      dias.forEach((dia, index) => {
+        const checkbox = document.getElementById(dia);
+        if (checkbox.checked) {
+          const inicio = document.getElementById(dia + '-inicio').value;
+          const fim = document.getElementById(dia + '-fim').value;
+          const almoco = document.getElementById(dia + '-almoco').checked;
+          
+          let texto = `${nomesDias[index]}: ${inicio} às ${fim}`;
+          
+          if (almoco) {
+            const almocoInicio = document.getElementById(dia + '-almoco-inicio').value;
+            const almocoFim = document.getElementById(dia + '-almoco-fim').value;
+            texto += ` (pausa: ${almocoInicio} às ${almocoFim})`;
+          }
+          
+          html += `<li>${texto}</li>`;
+        }
+      });
+      
+      html += '</ul></div>';
+      
+      // Feriados
+      const feriadosNao = document.getElementById('feriados-nao').checked;
+      const feriadosSim = document.getElementById('feriados-sim').checked;
+      const feriadosPersonalizado = document.getElementById('feriados-personalizado').checked;
+      
+      html += '<div class="resumo-item"><h4>Feriados</h4>';
+      if (feriadosNao) {
+        html += '<p>Não trabalha em feriados</p>';
+      } else if (feriadosSim) {
+        html += '<p>Trabalha em feriados com horário normal</p>';
+      } else if (feriadosPersonalizado) {
+        const inicio = document.getElementById('feriados-inicio').value;
+        const fim = document.getElementById('feriados-fim').value;
+        html += `<p>Feriados: ${inicio} às ${fim}</p>`;
+      }
+      html += '</div>';
+      
+      // Datas especiais
+      if (datasEspecificas.length > 0) {
+        html += '<div class="resumo-item"><h4>Datas Especiais</h4><ul>';
+        datasEspecificas.forEach(dataConfig => {
+          const dataFormatada = new Date(dataConfig.data + 'T00:00:00').toLocaleDateString('pt-BR');
+          const statusTexto = dataConfig.tipo === 'bloqueado' ? 
+            'Bloqueado' : 
+            `${dataConfig.inicio} às ${dataConfig.fim}`;
+          html += `<li>${dataFormatada}: ${statusTexto}</li>`;
+        });
+        html += '</ul></div>';
+      }
+      
+      resumoDiv.innerHTML = html;
+    }
+
+    function salvarCalendarioTrabalho() {
+      // Aqui você salvaria as configurações
+      // Por enquanto, apenas mostra um alerta
+      
+      const modoSempre = document.getElementById('modo-sempre').checked;
+      
+      if (modoSempre) {
+        alert('Calendário salvo! Você receberá orçamentos a qualquer momento.');
+      } else {
+        alert('Calendário de trabalho salvo com sucesso! Você receberá orçamentos apenas nos horários configurados.');
+      }
+      
+      // Simular salvamento das configurações
+      localStorage.setItem('calendarioTrabalho', JSON.stringify({
+        modoSempre: modoSempre,
+        datasEspecificas: datasEspecificas,
+        // Adicionar outras configurações aqui
+      }));
+    }
+
+    function resetarCalendario() {
+      if (confirm('Tem certeza que deseja resetar todas as configurações para o padrão?')) {
+        // Resetar para modo sempre
+        document.getElementById('modo-sempre').checked = true;
+        document.getElementById('modo-horario').checked = false;
+        
+        // Resetar dias da semana para segunda a sexta
+        const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
+        dias.forEach(dia => {
+          document.getElementById(dia).checked = true;
+          document.getElementById(dia + '-inicio').value = '08:00';
+          document.getElementById(dia + '-fim').value = '18:00';
+          document.getElementById(dia + '-almoco').checked = false;
+        });
+        
+        // Desmarcar sábado e domingo
+        document.getElementById('sabado').checked = false;
+        document.getElementById('domingo').checked = false;
+        
+        // Resetar feriados
+        document.getElementById('feriados-nao').checked = true;
+        
+        // Limpar datas especiais
+        datasEspecificas = [];
+        renderizarDatasEspecificas();
+        
+        toggleModoOrcamento();
+        alert('Calendário resetado para as configurações padrão.');
+      }
+    }
+  </script>
 
   <!-- Modais -->
   <!-- Modal de Finalizar Serviço (Prestador) -->
@@ -1442,7 +2012,7 @@
   <div id="request-visit-schedule-modal" class="modal">
     <div class="modal-content">
       <span class="close-button" data-modal-id="request-visit-schedule-modal">&times;</span>
-      <h2>Solicitar Visita com <span id="visit-prestador-name"></span></h2>
+      <h2>Solicitar Visita <span id="visit-prestador-name"></span></h2>
       <p>Por favor, sugira até 3 opções de data e hora para a visita:</p>
       <div class="form-container">
         <div class="input-group">
@@ -1487,6 +2057,6 @@
       </div>
   </div>
 
-  <script src="./script.js"></script> <!-- Certifique-se de que script.js está na mesma pasta -->
+  <script src="./script.js?v=20250722-1758"></script>
 </body>
 </html>
