@@ -13,6 +13,26 @@
   max-width: 340px;
 }
 
+/* Garantir espaçamento correto para ícones nos formulários de login */
+#client-access-form .input-group input,
+#provider-access-form .input-group input {
+  padding: 12px 12px 12px 45px !important; /* Forçar padding para ícone */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#client-access-form .input-group i,
+#provider-access-form .input-group i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1.1rem;
+  z-index: 1;
+  pointer-events: none;
+}
+
 #client-access-form .btn.primary-btn,
 #provider-access-form .btn.primary-btn {
   display: block;
@@ -2127,6 +2147,24 @@ header {
     min-height: 44px; /* Touch target mínimo */
   }
   
+  /* Garantir configurações específicas para formulários de login em mobile */
+  #client-access-form .input-group input,
+  #provider-access-form .input-group input {
+    padding: 12px 12px 12px 45px !important; /* Forçar padding para ícone */
+    font-size: 16px; /* Evita zoom no iOS */
+    min-height: 44px;
+  }
+  
+  #client-access-form .input-group i,
+  #provider-access-form .input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  
   .btn {
     padding: 12px 20px;
     font-size: 0.9rem;
@@ -2351,6 +2389,24 @@ header {
   .input-group select {
     padding: 12px 12px 12px 45px; /* Mantém espaço para ícone */
     font-size: 16px; /* Evita zoom no iOS */
+  }
+  
+  /* Garantir configurações específicas para formulários de login em mobile pequeno */
+  #client-access-form .input-group input,
+  #provider-access-form .input-group input {
+    padding: 12px 12px 12px 45px !important; /* Forçar padding para ícone */
+    font-size: 16px; /* Evita zoom no iOS */
+    min-height: 44px;
+  }
+  
+  #client-access-form .input-group i,
+  #provider-access-form .input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    pointer-events: none;
   }
   
   /* Calendário mobile - existente + novos */
