@@ -862,26 +862,31 @@
         }
     }
 
-    /* Remover formatação especial do item "Indique e Ganhe" - agora igual aos outros */
-    /* .sidebar-menu li:nth-child(2) a - REMOVIDO PARA DEIXAR IGUAL AOS OUTROS */
+    /* Formatação especial do item "Indique e Ganhe" completamente removida */
+    /* Agora usa exatamente os mesmos estilos dos outros itens do menu */
 
-    .sidebar-menu li:nth-child(2) a i {
-        color: #333;
-        text-shadow: none;
-        margin-right: 10px;
-        width: 20px;
-        flex-shrink: 0;
+    /* Estilos para o botão menu mobile */
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 8px;
+        margin: 0;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        transition: opacity 0.2s ease;
     }
 
-    /* Animação para chamar atenção - mais sutil */
-    /* Animação removida para padronizar com outros itens do menu */
-    /* @keyframes pulse-gray - REMOVIDO */
-    /* .sidebar-menu li:nth-child(2) a animation - REMOVIDO */
+    .menu-toggle:hover,
+    .menu-toggle:focus {
+        opacity: 0.8;
+    }
 
-    /* Garantir que outros itens do menu não sejam afetados */
-    .sidebar-menu li:not(:nth-child(2)) a {
-        position: relative;
-        z-index: auto;
+    .menu-toggle:active {
+        opacity: 0.6;
     }
 
     /* Responsividade específica para sidebar mobile */
@@ -1010,6 +1015,8 @@
         visibility: hidden;
         transition: all 0.3s ease;
         cursor: pointer; /* Indicar que é clicável */
+        -webkit-tap-highlight-color: transparent; /* Remove destaque no touch mobile */
+        touch-action: manipulation; /* Otimizar para touch */
     }
 
     .sidebar-overlay.active {
@@ -4078,6 +4085,7 @@
         const overlay = document.getElementById('sidebar-overlay');
         if (overlay) {
             overlay.addEventListener('click', closeSidebar);
+            overlay.addEventListener('touchstart', closeSidebar); // Para mobile
         }
         
         // Fechar sidebar quando clicar em qualquer link do menu
@@ -4088,18 +4096,40 @@
             });
         });
         
-        // Fechar sidebar quando clicar fora dele
-        document.addEventListener('click', function(event) {
+        // Fechar sidebar quando clicar/tocar fora dele - MELHORADO PARA MOBILE
+        function handleOutsideClick(event) {
             const sidebar = document.getElementById('sidebar');
             const menuToggle = document.querySelector('.menu-toggle');
             
             if (sidebar && sidebar.classList.contains('active')) {
-                // Se clicou fora do sidebar e não no botão de menu
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                // Se clicou/tocou fora do sidebar e não no botão de menu
+                if (!sidebar.contains(event.target) && 
+                    menuToggle && !menuToggle.contains(event.target)) {
                     closeSidebar();
                 }
             }
-        });
+        }
+        
+        // Adicionar eventos para mouse e touch
+        document.addEventListener('click', handleOutsideClick);
+        document.addEventListener('touchstart', handleOutsideClick, { passive: true });
+        
+        // Prevenir scroll do body quando sidebar estiver aberto (mobile)
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'class') {
+                        if (sidebar.classList.contains('active')) {
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    }
+                });
+            });
+            observer.observe(sidebar, { attributes: true });
+        }
     });
   </script>
 </body>
