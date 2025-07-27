@@ -1135,7 +1135,7 @@ header {
 
 /* Títulos de seção com ícones para melhor identificação */
 #buscar-servicos-unificado-padrao-content::before {
-    content: '🔧 Orçamento Padrão - Serviços Remotos e Presenciais';
+    content: '🔧 Padrão - Informações enviadas pelo Cliente';
     display: block;
     font-weight: 700;
     color: #1565c0;
