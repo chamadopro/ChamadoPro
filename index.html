@@ -878,6 +878,8 @@
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
         transition: opacity 0.2s ease;
+        z-index: 1002; /* CRÍTICO: Acima do sidebar (1000) */
+        position: relative;
     }
 
     .menu-toggle:hover,
@@ -887,6 +889,19 @@
 
     .menu-toggle:active {
         opacity: 0.6;
+    }
+
+    /* Garantir que o header fique acima do sidebar */
+    #app-header {
+        position: relative;
+        z-index: 1001; /* Acima do sidebar */
+    }
+
+    /* Garantir que o botão menu sempre seja visível e clicável */
+    .menu-toggle {
+        position: relative !important;
+        z-index: 1002 !important;
+        pointer-events: all !important;
     }
 
     /* Responsividade específica para sidebar mobile */
@@ -1034,11 +1049,6 @@
         opacity: 1;
         visibility: visible;
         pointer-events: all; /* CRÍTICO: Permitir cliques/toques quando ativo */
-    }
-
-    /* Mostrar indicador de debug quando overlay estiver ativo */
-    .sidebar-overlay.active #overlay-hint {
-        display: block !important;
     }
     
     /* Estilo para o logo no cabeçalho */
@@ -1926,13 +1936,7 @@
     </nav>
 
     <!-- Overlay para fechar sidebar -->
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()" ontouchend="closeSidebar()">
-        <!-- Indicador visual para ajudar o usuário -->
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 14px; opacity: 0.8; pointer-events: none; text-align: center; display: none;" id="overlay-hint">
-            <i class="fas fa-times" style="font-size: 24px; margin-bottom: 8px;"></i><br>
-            Toque para fechar
-        </div>
-    </div>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()" ontouchend="closeSidebar()"></div>
 
     <!-- Conteúdo das Telas -->
     <div class="screen-content">
@@ -4119,15 +4123,19 @@
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         
+        console.log('toggleMenu chamado'); // Debug
+        
         if (sidebar && overlay) {
             if (sidebar.classList.contains('active')) {
                 // Fechar menu
+                console.log('Fechando menu'); // Debug
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
                 document.body.style.position = '';
             } else {
                 // Abrir menu
+                console.log('Abrindo menu'); // Debug
                 sidebar.classList.add('active');
                 overlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -4139,6 +4147,8 @@
     function closeSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
+        
+        console.log('closeSidebar chamado'); // Debug
         
         if (sidebar && overlay) {
             sidebar.classList.remove('active');
