@@ -569,32 +569,32 @@
     /* Responsividade para mobile */
     @media (max-width: 768px) {
       .filter-buttons {
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px 15px;
+        gap: 8px;
+        padding: 8px 15px;
+        margin-bottom: 15px;
       }
       
       .filter-btn {
-        width: 100%;
-        min-width: auto;
-        margin: 0;
-        padding: 15px 20px;
-        font-size: 1.1rem;
-        border-radius: 12px;
+        flex: 1;
+        min-width: 90px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        border-radius: 15px;
       }
     }
     
     @media (max-width: 480px) {
       .filter-buttons {
-        padding: 10px;
-        gap: 8px;
-        margin-bottom: 15px;
+        padding: 6px 10px;
+        gap: 6px;
+        margin-bottom: 12px;
       }
       
       .filter-btn {
-        padding: 12px 16px;
-        font-size: 1rem;
-        border-radius: 10px;
+        padding: 6px 8px;
+        font-size: 0.85rem;
+        border-radius: 12px;
+        min-width: 80px;
       }
     }
 
@@ -1176,31 +1176,35 @@
     @media (max-width: 768px) {
         .cp-tabs {
             gap: 8px;
-            padding: 12px 15px;
+            padding: 8px 15px;
+            justify-content: center;
         }
         
         .cp-tab {
-            min-width: 100px;
-            padding: 10px 18px;
-            font-size: 0.95rem;
+            min-width: 140px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            flex: 1;
         }
         
         .cp-badge {
-            font-size: 0.8rem;
-            padding: 1px 6px;
+            font-size: 0.75rem;
+            padding: 1px 5px;
         }
     }
     
     @media (max-width: 480px) {
         .cp-tabs {
-            flex-direction: column;
-            gap: 8px;
-            align-items: stretch;
+            gap: 6px;
+            padding: 6px 10px;
+            justify-content: space-between;
         }
         
         .cp-tab {
             min-width: auto;
-            width: 100%;
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 0.85rem;
         }
     }
     
@@ -2060,7 +2064,20 @@
         </div>
         
         <div id="orcamentos-usuario-recebidos-content" class="tab-content" data-cp-content="recebidos" data-cp-content-group="orcamentos-usuario">
-          <!-- Conteúdo de orçamentos recebidos (sem sub-abas) -->
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="todos" onclick="filterOrcamentosUsuarioRecebidos('todos')">
+              Todos
+            </button>
+            <button class="filter-btn" data-filter="padrao" onclick="filterOrcamentosUsuarioRecebidos('padrao')">
+              Padrão
+            </button>
+            <button class="filter-btn" data-filter="visita" onclick="filterOrcamentosUsuarioRecebidos('visita')">
+              Visita
+            </button>
+          </div>
+          <div id="orcamentos-usuario-recebidos-list" class="service-list">
+            <!-- Conteúdo de orçamentos recebidos será inserido aqui -->
+          </div>
         </div>
       </div>
 

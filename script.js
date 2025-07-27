@@ -999,15 +999,31 @@ function renderOrcamentosUsuarioSolicitados(filtro = 'todos') {
     });
 }
 
-function renderOrcamentosUsuarioRecebidos() {
+function renderOrcamentosUsuarioRecebidos(filtro = 'todos') {
     const container = document.getElementById('orcamentos-usuario-recebidos-content');
     if (!container) return;
-    container.innerHTML = '';
-    if (orcamentosUsuarioRecebidos.length === 0) {
-        container.innerHTML = '<p class="no-content-message">Nenhuma proposta de orçamento recebida ainda.</p>';
+    
+    // Encontrar o container da lista específico
+    let listContainer = container.querySelector('#orcamentos-usuario-recebidos-list');
+    if (!listContainer) {
+        listContainer = container;
+    }
+    
+    listContainer.innerHTML = '';
+    
+    // Filtrar os orçamentos baseado no tipo
+    let orcamentosFiltrados = orcamentosUsuarioRecebidos;
+    if (filtro === 'padrao') {
+        orcamentosFiltrados = orcamentosUsuarioRecebidos.filter(budget => budget.tipo !== 'visita');
+    } else if (filtro === 'visita') {
+        orcamentosFiltrados = orcamentosUsuarioRecebidos.filter(budget => budget.tipo === 'visita');
+    }
+    
+    if (orcamentosFiltrados.length === 0) {
+        listContainer.innerHTML = '<p class="no-content-message">Nenhuma proposta de orçamento recebida ainda.</p>';
         return;
     }
-    orcamentosUsuarioRecebidos.forEach(budget => {
+    orcamentosFiltrados.forEach(budget => {
         const card = document.createElement('div');
         const isVisita = budget.tipo === 'visita';
         const tipoClass = isVisita ? 'orcamento-visita' : 'orcamento-padrao';
@@ -1044,7 +1060,7 @@ function renderOrcamentosUsuarioRecebidos() {
                 <button class="btn btn-finalizar" onclick="openUserRefusalReasonModal(${budget.id})"><i class="fas fa-times"></i> Recusar</button>
             </div>
         `;
-        container.appendChild(card);
+        listContainer.appendChild(card);
     });
 }
 
@@ -1481,6 +1497,18 @@ function filterOrcamentosUsuarioSolicitados(filtro) {
     
     // Re-renderizar com o filtro aplicado
     renderOrcamentosUsuarioSolicitados(filtro);
+}
+
+// Função para filtrar orçamentos do usuário recebidos
+function filterOrcamentosUsuarioRecebidos(filtro) {
+    // Atualizar estado dos botões
+    document.querySelectorAll('#orcamentos-usuario-recebidos-content .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`#orcamentos-usuario-recebidos-content .filter-btn[data-filter="${filtro}"]`).classList.add('active');
+    
+    // Re-renderizar com o filtro aplicado
+    renderOrcamentosUsuarioRecebidos(filtro);
 }
 
 // Função para filtrar orçamentos aprovados
