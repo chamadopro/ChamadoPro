@@ -323,10 +323,10 @@ function showScreen(screenId, title = '') {
         if (headerTitleElement) {
             switch (screenId) {
                 case 'dashboard-usuario':
-                    headerTitleElement.textContent = 'Dashboard do Usuário';
+                    headerTitleElement.textContent = 'Painel';
                     break;
                 case 'dashboard-prestador':
-                    headerTitleElement.textContent = 'Dashboard do Prestador';
+                    headerTitleElement.textContent = 'Painel';
                     break;
                 case 'orcamentos-usuario':
                     headerTitleElement.textContent = 'Minhas Solicitações em Aberto';
