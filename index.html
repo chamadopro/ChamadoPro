@@ -894,13 +894,13 @@
     /* Garantir que o header fique acima do sidebar */
     #app-header {
         position: relative;
-        z-index: 1001; /* Acima do sidebar */
+        z-index: 9998; /* Logo abaixo do botão menu */
     }
 
     /* Garantir que o botão menu sempre seja visível e clicável */
     .menu-toggle {
         position: relative !important;
-        z-index: 1002 !important;
+        z-index: 9999 !important; /* MÁXIMA PRIORIDADE - Sempre no topo */
         pointer-events: all !important;
     }
 
