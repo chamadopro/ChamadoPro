@@ -475,7 +475,7 @@ header {
   padding: 5px 10px;
   border-radius: 5px;
   transition: background-color 0.3s ease;
-  display: none; /* Escondido por padrão no desktop */
+  display: block; /* Visível no desktop também */
 }
 
 .menu-toggle:hover {
@@ -517,18 +517,24 @@ header {
   top: 0;
   left: -280px; /* Escondido por padrão */
   width: 280px;
-  height: 100%;
+  height: 100vh; /* Usa toda a altura da viewport */
   background: #fff;
   box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-  padding-top: 70px; /* Espaço para o cabeçalho */
   transition: left 0.3s ease;
   z-index: 999;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Previne scroll no container principal */
 }
 
 .sidebar.active {
   left: 0; /* Visível */
+}
+
+/* Transição suave para o conteúdo principal */
+.main-content-wrapper {
+  margin-left: 0; /* Sempre sem margin por padrão */
+  transition: margin-left 0.3s ease;
 }
 
 .sidebar-header {
@@ -538,9 +544,9 @@ header {
   padding: 20px;
   background: #17a2b8;
   color: #fff;
-  position: absolute;
-  top: 0;
-  width: 100%;
+  flex-shrink: 0; /* Não encolhe */
+  z-index: 1000; /* Garante que fica sobre o menu */
+  height: 150px; /* Altura fixa */
   box-sizing: border-box;
 }
 
@@ -568,16 +574,93 @@ header {
   list-style: none;
   padding: 0;
   margin: 0;
-  flex-grow: 1; /* Permite que a lista ocupe o espaço restante */
-  padding-top: 150px; /* Ajuste para o header da sidebar */
+  flex: 1; /* Ocupa o espaço restante */
+  overflow-y: auto; /* Adiciona scroll vertical */
+  overflow-x: hidden; /* Remove scroll horizontal */
+  padding-top: 10px; /* Espaço do topo */
+  padding-bottom: 80px; /* Espaço extra no final para o botão sticky */
+  max-height: calc(100vh - 150px); /* Garante que não exceda a altura disponível */
+}
+
+/* Estilo especial para o item "Sair" - sempre visível na parte inferior */
+.sidebar-menu li:last-child {
+  background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+  border: 2px solid #dc3545;
+  border-radius: 12px;
+  margin: 0;
+  position: absolute; /* Posição absoluta na parte inferior do sidebar */
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  opacity: 0; /* Inicialmente oculto */
+  transition: opacity 0.3s ease;
+}
+
+/* Mostra o botão "Sair" quando o sidebar está ativo */
+.sidebar.active .sidebar-menu li:last-child {
+  opacity: 1;
+}
+
+.sidebar-menu li:last-child a {
+  color: #dc3545 !important;
+  font-weight: 700;
+  border-radius: 10px;
+  background-color: transparent;
+  text-align: center;
+  justify-content: center;
+  padding: 12px 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu li:last-child a:hover {
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  color: white !important;
+  transform: translateY(-2px);
+}
+
+.sidebar-menu li:last-child a i {
+  color: #dc3545 !important;
+  margin-right: 10px;
+  font-size: 1.1em;
+}
+
+.sidebar-menu li:last-child a:hover i {
+  color: white !important;
+}
+
+/* Personalização da barra de scroll */
+.sidebar-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: #17a2b8;
+  border-radius: 4px;
+  min-height: 40px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb:hover {
+  background: #138496;
 }
 
 .sidebar-menu li {
   border-bottom: 1px solid #eee;
+  margin-bottom: 2px;
 }
 
-.sidebar-menu li:last-child {
-  border-bottom: none;
+/* Estilo especial para itens normais do menu (exceto o Sair) */
+.sidebar-menu li:not(:last-child) {
+  border-bottom: 1px solid #eee;
 }
 
 .sidebar-menu a {
@@ -600,6 +683,31 @@ header {
 .sidebar-menu a.active {
   background-color: #e9f7f9;
   color: #17a2b8;
+}
+
+/* Estilos Desktop para Sidebar (telas maiores que 768px) */
+@media (min-width: 769px) {
+  /* Remove o comportamento automático do desktop - sidebar sempre escondido por padrão */
+  .sidebar {
+    left: -280px; /* Sempre escondido por padrão, mesmo no desktop */
+    position: fixed;
+    z-index: 999;
+  }
+  
+  .sidebar.active {
+    left: 0; /* Visível apenas quando ativo */
+  }
+  
+  /* No desktop, o conteúdo principal nunca tem margin automático */
+  .main-content-wrapper {
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
+  }
+  
+  /* Garante que o menu toggle seja visível no desktop */
+  .menu-toggle {
+    display: block;
+  }
 }
 
 /* Conteúdo das Telas */
@@ -721,6 +829,25 @@ header {
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* Mensagem de Cancelamento Automático */
+.auto-cancel-warning {
+  color: #e74c3c !important;
+  font-size: 0.9rem !important;
+  margin-top: 8px !important;
+  padding: 8px 12px !important;
+  background-color: #fdf2f2 !important;
+  border: 1px solid #f5c6cb !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.auto-cancel-warning i {
+  color: #e74c3c !important;
+  font-size: 1rem !important;
 }
 
 /* Anúncios */
@@ -860,6 +987,180 @@ header {
 .tipo-orcamento-visita {
     color: #ffc107 !important;
     font-weight: 600;
+}
+
+/* Estilos especiais para as abas de Orçamento Padrão e Orçamento com Visita */
+#tab-buscar-servicos-unificado-padrao {
+    background: linear-gradient(135deg, #4facfe, #00f2fe) !important;
+    border: 2px solid #2196f3 !important;
+    color: white !important;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+#tab-buscar-servicos-unificado-padrao::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ffffff, #e3f2fd);
+}
+
+#tab-buscar-servicos-unificado-padrao.active {
+    background: linear-gradient(135deg, #1976d2, #0d47a1) !important;
+    color: white !important;
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.5);
+    transform: translateY(-2px);
+}
+
+#tab-buscar-servicos-unificado-padrao:hover:not(.active) {
+    background: linear-gradient(135deg, #64b5f6, #42a5f5) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+}
+
+#tab-buscar-servicos-unificado-visita {
+    background: linear-gradient(135deg, #ffa726, #ff9800) !important;
+    border: 2px solid #ff9800 !important;
+    color: white !important;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+#tab-buscar-servicos-unificado-visita::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ffffff, #fff8e1);
+}
+
+#tab-buscar-servicos-unificado-visita.active {
+    background: linear-gradient(135deg, #f57c00, #e65100) !important;
+    color: white !important;
+    box-shadow: 0 6px 16px rgba(255, 152, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+#tab-buscar-servicos-unificado-visita:hover:not(.active) {
+    background: linear-gradient(135deg, #ffb74d, #ffa726) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+}
+
+/* Estilos para os ícones das abas */
+.tab-icon {
+    font-size: 1.2em;
+    margin-right: 8px;
+    display: inline-block;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Transições suaves para todas as abas especiais */
+#tab-buscar-servicos-unificado-padrao,
+#tab-buscar-servicos-unificado-visita {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 700;
+    border-radius: 12px !important;
+    margin: 0 5px;
+    padding: 16px 28px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    #tab-buscar-servicos-unificado-padrao,
+    #tab-buscar-servicos-unificado-visita {
+        padding: 12px 16px !important;
+        font-size: 0.8rem;
+        margin: 0 2px;
+        flex: 1;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+    
+    .tab-icon {
+        font-size: 1.1em;
+        margin-right: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    #tab-buscar-servicos-unificado-padrao,
+    #tab-buscar-servicos-unificado-visita {
+        padding: 10px 12px !important;
+        font-size: 0.75rem;
+        border-radius: 8px !important;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .tab-icon {
+        margin-right: 0;
+        margin-bottom: 2px;
+    }
+}
+
+/* Fundos diferenciados para o conteúdo das abas */
+#buscar-servicos-unificado-padrao-content {
+    background: linear-gradient(135deg, #f3f8ff, #e8f4ff);
+    border: 2px solid #2196f3;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.1);
+}
+
+#buscar-servicos-unificado-visita-content {
+    background: linear-gradient(135deg, #fff9f0, #fff3e0);
+    border: 2px solid #ff9800;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+}
+
+/* Títulos de seção com ícones para melhor identificação */
+#buscar-servicos-unificado-padrao-content::before {
+    content: '🔧 Orçamento Padrão - Serviços Remotos e Presenciais';
+    display: block;
+    font-weight: 700;
+    color: #1565c0;
+    margin-bottom: 15px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+    border-radius: 8px;
+    border-left: 4px solid #0d47a1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+#buscar-servicos-unificado-visita-content::before {
+    content: '🏠 Orçamento com Visita - Avaliação no Local';
+    display: block;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 15px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    border-radius: 8px;
+    border-left: 4px solid #e65100;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
 }
 
 /* Cards de Serviço (genérico para listas) */
@@ -1503,6 +1804,23 @@ header {
   text-align: center;
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
+}
+
+/* Estilo específico para o modal de aviso da taxa de visita */
+#visit-fee-warning-modal .modal-content {
+  max-width: 650px;
+}
+
+#visit-fee-warning-modal h2 {
+  color: #dc3545 !important;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+#visit-fee-warning-modal .modal-actions {
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
 }
 
 .close-button {

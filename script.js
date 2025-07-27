@@ -96,6 +96,74 @@ let visitasMarcadas = [
     }
 ];
 
+// Array de trabalhos em execução
+let trabalhosEmExecucao = [
+    {
+        id: 1,
+        prestador: 'João Silva',
+        service: 'Instalação Elétrica',
+        value: 'R$ 450,00',
+        dataInicio: '2024-07-20',
+        tempoEstimado: '3 dias',
+        tipo: 'padrao',
+        status: 'Em Execução',
+        progresso: 60,
+        address: 'Rua A, 123',
+        description: 'Instalação completa do sistema elétrico'
+    },
+    {
+        id: 2,
+        prestador: 'Ana Costa',
+        service: 'Pintura de Casa',
+        value: 'R$ 1200,00',
+        dataInicio: '2024-07-18',
+        tempoEstimado: '5 dias',
+        tipo: 'visita',
+        status: 'Em Execução',
+        progresso: 80,
+        address: 'Rua B, 456',
+        description: 'Pintura completa da casa - 3 quartos'
+    }
+];
+
+// Array de trabalhos finalizados
+let trabalhosFinalizados = [
+    {
+        id: 1,
+        prestador: 'Carlos Mendes',
+        service: 'Conserto de Torneira',
+        value: 'R$ 80,00',
+        dataInicio: '2024-07-10',
+        dataFinalizacao: '2024-07-10',
+        tempoRealizado: '2 horas',
+        tipo: 'padrao',
+        status: 'Finalizado',
+        address: 'Rua C, 789',
+        description: 'Reparo em torneira da cozinha',
+        avaliacao: 5,
+        comentario: 'Serviço excelente, muito rápido!',
+        prestadorPhone: '(11) 99999-9999',
+        prestadorWhatsapp: '5511999999999'
+    },
+    {
+        id: 2,
+        prestador: 'Maria Santos',
+        service: 'Limpeza Profunda',
+        value: 'R$ 200,00',
+        dataInicio: '2024-07-05',
+        dataFinalizacao: '2024-07-05',
+        tempoRealizado: '4 horas',
+        tipo: 'visita',
+        status: 'Finalizado',
+        address: 'Rua D, 321',
+        description: 'Limpeza completa do apartamento',
+        avaliacao: 5,
+        comentario: 'Trabalho impecável!',
+        prestadorPhone: '(11) 88888-8888',
+        prestadorWhatsapp: '5511888888888'
+    }
+];
+
 let orcamentosPrestadorRecebidos = [
     { id: 501, title: 'Instalação de Chuveiro', description: 'Preciso instalar um chuveiro novo no banheiro.', client: 'Mariana Costa', address: 'Rua D, 10', date: '2024-07-18', photos: [], video: '', tipo: 'padrao' },
     { id: 502, title: 'Manutenção de Ar Condicionado', description: 'Limpeza e verificação de um ar condicionado split.', client: 'Roberto Santos', address: 'Av. Brasil, 200', date: '2024-07-19', photos: [], video: '', tipo: 'padrao' },
@@ -261,7 +329,7 @@ function showScreen(screenId, title = '') {
                     headerTitleElement.textContent = 'Dashboard do Prestador';
                     break;
                 case 'orcamentos-usuario':
-                    headerTitleElement.textContent = 'Meus Orçamentos';
+                    headerTitleElement.textContent = 'Minhas Solicitações em Aberto';
                     break;
                 case 'orcamentos-prestador':
                     headerTitleElement.textContent = 'Orçamentos';
@@ -323,6 +391,12 @@ function showScreen(screenId, title = '') {
                 case 'orcamentos-prestador-recusados':
                     headerTitleElement.textContent = 'Orçamentos Recusados';
                     break;
+                case 'trabalhos-execucao-finalizados':
+                    headerTitleElement.textContent = 'Trabalhos em Execução e Finalizados';
+                    break;
+                case 'orcamentos-aprovados-recusados':
+                    headerTitleElement.textContent = 'Orçamentos Aprovados e Recusados';
+                    break;
                 default:
                     headerTitleElement.textContent = 'ChamadoPro'; // Título padrão
             }
@@ -364,6 +438,7 @@ function showScreen(screenId, title = '') {
         renderOrcamentosUsuarioRecusados();
         renderOrcamentosUsuarioVisitas();
         updateUserBudgetCounts(); // Atualiza os contadores das abas
+        
         // Use um pequeno timeout para garantir que o DOM seja atualizado antes de ativar a aba
         setTimeout(() => {
             // Verifica se a aba 'recebidos' deve ser ativada se o clique veio do dashboard
@@ -371,7 +446,7 @@ function showScreen(screenId, title = '') {
                  // Se o clique veio de um card do dashboard, a função showTab já foi chamada pelo onclick do card
                  // Não é necessário chamar showTab novamente aqui, pois isso sobrescreveria a aba correta
             } else {
-                showTab('orcamentos-usuario', 'solicitados'); // Garante que a primeira aba padrão esteja ativa
+                switchCpTab('orcamentos-usuario', 'solicitados'); // Garante que a primeira aba padrão esteja ativa
             }
         }, 50); // Pequeno atraso de 50ms
     }
@@ -380,6 +455,13 @@ function showScreen(screenId, title = '') {
         renderServicosHistoricoRecusados();
         updateServicosHistoricoCounts(); // Atualiza os contadores das abas
         showTab('servicos-historico', 'finalizados');
+    }
+    // Adiciona a renderização para trabalhos em execução e finalizados
+    else if (screenId === 'trabalhos-execucao-finalizados') {
+        renderTrabalhosEmExecucao();
+        renderTrabalhosFinalizados();
+        updateTrabalhosCount(); // Atualiza os contadores das abas
+        switchCpTab('trabalhos-execucao-finalizados', 'execucao'); // Mostra aba de execução por padrão
     } else if (screenId === 'ocorrencias-usuario') {
         renderUserOccurrences();
     } else if (screenId === 'ocorrencias-prestador') {
@@ -393,6 +475,10 @@ function showScreen(screenId, title = '') {
         renderBankAccounts();
     } else if (screenId === 'visitas-marcadas') {
         renderVisitasMarcadas();
+    } else if (screenId === 'trabalhos-execucao-finalizados') {
+        renderTrabalhosEmExecucao();
+        renderTrabalhosFinalizados();
+        updateTrabalhosCount();
     } else if (screenId === 'orcamentos-prestador-recebidos') {
         renderOrcamentosPrestadorRecebidos();
     } else if (screenId === 'orcamentos-prestador-propostas-enviadas') {
@@ -407,6 +493,16 @@ function showScreen(screenId, title = '') {
 
     // Atualiza títulos de seção específicos baseados no contexto
     updateSectionTitle(screenId, title);
+    
+    // Inicializa o sidebar quando mostra uma tela da aplicação (não de login)
+    if (!['splash', 'login-screen-v2', 'login-choice-screen', 'login-client-screen', 'login-provider-screen'].includes(screenId)) {
+        // Pequeno delay para garantir que o DOM foi atualizado
+        setTimeout(() => {
+            if (typeof initializeSidebar === 'function') {
+                initializeSidebar();
+            }
+        }, 100);
+    }
 }
 
 // Função para atualizar títulos de seção baseados no contexto do card clicado
@@ -772,6 +868,9 @@ function updateUserDashboardCounts() {
     document.getElementById('orcamentos-aprovados-recusados-count-dashboard').textContent = totalAprovadosRecusados;
     document.getElementById('ocorrencias-usuario-count-dashboard').textContent = userOccurrences.length;
     document.getElementById('orcamentos-usuario-visitas-count-dashboard').textContent = visitasMarcadas.length;
+    // Atualiza contador de trabalhos
+    const totalTrabalhos = trabalhosEmExecucao.length + trabalhosFinalizados.length;
+    document.getElementById('trabalhos-count-dashboard').textContent = totalTrabalhos;
 }
 
 function updatePrestadorDashboardCounts() {
@@ -790,15 +889,24 @@ function updateUserBudgetCounts() {
 }
 
 function updatePrestadorBudgetCounts() {
-    document.getElementById('orcamentos-prestador-recebidos-count-tab').textContent = orcamentosPrestadorRecebidos.length;
-    document.getElementById('orcamentos-prestador-propostas-enviadas-count-tab').textContent = orcamentosPrestadorPropostasEnviadas.length;
-    document.getElementById('orcamentos-prestador-aprovados-count-tab').textContent = orcamentosPrestadorAprovados.length;
-    document.getElementById('orcamentos-prestador-recusados-count-tab').textContent = orcamentosPrestadorRecusados.length;
+    // Atualiza apenas os contadores do dashboard do prestador (que existem no HTML)
+    const recebidosElement = document.getElementById('orcamentos-prestador-recebidos-count-dashboard');
+    const propostasElement = document.getElementById('orcamentos-prestador-propostas-enviadas-count-dashboard');
+    const aprovadosElement = document.getElementById('orcamentos-prestador-aprovados-count-dashboard');
+    const recusadosElement = document.getElementById('orcamentos-prestador-recusados-count-dashboard');
+    
+    if (recebidosElement) recebidosElement.textContent = orcamentosPrestadorRecebidos.length;
+    if (propostasElement) propostasElement.textContent = orcamentosPrestadorPropostasEnviadas.length;
+    if (aprovadosElement) aprovadosElement.textContent = orcamentosPrestadorAprovados.length;
+    if (recusadosElement) recusadosElement.textContent = orcamentosPrestadorRecusados.length;
 }
 
 function updateServicosHistoricoCounts() {
-    document.getElementById('servicos-finalizados-count-tab').textContent = servicosHistoricoCount;
-    document.getElementById('servicos-recusados-count-tab').textContent = orcamentosPrestadorRecusados.length; // Reutilizando para exemplo
+    const finalizadosElement = document.getElementById('servicos-finalizados-count-tab');
+    const recusadosElement = document.getElementById('servicos-recusados-count-tab');
+    
+    if (finalizadosElement) finalizadosElement.textContent = servicosHistoricoCount;
+    if (recusadosElement) recusadosElement.textContent = orcamentosPrestadorRecusados.length; // Reutilizando para exemplo
 }
 
 
@@ -841,15 +949,28 @@ function stopAdRotations() {
 }
 
 // Funções de Orçamentos (Usuário)
-function renderOrcamentosUsuarioSolicitados() {
-    const container = document.getElementById('orcamentos-usuario-solicitados-content');
+function renderOrcamentosUsuarioSolicitados(filtro = 'todos') {
+    const container = document.getElementById('orcamentos-usuario-solicitados-list');
     if (!container) return;
     container.innerHTML = '';
-    if (orcamentosUsuarioSolicitados.length === 0) {
-        container.innerHTML = '<p class="no-content-message">Nenhum orçamento solicitado ainda.</p>';
+    
+    // Filtrar orçamentos baseado no tipo
+    let orcamentosFiltrados = orcamentosUsuarioSolicitados;
+    if (filtro === 'padrao') {
+        orcamentosFiltrados = orcamentosUsuarioSolicitados.filter(req => req.tipo === 'padrao');
+    } else if (filtro === 'visita') {
+        orcamentosFiltrados = orcamentosUsuarioSolicitados.filter(req => req.tipo === 'visita');
+    }
+    
+    if (orcamentosFiltrados.length === 0) {
+        const mensagem = filtro === 'todos' ? 'Nenhum orçamento solicitado ainda.' : 
+                        filtro === 'padrao' ? 'Nenhum orçamento padrão solicitado.' : 
+                        'Nenhum orçamento com visita solicitado.';
+        container.innerHTML = `<p class="no-content-message">${mensagem}</p>`;
         return;
     }
-    orcamentosUsuarioSolicitados.forEach(req => {
+    
+    orcamentosFiltrados.forEach(req => {
         const card = document.createElement('div');
         const isVisita = req.tipo === 'visita';
         const tipoClass = isVisita ? 'orcamento-visita' : 'orcamento-padrao';
@@ -894,20 +1015,31 @@ function renderOrcamentosUsuarioRecebidos() {
         const tipoIcon = isVisita ? '<i class="fas fa-calendar-check"></i>' : '<i class="fas fa-tools"></i>';
         const tipoLabel = isVisita ? 'Proposta de Visita' : 'Orçamento Padrão';
         
+        // Informações adicionais do orçamento
+        const valorFormatado = budget.value || 'Valor a combinar';
+        const tempoEstimado = budget.tempoEstimado || 'A definir';
+        const precisaMaterial = budget.precisaMaterial !== undefined ? budget.precisaMaterial : true;
+        const materialTexto = precisaMaterial ? 'Material necessário' : 'Material não necessário';
+        const materialIcon = precisaMaterial ? '<i class="fas fa-boxes" style="color: #f39c12;"></i>' : '<i class="fas fa-check-circle" style="color: #28a745;"></i>';
+        
         card.classList.add('card', tipoClass);
         
         card.innerHTML = `
             <div class="card-header">
-                <h3>${tipoIcon} ${budget.service} - ${budget.value}</h3>
-                <div class="status em-analise">Em Análise</div>
+                <h3>${tipoIcon} ${budget.service}</h3>
+                <div class="status aguardando">Aguardando Aprovação</div>
                 <small class="${tipoTextClass}" style="font-weight: bold;">${tipoLabel}</small>
             </div>
             <div class="info">
                 <p><i class="fas fa-user"></i> Prestador: ${budget.prestador}</p>
+                <p><i class="fas fa-money-bill-wave"></i> <strong>Valor: ${valorFormatado}</strong></p>
+                <p><i class="fas fa-clock"></i> <strong>Tempo estimado: ${tempoEstimado}</strong></p>
+                <p>${materialIcon} ${materialTexto}</p>
                 <p><i class="fas fa-calendar-alt"></i> Proposta em: ${budget.date}</p>
+                <p class="auto-cancel-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Proposta será cancelada automaticamente em 16 horas</strong></p>
             </div>
             <div class="actions">
-                <button class="btn" onclick="openReceivedBudgetDetailsModal(${budget.id})"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" onclick="openReceivedBudgetDetailsModal(${budget.id})"><i class="fas fa-info-circle"></i> Mais Detalhes</button>
                 <button class="btn" style="background-color: #28a745;" onclick="openScheduleProposalModal(${budget.id})"><i class="fas fa-check"></i> ${isVisita ? 'Agendar Visita' : 'Aprovar e Agendar'}</button>
                 <button class="btn btn-finalizar" onclick="openUserRefusalReasonModal(${budget.id})"><i class="fas fa-times"></i> Recusar</button>
             </div>
@@ -1096,12 +1228,13 @@ function renderOrcamentosRecebidosPadrao() {
         card.innerHTML = `
             <div class="card-header">
                 <h3><i class="fas fa-tools"></i> ${budget.service} - ${budget.value}</h3>
-                <div class="status em-analise">Em Análise</div>
+                <div class="status aguardando">Aguardando Aprovação</div>
                 <small class="tipo-orcamento-padrao" style="font-style: italic;">Orçamento Padrão</small>
             </div>
             <div class="info">
                 <p><i class="fas fa-user"></i> Prestador: ${budget.prestador}</p>
                 <p><i class="fas fa-calendar-alt"></i> Proposta em: ${budget.date}</p>
+                <p class="auto-cancel-warning"><i class="fas fa-clock"></i> <strong>Proposta será cancelada automaticamente em 16 horas</strong></p>
             </div>
             <div class="actions">
                 <button class="btn" onclick="openReceivedBudgetDetailsModal(${budget.id})"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
@@ -1131,12 +1264,13 @@ function renderOrcamentosRecebidosVisita() {
         card.innerHTML = `
             <div class="card-header">
                 <h3><i class="fas fa-calendar-check"></i> ${budget.service} - ${budget.value}</h3>
-                <div class="status em-analise">Em Análise</div>
+                <div class="status aguardando">Aguardando Aprovação</div>
                 <small class="tipo-orcamento-visita" style="font-style: italic;">Proposta de Visita</small>
             </div>
             <div class="info">
                 <p><i class="fas fa-user"></i> Prestador: ${budget.prestador}</p>
                 <p><i class="fas fa-calendar-alt"></i> Proposta em: ${budget.date}</p>
+                <p class="auto-cancel-warning"><i class="fas fa-clock"></i> <strong>Proposta será cancelada automaticamente em 16 horas</strong></p>
             </div>
             <div class="actions">
                 <button class="btn" onclick="openReceivedBudgetDetailsModal(${budget.id})"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
@@ -1177,17 +1311,28 @@ function updateAprovadosRecusadosCounts() {
 }
 
 // Função para renderizar orçamentos aprovados
-function renderOrcamentosAprovados() {
-    const container = document.getElementById('orcamentos-aprovados-recusados-aprovados-content');
+function renderOrcamentosAprovados(filtro = 'todos') {
+    const container = document.getElementById('orcamentos-aprovados-list');
     if (!container) return;
     container.innerHTML = '';
     
-    if (orcamentosUsuarioAprovados.length === 0) {
-        container.innerHTML = '<p class="no-content-message">Nenhum orçamento aprovado ainda.</p>';
+    // Filtrar orçamentos baseado no tipo
+    let orcamentosFiltrados = orcamentosUsuarioAprovados;
+    if (filtro === 'padrao') {
+        orcamentosFiltrados = orcamentosUsuarioAprovados.filter(orcamento => orcamento.tipo === 'padrao');
+    } else if (filtro === 'visita') {
+        orcamentosFiltrados = orcamentosUsuarioAprovados.filter(orcamento => orcamento.tipo === 'visita');
+    }
+    
+    if (orcamentosFiltrados.length === 0) {
+        const mensagem = filtro === 'todos' ? 'Nenhum orçamento aprovado ainda.' : 
+                        filtro === 'padrao' ? 'Nenhum orçamento padrão aprovado.' : 
+                        'Nenhum orçamento com visita aprovado.';
+        container.innerHTML = `<p class="no-content-message">${mensagem}</p>`;
         return;
     }
     
-    orcamentosUsuarioAprovados.forEach(orcamento => {
+    orcamentosFiltrados.forEach(orcamento => {
         const tipoClass = orcamento.tipo === 'visita' ? 'orcamento-visita' : 'orcamento-padrao';
         const tipoLabel = orcamento.tipo === 'visita' ? 'Orçamento com Visita' : 'Orçamento Padrão';
         const tipoTextClass = orcamento.tipo === 'visita' ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
@@ -1215,17 +1360,28 @@ function renderOrcamentosAprovados() {
 }
 
 // Função para renderizar orçamentos recusados
-function renderOrcamentosRecusados() {
-    const container = document.getElementById('orcamentos-aprovados-recusados-recusados-content');
+function renderOrcamentosRecusados(filtro = 'todos') {
+    const container = document.getElementById('orcamentos-recusados-list');
     if (!container) return;
     container.innerHTML = '';
     
-    if (orcamentosUsuarioRecusados.length === 0) {
-        container.innerHTML = '<p class="no-content-message">Nenhum orçamento recusado ainda.</p>';
+    // Filtrar orçamentos baseado no tipo
+    let orcamentosFiltrados = orcamentosUsuarioRecusados;
+    if (filtro === 'padrao') {
+        orcamentosFiltrados = orcamentosUsuarioRecusados.filter(orcamento => orcamento.tipo === 'padrao');
+    } else if (filtro === 'visita') {
+        orcamentosFiltrados = orcamentosUsuarioRecusados.filter(orcamento => orcamento.tipo === 'visita');
+    }
+    
+    if (orcamentosFiltrados.length === 0) {
+        const mensagem = filtro === 'todos' ? 'Nenhum orçamento recusado ainda.' : 
+                        filtro === 'padrao' ? 'Nenhum orçamento padrão recusado.' : 
+                        'Nenhum orçamento com visita recusado.';
+        container.innerHTML = `<p class="no-content-message">${mensagem}</p>`;
         return;
     }
     
-    orcamentosUsuarioRecusados.forEach(orcamento => {
+    orcamentosFiltrados.forEach(orcamento => {
         const tipoClass = orcamento.tipo === 'visita' ? 'orcamento-visita' : 'orcamento-padrao';
         const tipoLabel = orcamento.tipo === 'visita' ? 'Orçamento com Visita' : 'Orçamento Padrão';
         const tipoTextClass = orcamento.tipo === 'visita' ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
@@ -1253,17 +1409,28 @@ function renderOrcamentosRecusados() {
 }
 
 // Função para renderizar visitas marcadas
-function renderVisitasMarcadas() {
+function renderVisitasMarcadas(filtro = 'todos') {
     const container = document.getElementById('visitas-marcadas-content');
     if (!container) return;
     container.innerHTML = '';
     
-    if (visitasMarcadas.length === 0) {
-        container.innerHTML = '<p class="no-content-message">Nenhuma visita marcada ainda.</p>';
+    // Filtrar visitas baseado no tipo
+    let visitasFiltradas = visitasMarcadas;
+    if (filtro === 'padrao') {
+        visitasFiltradas = visitasMarcadas.filter(visita => visita.tipo === 'padrao');
+    } else if (filtro === 'visita') {
+        visitasFiltradas = visitasMarcadas.filter(visita => visita.tipo === 'visita');
+    }
+    
+    if (visitasFiltradas.length === 0) {
+        const mensagem = filtro === 'todos' ? 'Nenhuma visita marcada ainda.' : 
+                        filtro === 'padrao' ? 'Nenhuma visita padrão marcada.' : 
+                        'Nenhuma visita com atendimento marcada.';
+        container.innerHTML = `<p class="no-content-message">${mensagem}</p>`;
         return;
     }
     
-    visitasMarcadas.forEach(visita => {
+    visitasFiltradas.forEach(visita => {
         const tipoClass = visita.tipo === 'visita' ? 'orcamento-visita' : 'orcamento-padrao';
         const tipoLabel = visita.tipo === 'visita' ? 'Orçamento com Visita' : 'Orçamento Padrão';
         const tipoTextClass = visita.tipo === 'visita' ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
@@ -1292,7 +1459,398 @@ function renderVisitasMarcadas() {
     });
 }
 
+// Função para filtrar visitas marcadas
+function filterVisitasMarcadas(filtro) {
+    // Atualizar estado dos botões
+    document.querySelectorAll('#visitas-marcadas .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`#visitas-marcadas .filter-btn[data-filter="${filtro}"]`).classList.add('active');
+    
+    // Re-renderizar com o filtro aplicado
+    renderVisitasMarcadas(filtro);
+}
+
+// Função para filtrar orçamentos do usuário solicitados
+function filterOrcamentosUsuarioSolicitados(filtro) {
+    // Atualizar estado dos botões
+    document.querySelectorAll('#orcamentos-usuario-solicitados-content .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`#orcamentos-usuario-solicitados-content .filter-btn[data-filter="${filtro}"]`).classList.add('active');
+    
+    // Re-renderizar com o filtro aplicado
+    renderOrcamentosUsuarioSolicitados(filtro);
+}
+
+// Função para filtrar orçamentos aprovados
+function filterOrcamentosAprovados(filtro) {
+    // Atualizar estado dos botões
+    document.querySelectorAll('#orcamentos-aprovados-recusados-aprovados-content .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`#orcamentos-aprovados-recusados-aprovados-content .filter-btn[data-filter="${filtro}"]`).classList.add('active');
+    
+    // Re-renderizar com o filtro aplicado
+    renderOrcamentosAprovados(filtro);
+}
+
+// Função para filtrar orçamentos recusados
+function filterOrcamentosRecusados(filtro) {
+    // Atualizar estado dos botões
+    document.querySelectorAll('#orcamentos-aprovados-recusados-recusados-content .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`#orcamentos-aprovados-recusados-recusados-content .filter-btn[data-filter="${filtro}"]`).classList.add('active');
+    
+    // Re-renderizar com o filtro aplicado
+    renderOrcamentosRecusados(filtro);
+}
+
+// Função para renderizar trabalhos em execução
+function renderTrabalhosEmExecucao() {
+    const container = document.getElementById('trabalhos-execucao-list');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (trabalhosEmExecucao.length === 0) {
+        container.innerHTML = '<p class="no-content-message">Nenhum trabalho em execução no momento.</p>';
+        return;
+    }
+    
+    trabalhosEmExecucao.forEach(trabalho => {
+        const tipoClass = trabalho.tipo === 'visita' ? 'orcamento-visita' : 'orcamento-padrao';
+        const tipoLabel = trabalho.tipo === 'visita' ? 'Serviço com Visita' : 'Serviço Padrão';
+        const tipoTextClass = trabalho.tipo === 'visita' ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
+        const iconeTipo = trabalho.tipo === 'visita' ? 'fas fa-calendar-check' : 'fas fa-tools';
+        
+        const card = document.createElement('div');
+        card.classList.add('card', tipoClass);
+        card.innerHTML = `
+            <div class="card-header">
+                <h3><i class="${iconeTipo}"></i> ${trabalho.service}</h3>
+                <div class="status em-execucao">${trabalho.status}</div>
+                <small class="${tipoTextClass}" style="font-weight: bold;">${tipoLabel}</small>
+            </div>
+            <div class="info">
+                <p><i class="fas fa-user"></i> Prestador: ${trabalho.prestador}</p>
+                <p><i class="fas fa-money-bill-wave"></i> Valor: ${trabalho.value}</p>
+                <p><i class="fas fa-clock"></i> Tempo estimado: ${trabalho.tempoEstimado}</p>
+                <p><i class="fas fa-calendar-alt"></i> Iniciado em: ${trabalho.dataInicio}</p>
+                <p><i class="fas fa-map-marker-alt"></i> Endereço: ${trabalho.address}</p>
+                <div class="progress-container">
+                    <p><i class="fas fa-chart-line"></i> Progresso: ${trabalho.progresso}%</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${trabalho.progresso}%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="openTrabalhoDetailsModal(${trabalho.id}, 'execucao')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" onclick="openChat('${trabalho.prestador}')"><i class="fas fa-comments"></i> Chat</button>
+                <button class="btn btn-finalizar" onclick="finalizarTrabalho(${trabalho.id})"><i class="fas fa-check-circle"></i> Finalizar Trabalho</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Função para renderizar trabalhos finalizados
+function renderTrabalhosFinalizados() {
+    const container = document.getElementById('trabalhos-finalizados-list');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (trabalhosFinalizados.length === 0) {
+        container.innerHTML = '<p class="no-content-message">Nenhum trabalho finalizado ainda.</p>';
+        return;
+    }
+    
+    trabalhosFinalizados.forEach(trabalho => {
+        const tipoClass = trabalho.tipo === 'visita' ? 'orcamento-visita' : 'orcamento-padrao';
+        const tipoLabel = trabalho.tipo === 'visita' ? 'Serviço com Visita' : 'Serviço Padrão';
+        const tipoTextClass = trabalho.tipo === 'visita' ? 'tipo-orcamento-visita' : 'tipo-orcamento-padrao';
+        const iconeTipo = trabalho.tipo === 'visita' ? 'fas fa-calendar-check' : 'fas fa-tools';
+        
+        // Criar estrelas de avaliação
+        const estrelas = Array.from({length: 5}, (_, i) => 
+            i < trabalho.avaliacao ? '<i class="fas fa-star" style="color: #ffc107;"></i>' : '<i class="far fa-star" style="color: #ddd;"></i>'
+        ).join('');
+        
+        const card = document.createElement('div');
+        card.classList.add('card', tipoClass);
+        card.innerHTML = `
+            <div class="card-header">
+                <h3><i class="${iconeTipo}"></i> ${trabalho.service}</h3>
+                <div class="status finalizado">${trabalho.status}</div>
+                <small class="${tipoTextClass}" style="font-weight: bold;">${tipoLabel}</small>
+            </div>
+            <div class="info">
+                <p><i class="fas fa-user"></i> Prestador: ${trabalho.prestador}</p>
+                <p><i class="fas fa-money-bill-wave"></i> Valor: ${trabalho.value}</p>
+                <p><i class="fas fa-calendar-alt"></i> Finalizado em: ${trabalho.dataFinalizacao}</p>
+                <p><i class="fas fa-clock"></i> Tempo realizado: ${trabalho.tempoRealizado}</p>
+                <div class="avaliacao-container">
+                    <p><i class="fas fa-star"></i> Avaliação: ${estrelas} (${trabalho.avaliacao}/5)</p>
+                    ${trabalho.comentario ? `<p class="comentario"><i class="fas fa-comment"></i> "${trabalho.comentario}"</p>` : ''}
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="openTrabalhoDetailsModal(${trabalho.id}, 'finalizado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn" style="background-color: #28a745;" onclick="indicarPrestador(${trabalho.id})"><i class="fas fa-share"></i> Indicar Prestador</button>
+                <button class="btn" style="background-color: #007bff;" onclick="solicitarNovoServico('${trabalho.prestador}')"><i class="fas fa-plus-circle"></i> Solicitar Novo Serviço</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Função para atualizar contadores de trabalhos
+function updateTrabalhosCount() {
+    document.getElementById('trabalhos-execucao-count-tab').textContent = trabalhosEmExecucao.length;
+    document.getElementById('trabalhos-finalizados-count-tab').textContent = trabalhosFinalizados.length;
+    document.getElementById('trabalhos-count-dashboard').textContent = trabalhosEmExecucao.length + trabalhosFinalizados.length;
+}
+
+// Função para solicitar novo serviço de um prestador
+function solicitarNovoServico(nomePrestador) {
+    // Vai para a tela de solicitar orçamento
+    showScreen('solicitacao-orcamento', 'Solicitar Orçamento');
+    
+    // Preenche automaticamente o campo do prestador na tela de orçamento
+    setTimeout(() => {
+        // Preenche o campo de prestador específico
+        const prestadorField = document.getElementById('prestador-especifico');
+        if (prestadorField) {
+            prestadorField.value = nomePrestador;
+            prestadorField.style.backgroundColor = '#f0f8ff'; // Destaque visual
+        }
+        
+        // Adiciona mensagem explicativa
+        showAlert(`Solicitando novo serviço do prestador: ${nomePrestador}. O nome do prestador já foi preenchido automaticamente. Complete os demais dados para enviar sua solicitação.`, 'Novo Serviço');
+    }, 100);
+}
+
+// Função para indicar prestador
+function indicarPrestador(trabalhoId) {
+    const trabalho = trabalhosFinalizados.find(t => t.id === trabalhoId);
+    if (!trabalho) return;
+    
+    // Primeiro mostra a mensagem de desconto
+    showAlert(
+        'Ao indicar prestadores você ganha descontos em seus próximos trabalhos!', 
+        'Indicação Prestador',
+        () => {
+            // Depois de clicar OK, mostra as opções de indicação
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'indicar-prestador-modal';
+            modal.style.display = 'flex';
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-button" onclick="closeModal('indicar-prestador-modal')">&times;</span>
+                    <h2><i class="fas fa-share"></i> Indicar Prestador</h2>
+                    <div class="prestador-info">
+                        <h3>${trabalho.prestador}</h3>
+                        <p><strong>Serviço realizado:</strong> ${trabalho.service}</p>
+                        <p><strong>Valor:</strong> ${trabalho.value}</p>
+                        <p><strong>Avaliação:</strong> ${trabalho.avaliacao}/5 estrelas</p>
+                    </div>
+                    <div class="indicacao-options">
+                        <h4>Como você gostaria de indicar este prestador?</h4>
+                        <button class="btn" onclick="indicarPorWhatsApp(${trabalhoId})">
+                            <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                        </button>
+                        <button class="btn" onclick="indicarDentroApp(${trabalhoId})">
+                            <i class="fas fa-users"></i> Indicar dentro do App
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+    );
+}
+
+// Função para indicar por WhatsApp
+function indicarPorWhatsApp(trabalhoId) {
+    const trabalho = trabalhosFinalizados.find(t => t.id === trabalhoId);
+    if (!trabalho) return;
+    
+    const linkSite = 'https://chamadopro.com.br'; // Link do site
+    const mensagem = `Quero indicar o ${trabalho.prestador}, que realizou um excelente trabalho aqui em casa.
+
+O ChamadoPro é o melhor e melhor sistema de conexão entre profissionais prestadores de serviços.
+
+Acesse ${linkSite} para ter acesso a todos os tipos de serviços.`;
+    
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+    
+    closeModal('indicar-prestador-modal');
+    window.open(whatsappUrl, '_blank');
+}
+
+// Função para indicar dentro do app
+function indicarDentroApp(trabalhoId) {
+    const trabalho = trabalhosFinalizados.find(t => t.id === trabalhoId);
+    if (!trabalho) return;
+    
+    closeModal('indicar-prestador-modal');
+    
+    // Abrir modal para selecionar contato dentro do app
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'indicar-contato-modal';
+    modal.style.display = 'flex';
+    
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('indicar-contato-modal')">&times;</span>
+            <h2><i class="fas fa-users"></i> Indicar para Contato</h2>
+            <div class="indicacao-form">
+                <div class="input-group">
+                    <label>Email ou telefone do contato:</label>
+                    <input type="text" id="contato-indicacao" placeholder="email@exemplo.com ou (11) 99999-9999">
+                </div>
+                <div class="input-group">
+                    <label>Mensagem personalizada (opcional):</label>
+                    <textarea id="mensagem-indicacao" placeholder="Escreva uma mensagem personalizada para seu contato..."></textarea>
+                </div>
+                <div class="prestador-preview">
+                    <h4>Prestador que será indicado:</h4>
+                    <p><strong>${trabalho.prestador}</strong></p>
+                    <p>Serviço: ${trabalho.service}</p>
+                    <p>Avaliação: ${trabalho.avaliacao}/5 ⭐</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal('indicar-contato-modal')">Cancelar</button>
+                <button class="btn primary-btn" onclick="enviarIndicacao(${trabalhoId})">Enviar Indicação</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Função para enviar indicação dentro do app
+function enviarIndicacao(trabalhoId) {
+    const contato = document.getElementById('contato-indicacao').value;
+    const mensagem = document.getElementById('mensagem-indicacao').value;
+    
+    if (!contato.trim()) {
+        showAlert('Por favor, informe o email ou telefone do contato.', 'Erro');
+        return;
+    }
+    
+    // Aqui seria a integração com o backend para enviar a indicação
+    closeModal('indicar-contato-modal');
+    showAlert('Indicação enviada com sucesso! Seu contato receberá uma notificação com os dados do prestador.', 'Sucesso');
+}
+
+// Função para finalizar trabalho
+function finalizarTrabalho(trabalhoId) {
+    const trabalho = trabalhosEmExecucao.find(t => t.id === trabalhoId);
+    if (!trabalho) return;
+    
+    showAlert(`Confirma a finalização do trabalho "${trabalho.service}" com ${trabalho.prestador}?`, 
+              'Confirmar Finalização', 
+              () => {
+                  // Mover trabalho para finalizado
+                  const index = trabalhosEmExecucao.findIndex(t => t.id === trabalhoId);
+                  if (index !== -1) {
+                      const trabalhoFinalizado = {...trabalho};
+                      trabalhoFinalizado.status = 'Finalizado';
+                      trabalhoFinalizado.dataFinalizacao = new Date().toISOString().split('T')[0];
+                      trabalhoFinalizado.tempoRealizado = trabalho.tempoEstimado; // Simplificado
+                      trabalhoFinalizado.avaliacao = 5; // Valor padrão
+                      trabalhoFinalizado.comentario = 'Trabalho finalizado pelo cliente';
+                      
+                      trabalhosEmExecucao.splice(index, 1);
+                      trabalhosFinalizados.unshift(trabalhoFinalizado);
+                      
+                      // Re-renderizar
+                      renderTrabalhosEmExecucao();
+                      renderTrabalhosFinalizados();
+                      updateTrabalhosCount();
+                      updateUserDashboardCounts(); // Atualiza contadores do dashboard
+                      
+                      showAlert('Trabalho finalizado com sucesso!', 'Sucesso');
+                  }
+              });
+}
+
 // === FIM DAS NOVAS FUNÇÕES ===
+
+// Função para indicar ChamadoPro
+function indicarChamadoPro() {
+    const userType = document.getElementById('sidebar-usertype').textContent.includes('Cliente') ? 'cliente' : 'prestador';
+    const userName = document.getElementById('sidebar-username').textContent;
+    
+    const linkApp = 'https://chamadopro.com/app'; // Link para download do app
+    const linkSite = 'https://chamadopro.com'; // Link do site
+    
+    let mensagem = '';
+    
+    if (userType === 'cliente') {
+        mensagem = `🏠 *Precisa de serviços para sua casa?*
+
+Olá! Quero indicar o *ChamadoPro*, a melhor plataforma para encontrar prestadores de serviços qualificados! 
+
+✅ *O que o ChamadoPro oferece:*
+• Prestadores verificados e avaliados
+• Orçamentos gratuitos de múltiplos profissionais
+• Serviços de qualidade garantida
+• Atendimento rápido e confiável
+
+🏗️ *Serviços disponíveis:*
+• Reformas e construção
+• Elétrica e hidráulica
+• Pintura e acabamentos
+• Limpeza e jardinagem
+• E muito mais!
+
+💰 *Você recebe orçamentos gratuitos e escolhe o melhor preço!*
+
+Baixe agora: ${linkApp}
+Ou acesse: ${linkSite}
+
+Indicado por: ${userName}
+#ChamadoPro #ServiçosParaCasa #Reformas`;
+    } else {
+        mensagem = `Seu colega no ChamadoPro te indica essa!
+Olá!
+
+Seu colega [${userName}] lembrou de você e quer te apresentar o ChamadoPro!
+
+Sabemos como é importante encontrar clientes qualificados e ter o trabalho organizado. Por isso, quero te apresentar a plataforma que já está otimizando o dia a dia de muitos prestadores, como eu!
+
+Com o ChamadoPro, você terá acesso a:
+
+Clientes prontos para fechar negócio: Chega de perder tempo! Receba solicitações de orçamento de quem realmente precisa do seu serviço.
+
+Visibilidade que gera lucro: Seu perfil em destaque e um sistema de avaliações que valoriza seu trabalho, atraindo mais oportunidades.
+
+Organização sem estresse: Um calendário de trabalhos, pagamentos seguros e relatórios financeiros que facilitam a gestão do seu dia a dia.
+
+Não fique de fora dessa oportunidade!
+🔗 Baixe nosso app: ${linkApp}
+🔗 Ou acesse: https://chamadopro.com.br
+
+Tem alguma dúvida?
+📧 Fale com a gente: contato.chamadopro.com.br`;
+    }
+    
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+    window.open(whatsappUrl, '_blank');
+    
+    // Feedback visual com delay para aparecer após WhatsApp abrir
+    setTimeout(() => {
+        showAlert('Mensagem enviada! Quando seu indicado se cadastrar, você ganhará descontos especiais nos seus próximos serviços!', 'Indicação ChamadoPro');
+    }, 1000);
+}
 
 
 // Funções de Orçamentos (Prestador)
@@ -1825,6 +2383,150 @@ function renderSponsoredVisitServices(searchTerm = '') {
 }
 
 
+// Objeto para armazenar arquivos anexados
+let attachedFiles = {
+    fotos: [],
+    video: []
+};
+
+// Função principal para lidar com upload de arquivos
+function handleFileUpload(input, category, maxCount, type, maxDuration = 0) {
+    const files = Array.from(input.files);
+    
+    // Verifica se excede o limite
+    if (attachedFiles[category].length + files.length > maxCount) {
+        showAlert(`Você pode anexar no máximo ${maxCount} ${type === 'image' ? 'fotos' : 'vídeos'}.`);
+        input.value = '';
+        return false;
+    }
+    
+    // Para vídeos, limpa os anteriores (máximo 1)
+    if (type === 'video') {
+        attachedFiles[category] = [];
+    }
+    
+    // Processa cada arquivo
+    files.forEach(file => {
+        if (type === 'video' && maxDuration > 0) {
+            validateVideoDuration(file, maxDuration, (isValid) => {
+                if (isValid) {
+                    addFileToPreview(file, category, type);
+                } else {
+                    input.value = '';
+                }
+            });
+        } else {
+            addFileToPreview(file, category, type);
+        }
+    });
+    
+    // Limpa o input para permitir selecionar o mesmo arquivo novamente
+    input.value = '';
+    return true;
+}
+
+// Valida duração do vídeo
+function validateVideoDuration(file, maxDuration, callback) {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = function() {
+        window.URL.revokeObjectURL(video.src);
+        if (video.duration > maxDuration) {
+            showAlert(`O vídeo não pode ter mais de ${maxDuration} segundos.`);
+            callback(false);
+        } else {
+            callback(true);
+        }
+    };
+    video.src = URL.createObjectURL(file);
+}
+
+// Adiciona arquivo ao preview
+function addFileToPreview(file, category, type) {
+    const fileData = {
+        file: file,
+        url: URL.createObjectURL(file),
+        name: file.name,
+        size: file.size,
+        type: type,
+        id: Date.now() + Math.random() // ID único
+    };
+    
+    attachedFiles[category].push(fileData);
+    updatePreviewDisplay(category, type);
+}
+
+// Atualiza a exibição do preview
+function updatePreviewDisplay(category, type) {
+    const previewContainer = document.getElementById(`preview-${category}`);
+    if (!previewContainer) return;
+    
+    previewContainer.innerHTML = '';
+    
+    attachedFiles[category].forEach((fileData, index) => {
+        const previewItem = document.createElement('div');
+        previewItem.className = `file-preview-item ${type}-file`;
+        
+        let mediaElement = '';
+        if (type === 'image') {
+            mediaElement = `<img src="${fileData.url}" alt="Preview">`;
+        } else if (type === 'video') {
+            mediaElement = `<video src="${fileData.url}" controls></video>`;
+        }
+        
+        previewItem.innerHTML = `
+            ${mediaElement}
+            <div class="file-preview-info">
+                ${fileData.name}<br>
+                <small>${formatFileSize(fileData.size)}</small>
+            </div>
+            <button class="file-delete-btn" onclick="removeFile('${category}', ${index})" title="Remover arquivo">
+                ✕
+            </button>
+        `;
+        
+        previewContainer.appendChild(previewItem);
+    });
+}
+
+// Remove arquivo do preview
+function removeFile(category, index) {
+    if (attachedFiles[category][index]) {
+        // Revoga a URL do objeto para liberar memória
+        URL.revokeObjectURL(attachedFiles[category][index].url);
+        
+        // Remove o arquivo do array
+        attachedFiles[category].splice(index, 1);
+        
+        // Atualiza o preview
+        const type = category === 'video' ? 'video' : 'image';
+        updatePreviewDisplay(category, type);
+        
+        showAlert('Arquivo removido com sucesso!', 'Sucesso');
+    }
+}
+
+// Formata o tamanho do arquivo
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Limpa todos os arquivos anexados
+function clearAllAttachedFiles() {
+    Object.keys(attachedFiles).forEach(category => {
+        attachedFiles[category].forEach(fileData => {
+            URL.revokeObjectURL(fileData.url);
+        });
+        attachedFiles[category] = [];
+        updatePreviewDisplay(category, category === 'video' ? 'video' : 'image');
+    });
+}
+
+
 // Funções de Solicitação de Orçamento (Usuário)
 function validateFiles(input, maxCount, type, maxDuration = 0) {
     const files = input.files;
@@ -1852,16 +2554,15 @@ function validateFiles(input, maxCount, type, maxDuration = 0) {
 function submitBudgetRequest() {
     const title = document.getElementById('orcamento-titulo').value.trim();
     const description = document.getElementById('orcamento-descricao').value.trim();
-    const photosInput = document.getElementById('orcamento-fotos');
-    const videoInput = document.getElementById('orcamento-video');
 
     if (!title || !description) {
         showAlert('Por favor, preencha o título e a descrição do serviço.');
         return;
     }
 
-    const photos = Array.from(photosInput.files).map(file => URL.createObjectURL(file));
-    const video = videoInput.files.length > 0 ? URL.createObjectURL(videoInput.files[0]) : '';
+    // Usa os arquivos do novo sistema de anexos
+    const photos = attachedFiles.fotos.map(fileData => fileData.url);
+    const video = attachedFiles.video.length > 0 ? attachedFiles.video[0].url : '';
 
     const newRequestId = orcamentosUsuarioSolicitados.length > 0 ? Math.max(...orcamentosUsuarioSolicitados.map(o => o.id)) + 1 : 1;
 
@@ -1882,13 +2583,15 @@ function submitBudgetRequest() {
     // Limpa o formulário
     document.getElementById('orcamento-titulo').value = '';
     document.getElementById('orcamento-descricao').value = '';
-    photosInput.value = '';
-    videoInput.value = '';
+    document.getElementById('prestador-especifico').value = '';
+    
+    // Limpa os arquivos anexados e previews
+    clearAllAttachedFiles();
 
     updateUserDashboardCounts(); // Atualiza o contador do dashboard do usuário
     updateUserBudgetCounts(); // Atualiza o contador da aba de orçamentos do usuário
     showScreen('orcamentos-usuario'); // Volta para a tela de orçamentos do usuário
-    showTab('orcamentos-usuario', 'solicitados'); // Garante que a aba de solicitados esteja ativa
+    switchCpTab('orcamentos-usuario', 'solicitados'); // Garante que a aba de solicitados esteja ativa
 }
 
 
@@ -2261,6 +2964,37 @@ function openProposalFormModal(requestId) {
     const request = orcamentosPrestadorRecebidos.find(req => req.id === requestId);
     if (!request) return;
 
+    // Verifica se é um orçamento com visita
+    if (request.tipo === 'visita') {
+        // Mostra o modal de aviso sobre a taxa para orçamentos com visita
+        showVisitFeeWarning(request);
+    } else {
+        // Se for orçamento padrão, abre diretamente o formulário
+        openProposalForm(request);
+    }
+}
+
+// Função para mostrar o modal de aviso da taxa de visita
+function showVisitFeeWarning(request) {
+    const modal = document.getElementById('visit-fee-warning-modal');
+    const confirmBtn = document.getElementById('confirm-visit-proposal-btn');
+    
+    // Remove listeners anteriores para evitar duplicação
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    
+    // Adiciona o listener para confirmar
+    newConfirmBtn.onclick = function() {
+        closeModal('visit-fee-warning-modal');
+        openProposalForm(request);
+    };
+    
+    // Mostra o modal
+    modal.style.display = 'flex';
+}
+
+// Função separada para abrir o formulário de proposta
+function openProposalForm(request) {
     document.getElementById('proposal-request-id').textContent = request.id;
     document.getElementById('proposal-value').value = '';
     document.getElementById('proposal-deadline').value = '';
@@ -2614,18 +3348,18 @@ function sendVisitRequest(prestadorName) {
     closeModal('request-visit-schedule-modal');
     closeModal('prestador-profile-modal'); // Fecha o modal de perfil também
     showScreen('orcamentos-usuario'); // Volta para a tela de orçamentos do usuário
-    showTab('orcamentos-usuario', 'visitas'); // Ativa a aba de visitas
+    switchCpTab('orcamentos-usuario', 'recebidos'); // Ativa a aba de recebidos
 }
 
 
 // Funções de Abas (tabs)
 function showTab(screenPrefix, tabId) {
     // Remove 'active' de todas as abas e conteúdos
-    document.querySelectorAll(`#${screenPrefix} .tab`).forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll(`#${screenPrefix} .tab, #${screenPrefix} .tab-button, #${screenPrefix} .filter-btn`).forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll(`#${screenPrefix} .tab-content`).forEach(content => content.classList.remove('active'));
 
     // Adiciona 'active' na aba e conteúdo selecionados
-    const targetTabElement = document.querySelector(`#${screenPrefix} .tab[onclick*="${tabId}"]`);
+    const targetTabElement = document.querySelector(`#${screenPrefix} .tab[onclick*="${tabId}"], #${screenPrefix} .tab-button[onclick*="${tabId}"], #${screenPrefix} .filter-btn[onclick*="${tabId}"]`);
     const targetContentElement = document.getElementById(`${screenPrefix}-${tabId}-content`);
 
     if (targetTabElement) {
@@ -2674,6 +3408,13 @@ function showTab(screenPrefix, tabId) {
         }
         updateAprovadosRecusadosCounts();
         updateSubTabCounts();
+    } else if (screenPrefix === 'trabalhos-execucao-finalizados') {
+        if (tabId === 'execucao') {
+            renderTrabalhosEmExecucao();
+        } else if (tabId === 'finalizados') {
+            renderTrabalhosFinalizados();
+        }
+        updateTrabalhosCount(); // Atualiza os contadores das abas
     }
 }
 
@@ -2706,28 +3447,162 @@ function showSubTab(screenId, tabId, subTabId) {
     }
 }
 
+// Função para filtrar orçamentos nos cards do dashboard
+function filterOrcamentos(categoria, filtro, buttonElement) {
+    // Remove classe 'active' de todos os botões do mesmo card
+    const cardContainer = buttonElement.closest('.card');
+    const allButtons = cardContainer.querySelectorAll('.budget-filter-btn');
+    allButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Adiciona classe 'active' no botão clicado
+    buttonElement.classList.add('active');
+    
+    // Armazena o filtro ativo globalmente para usar nas telas
+    window.activeBudgetFilter = window.activeBudgetFilter || {};
+    window.activeBudgetFilter[categoria] = filtro;
+    
+    // Atualiza os contadores baseado no filtro
+    updateFilteredCounts(categoria, filtro);
+    
+    // Se a tela correspondente estiver ativa, re-renderiza o conteúdo
+    const currentScreen = document.querySelector('.screen.active');
+    if (currentScreen) {
+        const screenId = currentScreen.id;
+        rerenderScreenWithFilter(screenId, categoria, filtro);
+    }
+    
+    console.log(`Filtro aplicado: ${categoria} -> ${filtro}`);
+}
+
+// Função para atualizar contadores baseado no filtro
+function updateFilteredCounts(categoria, filtro) {
+    let count = 0;
+    
+    // Simular contagem baseada no tipo de filtro
+    if (filtro === 'todos') {
+        count = getSimulatedCount(categoria, 'total');
+    } else if (filtro === 'padrao') {
+        count = getSimulatedCount(categoria, 'padrao');
+    } else if (filtro === 'visita') {
+        count = getSimulatedCount(categoria, 'visita');
+    }
+    
+    // Atualiza o contador no dashboard
+    const countElement = getCountElementForCategory(categoria);
+    if (countElement) {
+        countElement.textContent = count;
+    }
+}
+
+// Função para obter contagem simulada
+function getSimulatedCount(categoria, tipo) {
+    const counts = {
+        'usuario-solicitados': { total: 8, padrao: 5, visita: 3 },
+        'aprovados-recusados': { total: 6, padrao: 4, visita: 2 },
+        'prestador-recebidos': { total: 12, padrao: 8, visita: 4 },
+        'prestador-propostas': { total: 10, padrao: 7, visita: 3 },
+        'prestador-aprovados': { total: 7, padrao: 5, visita: 2 },
+        'prestador-recusados': { total: 3, padrao: 2, visita: 1 }
+    };
+    
+    return counts[categoria] ? counts[categoria][tipo] || 0 : 0;
+}
+
+// Função para obter elemento contador baseado na categoria
+function getCountElementForCategory(categoria) {
+    const elementIds = {
+        'usuario-solicitados': 'orcamentos-usuario-solicitados-count-dashboard',
+        'aprovados-recusados': 'orcamentos-aprovados-recusados-count-dashboard',
+        'prestador-recebidos': 'orcamentos-prestador-recebidos-count-dashboard',
+        'prestador-propostas': 'orcamentos-prestador-propostas-enviadas-count-dashboard',
+        'prestador-aprovados': 'orcamentos-prestador-aprovados-count-dashboard',
+        'prestador-recusados': 'orcamentos-prestador-recusados-count-dashboard'
+    };
+    
+    const elementId = elementIds[categoria];
+    return elementId ? document.getElementById(elementId) : null;
+}
+
+// Função para re-renderizar tela com filtro
+function rerenderScreenWithFilter(screenId, categoria, filtro) {
+    // Aplicar filtro nas telas específicas
+    switch(screenId) {
+        case 'orcamentos-usuario':
+            applyFilterToOrcamentosUsuario(filtro);
+            break;
+        case 'orcamentos-aprovados-recusados':
+            applyFilterToAprovadosRecusados(filtro);
+            break;
+        case 'orcamentos-prestador-recebidos':
+            applyFilterToOrcamentosPrestador(filtro);
+            break;
+        // Adicionar mais casos conforme necessário
+    }
+}
+
+// Funções auxiliares para aplicar filtros (placeholder - implementar conforme necessário)
+function applyFilterToOrcamentosUsuario(filtro) {
+    console.log(`Aplicando filtro ${filtro} em orçamentos do usuário`);
+    // Implementar lógica de filtro específica
+}
+
+function applyFilterToAprovadosRecusados(filtro) {
+    console.log(`Aplicando filtro ${filtro} em aprovados/recusados`);
+    // Implementar lógica de filtro específica
+}
+
+function applyFilterToOrcamentosPrestador(filtro) {
+    console.log(`Aplicando filtro ${filtro} em orçamentos do prestador`);
+    // Implementar lógica de filtro específica
+}
+
 // Função para fechar modais
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'none';
+        // Remove modal dinâmico do DOM se necessário
+        if (modalId === 'indicar-prestador-modal' || modalId === 'indicar-contato-modal') {
+            modal.remove();
+        }
     }
 }
 
 // Função para alternar o menu lateral
 function toggleMenu() {
     const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    // Comportamento consistente: apenas alterna a classe active
     sidebar.classList.toggle('active');
+    
+    // Alterna o overlay também
+    if (overlay) {
+        overlay.classList.toggle('active');
+    }
+}
+
+// Função para fechar o sidebar
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    sidebar.classList.remove('active');
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
 }
 
 // Função para fechar o menu lateral ao clicar fora dele
 document.addEventListener('click', (event) => {
     const sidebar = document.getElementById('sidebar');
     const menuToggle = document.querySelector('.menu-toggle');
+    const overlay = document.getElementById('sidebar-overlay');
 
     // Verifica se o clique não foi dentro da sidebar e não foi no botão de toggle
     if (sidebar && !sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-        sidebar.classList.remove('active');
+        // Usa a função closeSidebar para fechar com overlay
+        closeSidebar();
     }
 });
 
@@ -3034,14 +3909,71 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Inicializa as sub-abas
     initializeSubTabs();
+    
+    // Inicializa o sidebar para desktop
+    initializeSidebar();
+    
+    // Adiciona event listeners para fechar modais
+    initializeModalListeners();
 });
+
+// Função para inicializar o sidebar corretamente
+function initializeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    
+    // Garante que o sidebar sempre comece escondido
+    if (sidebar) {
+        sidebar.classList.remove('active');
+    }
+}
+
+// Função para inicializar listeners dos modais
+function initializeModalListeners() {
+    // Event listener para fechar modais clicando no X
+    document.querySelectorAll('.close-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const modalId = this.getAttribute('data-modal-id');
+            if (modalId) {
+                closeModal(modalId);
+            }
+        });
+    });
+    
+    // Event listener para fechar modais clicando fora do conteúdo
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+    });
+}
 
 // Alterna os campos PF/PJ no cadastro do prestador
 function togglePrestadorFields() {
   const tipo = document.querySelector('input[name="tipo-prestador"]:checked');
-  if (tipo) { // Adiciona verificação para garantir que 'tipo' não é nulo
-    document.getElementById('campos-pf').style.display = (tipo.value === 'pf') ? 'block' : 'none';
-    document.getElementById('campos-pj').style.display = (tipo.value === 'pj') ? 'block' : 'none';
+  const camposPf = document.getElementById('campos-pf');
+  const camposPj = document.getElementById('campos-pj');
+  
+  if (tipo && camposPf && camposPj) {
+    // Primeiro, oculta ambos os campos completamente
+    camposPf.style.display = 'none';
+    camposPj.style.display = 'none';
+    camposPf.style.visibility = 'hidden';
+    camposPj.style.visibility = 'hidden';
+    
+    // Força um reflow do DOM
+    void camposPf.offsetHeight;
+    void camposPj.offsetHeight;
+    
+    // Depois, mostra apenas o campo necessário
+    if (tipo.value === 'pf') {
+      camposPf.style.display = 'block';
+      camposPf.style.visibility = 'visible';
+    } else {
+      camposPj.style.display = 'block';
+      camposPj.style.visibility = 'visible';
+    }
 
     // Garante que os campos obrigatórios sejam definidos corretamente
     const pfInputs = document.querySelectorAll('#campos-pf input, #campos-pf select, #campos-pf textarea');
@@ -3064,13 +3996,41 @@ document.addEventListener('DOMContentLoaded', togglePrestadorFields);
 
 // Nova função para solicitar visita com aviso
 function solicitarVisitaComAviso(prestadorName) {
-  showAlert(
-    'Você está solicitando uma visita presencial apenas para que o prestador avalie o serviço e gere um orçamento. Nesse modelo, qualquer negociação, valor ou forma de pagamento será tratada diretamente entre você e o prestador, sem envolvimento ou garantias da plataforma.\\n\\nApós o orçamento, se desejar, você poderá migrar para o modo protegido do ChamadoPro, com pagamentos parcelados, suporte e garantias oferecidas pela plataforma.',
+  showWarningAlert(
+    'Você está solicitando uma visita presencial apenas para que o prestador avalie o serviço e gere um orçamento. Nesse modelo, qualquer negociação, valor ou forma de pagamento será tratada diretamente entre você e o prestador, sem envolvimento ou garantias da plataforma.Após o orçamento, se desejar, você poderá migrar para o modo protegido do ChamadoPro, com pagamentos parcelados, suporte e garantias oferecidas pela plataforma.',
     'Orientação sobre Visita',
     () => { // Callback para abrir o modal de agendamento após o alerta ser fechado
         openRequestVisitScheduleModal(prestadorName);
     }
   );
+}
+
+// Função especial para mostrar alerta com fundo amarelo
+function showWarningAlert(message, title = 'Aviso', onOkCallback = null) {
+    document.getElementById('custom-alert-title').textContent = title;
+    document.getElementById('custom-alert-message').textContent = message;
+    
+    // Adicionar classe especial para fundo amarelo
+    const modal = document.getElementById('custom-alert-modal');
+    const modalContent = modal.querySelector('.modal-content');
+    modalContent.classList.add('warning-background');
+    modal.style.display = 'flex';
+
+    const okBtn = document.querySelector('#custom-alert-modal .primary-btn');
+    if (okBtn) {
+        // Remove qualquer listener anterior para evitar múltiplos disparos
+        const newOkBtn = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+
+        newOkBtn.onclick = function() {
+            // Remover a classe especial ao fechar
+            modalContent.classList.remove('warning-background');
+            closeModal('custom-alert-modal');
+            if (onOkCallback) {
+                onOkCallback();
+            }
+        };
+    }
 }
 
 // --- Funções utilitárias para pills, pop-up, orçamentos e migração --- //
@@ -3163,3 +4123,370 @@ function prestadorDisponivelParaOrcamento(dataHora = new Date()) {
     // Por enquanto, retorna true para manter a funcionalidade
     return true;
 }
+
+// Função para calcular e atualizar o tempo restante das propostas
+function updateProposalTimeRemaining() {
+    // Exemplo de implementação para demonstrar o conceito
+    // Em uma aplicação real, isso seria baseado na data/hora real da proposta
+    const timeElements = document.querySelectorAll('.auto-cancel-warning');
+    
+    timeElements.forEach(element => {
+        // Simula tempo restante aleatório entre 1-16 horas para demonstração
+        const hoursRemaining = Math.floor(Math.random() * 16) + 1;
+        const minutesRemaining = Math.floor(Math.random() * 60);
+        
+        const timeText = hoursRemaining > 1 
+            ? `Proposta será cancelada automaticamente em ${hoursRemaining}h ${minutesRemaining}min`
+            : `Proposta será cancelada automaticamente em ${minutesRemaining} minutos`;
+            
+        // Atualiza apenas o texto, mantendo o ícone
+        element.innerHTML = `<i class="fas fa-clock"></i> <strong>${timeText}</strong>`;
+        
+        // Adiciona urgência visual se restam menos de 2 horas
+        if (hoursRemaining < 2) {
+            element.style.backgroundColor = '#fff5f5';
+            element.style.borderColor = '#f56565';
+            element.style.color = '#c53030';
+        }
+    });
+}
+
+// Opcional: Atualizar tempos a cada minuto (apenas para demonstração)
+// setInterval(updateProposalTimeRemaining, 60000);
+
+// Inicialização dos filtros de orçamento
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar filtros padrão para todos os cards
+    initializeBudgetFilters();
+});
+
+function initializeBudgetFilters() {
+    // Definir filtros padrão como 'todos'
+    window.activeBudgetFilter = {
+        'usuario-solicitados': 'todos',
+        'aprovados-recusados': 'todos',
+        'prestador-recebidos': 'todos',
+        'prestador-propostas': 'todos',
+        'prestador-aprovados': 'todos',
+        'prestador-recusados': 'todos',
+        'visitas-marcadas': 'todos'
+    };
+    
+    // Atualizar contadores iniciais
+    Object.keys(window.activeBudgetFilter).forEach(categoria => {
+        updateFilteredCounts(categoria, 'todos');
+    });
+    
+    console.log('Filtros de orçamento inicializados com sucesso');
+}
+
+// ========================================
+// SISTEMA DE ABAS PADRONIZADO (CP-TABS)
+// ========================================
+
+/**
+ * Função para alternar entre abas do sistema padronizado
+ * @param {string} tabGroupId - ID do grupo de abas
+ * @param {string} targetTabId - ID da aba que deve ficar ativa
+ */
+function switchCpTab(tabGroupId, targetTabId) {
+    const tabGroup = document.querySelector(`[data-cp-group="${tabGroupId}"]`);
+    if (!tabGroup) {
+        console.warn(`Grupo de abas "${tabGroupId}" não encontrado`);
+        return;
+    }
+    
+    // Remove .is-active de todas as abas do grupo
+    const allTabs = tabGroup.querySelectorAll('.cp-tab');
+    allTabs.forEach(tab => {
+        tab.classList.remove('is-active');
+        tab.setAttribute('aria-selected', 'false');
+    });
+    
+    // Adiciona .is-active na aba selecionada
+    const targetTab = tabGroup.querySelector(`[data-cp-tab="${targetTabId}"]`);
+    if (targetTab) {
+        targetTab.classList.add('is-active');
+        targetTab.setAttribute('aria-selected', 'true');
+    }
+    
+    // Esconde todos os conteúdos das abas
+    const allContents = document.querySelectorAll(`[data-cp-content-group="${tabGroupId}"]`);
+    allContents.forEach(content => {
+        content.classList.remove('active');
+        content.style.display = 'none';
+    });
+    
+    // Mostra o conteúdo da aba selecionada
+    const targetContent = document.querySelector(`[data-cp-content="${targetTabId}"][data-cp-content-group="${tabGroupId}"]`);
+    if (targetContent) {
+        targetContent.classList.add('active');
+        targetContent.style.display = 'block';
+    }
+    
+    // Chama callbacks específicos baseados no grupo e aba
+    handleCpTabCallback(tabGroupId, targetTabId);
+}
+
+/**
+ * Gerencia callbacks específicos para diferentes grupos de abas
+ * @param {string} tabGroupId - ID do grupo de abas
+ * @param {string} targetTabId - ID da aba ativada
+ */
+function handleCpTabCallback(tabGroupId, targetTabId) {
+    switch(tabGroupId) {
+        case 'orcamentos-usuario':
+            if (targetTabId === 'solicitados') {
+                showSubTab('orcamentos-usuario', 'solicitados', 'padrao');
+                updateSubTabCounts();
+            } else if (targetTabId === 'recebidos') {
+                renderOrcamentosUsuarioRecebidos();
+            }
+            updateUserBudgetCounts();
+            break;
+            
+        case 'orcamentos-aprovados-recusados':
+            if (targetTabId === 'aprovados') {
+                renderOrcamentosAprovados();
+            } else if (targetTabId === 'recusados') {
+                renderOrcamentosRecusados();
+            }
+            updateAprovadosRecusadosCounts();
+            updateSubTabCounts();
+            break;
+            
+        case 'trabalhos-execucao-finalizados':
+            if (targetTabId === 'execucao') {
+                renderTrabalhosEmExecucao();
+            } else if (targetTabId === 'finalizados') {
+                renderTrabalhosFinalizados();
+            }
+            updateTrabalhosCount();
+            break;
+            
+        case 'servicos-historico':
+            if (targetTabId === 'finalizados') {
+                renderServicosHistoricoFinalizados();
+            } else if (targetTabId === 'recusados') {
+                renderServicosHistoricoRecusados();
+            }
+            updateServicosHistoricoCounts();
+            break;
+            
+        case 'buscar-servicos-unificado':
+            if (targetTabId === 'padrao') {
+                renderSponsoredServices();
+            } else if (targetTabId === 'visita') {
+                renderSponsoredVisitServices();
+            }
+            break;
+    }
+}
+
+/**
+ * Inicializa o sistema de abas padronizado
+ */
+function initCpTabs() {
+    // Adiciona event listeners para todas as abas do sistema
+    document.addEventListener('click', (event) => {
+        const tab = event.target.closest('.cp-tab[data-cp-tab]');
+        if (!tab) return;
+        
+        const tabGroup = tab.closest('[data-cp-group]');
+        if (!tabGroup) return;
+        
+        const groupId = tabGroup.getAttribute('data-cp-group');
+        const tabId = tab.getAttribute('data-cp-tab');
+        
+        switchCpTab(groupId, tabId);
+    });
+    
+    console.log('Sistema de abas padronizado inicializado');
+}
+
+// Inicializa o sistema quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', initCpTabs);
+
+/**
+ * Funções de filtro para seções do prestador
+ */
+
+function filterOrcamentosPrestadorRecebidos(filter) {
+    const buttons = document.querySelectorAll('#orcamentos-prestador-recebidos .filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Implementar lógica de filtro conforme necessário
+    console.log('Filtro aplicado em Orçamentos Recebidos (Prestador):', filter);
+}
+
+function filterOrcamentosPrestadorPropostasEnviadas(filter) {
+    const buttons = document.querySelectorAll('#orcamentos-prestador-propostas-enviadas .filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Implementar lógica de filtro conforme necessário
+    console.log('Filtro aplicado em Propostas Enviadas (Prestador):', filter);
+}
+
+function filterOrcamentosPrestadorAprovados(filter) {
+    const buttons = document.querySelectorAll('#orcamentos-prestador-aprovados .filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Implementar lógica de filtro conforme necessário
+    console.log('Filtro aplicado em Orçamentos Aprovados (Prestador):', filter);
+}
+
+function filterOrcamentosPrestadorRecusados(filter) {
+    const buttons = document.querySelectorAll('#orcamentos-prestador-recusados .filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Implementar lógica de filtro conforme necessário
+    console.log('Filtro aplicado em Orçamentos Recusados (Prestador):', filter);
+}
+
+/**
+ * ===== FUNÇÕES DO FLUXO DE SERVIÇO RENOVADO =====
+ */
+
+let currentFlowSimulation = {
+    type: null,
+    currentStep: 0,
+    isRunning: false
+};
+
+function startFlowSimulation(flowType) {
+    currentFlowSimulation = {
+        type: flowType,
+        currentStep: 1,
+        isRunning: true
+    };
+
+    // Reset all mini steps
+    const flowContent = document.getElementById(`fluxo-${flowType}-content`);
+    const miniSteps = flowContent.querySelectorAll('.flow-step-mini');
+    const stepDetails = flowContent.querySelectorAll('.step-detail');
+
+    // Reset states
+    miniSteps.forEach(step => {
+        step.classList.remove('completed', 'active');
+    });
+    stepDetails.forEach(detail => {
+        detail.classList.remove('active');
+    });
+
+    // Activate first step
+    miniSteps[0].classList.add('active');
+    stepDetails[0].classList.add('active');
+
+    // Show progress message
+    showAlert(`Iniciando simulação do Fluxo ${flowType === 'padrao' ? 'Padrão' : 'com Visita'}. Clique nos quadradinhos para navegar!`, 'Simulação Iniciada');
+
+    // Add click handlers to mini steps
+    miniSteps.forEach((step, index) => {
+        step.addEventListener('click', () => {
+            showFlowStep(flowType, index + 1);
+        });
+    });
+
+    // Start automated simulation
+    setTimeout(() => simulateNextStep(flowType), 2000);
+}
+
+function showFlowStep(flowType, stepNumber) {
+    const flowContent = document.getElementById(`fluxo-${flowType}-content`);
+    const miniSteps = flowContent.querySelectorAll('.flow-step-mini');
+    const stepDetails = flowContent.querySelectorAll('.step-detail');
+
+    // Update mini steps
+    miniSteps.forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        if (index + 1 < stepNumber) {
+            step.classList.add('completed');
+        } else if (index + 1 === stepNumber) {
+            step.classList.add('active');
+        }
+    });
+
+    // Update step details
+    stepDetails.forEach((detail, index) => {
+        detail.classList.remove('active');
+        if (index + 1 === stepNumber) {
+            detail.classList.add('active');
+        }
+    });
+
+    currentFlowSimulation.currentStep = stepNumber;
+}
+
+function simulateNextStep(flowType) {
+    if (!currentFlowSimulation.isRunning) return;
+
+    const maxSteps = 5;
+    
+    if (currentFlowSimulation.currentStep < maxSteps) {
+        currentFlowSimulation.currentStep++;
+        showFlowStep(flowType, currentFlowSimulation.currentStep);
+
+        // Get step info
+        const flowContent = document.getElementById(`fluxo-${flowType}-content`);
+        const activeDetail = flowContent.querySelector('.step-detail.active');
+        const stepTitle = activeDetail.querySelector('h4').textContent;
+        const stepDesc = activeDetail.querySelector('p').textContent;
+        
+        showAlert(`${stepTitle}: ${stepDesc}`, `Etapa ${currentFlowSimulation.currentStep}`);
+
+        // Continue simulation
+        if (currentFlowSimulation.currentStep < maxSteps) {
+            setTimeout(() => simulateNextStep(flowType), 3000);
+        } else {
+            // Simulation completed
+            setTimeout(() => {
+                showAlert(`Simulação do Fluxo ${flowType === 'padrao' ? 'Padrão' : 'com Visita'} concluída! Clique nos quadradinhos para navegar.`, 'Simulação Finalizada');
+                currentFlowSimulation.isRunning = false;
+            }, 2000);
+        }
+    }
+}
+
+function showMigrationInfo() {
+    showAlert(
+        'Após uma visita, você pode migrar seu orçamento para o modelo padrão da plataforma. Isso oferece:\n\n' +
+        '• Pagamento seguro via ChamadoPro\n' +
+        '• Garantias da plataforma\n' +
+        '• Suporte completo em caso de problemas\n' +
+        '• Sistema de avaliações\n\n' +
+        'A migração pode ser feita a qualquer momento após a visita, mantendo todo o histórico do projeto.',
+        'Migração para Fluxo Padrão'
+    );
+}
+
+// Inicialização das funcionalidades do fluxo
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listeners para as abas do fluxo de serviço
+    const fluxoTabs = document.querySelectorAll('[data-cp-group="fluxo-servico"] .cp-tab');
+    fluxoTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-cp-tab');
+            switchCpTab('fluxo-servico', tabId);
+        });
+    });
+
+    // Reset simulation when switching tabs
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                if (mutation.target.classList.contains('is-active')) {
+                    currentFlowSimulation.isRunning = false;
+                }
+            }
+        });
+    });
+
+    // Observe tab changes
+    document.querySelectorAll('[data-cp-tab]').forEach(tab => {
+        observer.observe(tab, { attributes: true });
+    });
+});

@@ -118,8 +118,9 @@
         flex-direction: column;
         align-items: center;
       }
-      /* Two-column grid for registration forms */
-      .auth-form {
+      /* Two-column grid ONLY for registration forms (not login forms) */
+      #register-section-client .auth-form,
+      #register-section-provider .auth-form {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1.2rem 2rem;
@@ -131,13 +132,15 @@
         padding: 0;
         width: 100%;
       }
-      .auth-form h3 {
+      #register-section-client .auth-form h3,
+      #register-section-provider .auth-form h3 {
         grid-column: 1 / -1;
         text-align: center;
         margin-bottom: 0.5rem;
       }
       /* Make input groups fill columns */
-      .auth-form .input-group {
+      #register-section-client .auth-form .input-group,
+      #register-section-provider .auth-form .input-group {
         flex-direction: row;
         align-items: center;
         gap: 0.7rem;
@@ -145,68 +148,1463 @@
         width: 100%;
       }
       /* Make file input groups span both columns for clarity */
-      .auth-form .input-group input[type="file"],
-      .auth-form .input-group label[for*="file"],
-      .auth-form .input-group label[for*="doc"],
-      .auth-form .input-group label[for*="comprovante"],
-      .auth-form .input-group label[for*="antecedentes"] {
+      #register-section-client .auth-form .input-group input[type="file"],
+      #register-section-client .auth-form .input-group label[for*="file"],
+      #register-section-client .auth-form .input-group label[for*="doc"],
+      #register-section-client .auth-form .input-group label[for*="comprovante"],
+      #register-section-client .auth-form .input-group label[for*="antecedentes"],
+      #register-section-provider .auth-form .input-group input[type="file"],
+      #register-section-provider .auth-form .input-group label[for*="file"],
+      #register-section-provider .auth-form .input-group label[for*="doc"],
+      #register-section-provider .auth-form .input-group label[for*="comprovante"],
+      #register-section-provider .auth-form .input-group label[for*="antecedentes"] {
         grid-column: 1 / -1;
       }
       /* Make file input groups span both columns */
-      .auth-form .input-group:has(input[type="file"]) {
+      #register-section-client .auth-form .input-group:has(input[type="file"]),
+      #register-section-provider .auth-form .input-group:has(input[type="file"]) {
         grid-column: 1 / -1;
       }
       /* Make the submit button span both columns */
-      .auth-form button[type="submit"] {
+      #register-section-client .auth-form button[type="submit"],
+      #register-section-provider .auth-form button[type="submit"] {
         grid-column: 1 / -1;
         margin-top: 1rem;
         margin-bottom: 0.5rem;
       }
       /* Social login section spans both columns */
-      .auth-form .social-login {
+      #register-section-client .auth-form .social-login,
+      #register-section-provider .auth-form .social-login {
         grid-column: 1 / -1;
         margin-top: 0.5rem;
       }
-      /* Pill groups (user type, PF/PJ) centered and spanning both columns */
-      .pill-group {
+      
+      /* Campos PF/PJ específicos para evitar sobreposição - ONLY for registration */
+      #register-section-provider #campos-pf,
+      #register-section-provider #campos-pj {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.2rem 2rem;
+        width: 100%;
+        grid-column: 1 / -1;
+      }
+      
+      #register-section-provider #campos-pf .input-group,
+      #register-section-provider #campos-pj .input-group {
+        margin-bottom: 1rem;
+        width: 100%;
+      }
+      
+      /* Form groups (file uploads) span both columns */
+      #register-section-provider #campos-pf .form-group,
+      #register-section-provider #campos-pj .form-group {
+        grid-column: 1 / -1;
+        margin-bottom: 1rem;
+      }
+      
+      /* Garantir que campos ocultos não interferem no layout - ONLY for registration */
+      #register-section-provider #campos-pf[style*="display: none"],
+      #register-section-provider #campos-pj[style*="display: none"] {
+        display: none !important;
+        visibility: hidden;
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+      }
+      
+      /* Força o campo visível a ocupar todo o espaço - ONLY for registration */
+      #register-section-provider #campos-pf[style*="display: block"],
+      #register-section-provider #campos-pj[style*="display: block"] {
+        display: grid !important;
+        visibility: visible;
+        position: relative;
+        top: auto;
+        left: auto;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+      
+      /* Pill groups (user type, PF/PJ) centered and spanning both columns - ONLY for registration */
+      #register-section-client .pill-group,
+      #register-section-provider .pill-group {
         grid-column: 1 / -1;
         justify-content: center;
       }
-      /* Hide icons on desktop for a cleaner look */
-      .auth-form .input-group i {
+      /* Hide icons on desktop for a cleaner look - ONLY for registration */
+      #register-section-client .auth-form .input-group i,
+      #register-section-provider .auth-form .input-group i {
         display: none;
       }
-      /* Adjust spacing for vertical alignment */
-      .auth-form .input-group input,
-      .auth-form .input-group select,
-      .auth-form .input-group textarea {
+      /* Adjust spacing for vertical alignment - ONLY for registration */
+      #register-section-client .auth-form .input-group input,
+      #register-section-client .auth-form .input-group select,
+      #register-section-client .auth-form .input-group textarea,
+      #register-section-provider .auth-form .input-group input,
+      #register-section-provider .auth-form .input-group select,
+      #register-section-provider .auth-form .input-group textarea {
         min-width: 0;
         width: 100%;
       }
-      /* Ensure forgot password and social login are centered */
-      .auth-form .forgot-password {
+      /* Ensure forgot password and social login are centered - ONLY for registration */
+      #register-section-client .auth-form .forgot-password,
+      #register-section-provider .auth-form .forgot-password {
         grid-column: 1 / -1;
         text-align: center;
         margin-bottom: 0.5rem;
       }
     }
 
-    /* Keep single-column layout for <= 1024px */
+    /* Keep single-column layout for <= 1024px - ONLY for registration forms */
     @media (max-width: 1024px) {
-      .auth-form {
+      #register-section-client .auth-form,
+      #register-section-provider .auth-form {
         display: block;
         max-width: 100%;
       }
-      .auth-form .input-group {
+      #register-section-client .auth-form .input-group,
+      #register-section-provider .auth-form .input-group {
         flex-direction: row;
         align-items: center;
         gap: 0.7rem;
         margin-bottom: 1rem;
         width: 100%;
       }
-      .auth-form .input-group i {
+      #register-section-client .auth-form .input-group i,
+      #register-section-provider .auth-form .input-group i {
         display: inline-block;
       }
+      
+      /* Corrigir layout dos campos PF/PJ no mobile - ONLY for registration */
+      #register-section-provider #campos-pf,
+      #register-section-provider #campos-pj {
+        display: block !important;
+        width: 100%;
+      }
+      
+      #register-section-provider #campos-pf[style*="display: block"],
+      #register-section-provider #campos-pj[style*="display: block"] {
+        display: block !important;
+      }
+      
+      #register-section-provider #campos-pf .input-group,
+      #register-section-provider #campos-pj .input-group {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.7rem;
+        margin-bottom: 1rem;
+        width: 100%;
+      }
+      
+      #register-section-provider #campos-pf .input-group i,
+      #register-section-provider #campos-pj .input-group i {
+        display: inline-block;
+      }
+      
+      /* Garantir que campos ocultos não vazem no mobile - ONLY for registration */
+      #register-section-provider #campos-pf[style*="display: none"],
+      #register-section-provider #campos-pj[style*="display: none"] {
+        display: none !important;
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        visibility: hidden;
+        z-index: -1;
+      }
+    }
+
+    /* Logo Styles */
+    .main-logo {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 15px;
+      background-color: #17a2b8;
+      padding: 0;
+      box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .main-logo:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
+    }
+    
+    .login-logo {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 12px;
+      background-color: #17a2b8;
+      padding: 0;
+      margin-bottom: 15px;
+      box-shadow: 0 3px 10px rgba(23, 162, 184, 0.25);
+      transition: transform 0.2s ease;
+    }
+    
+    .login-logo:hover {
+      transform: scale(1.02);
+    }
+    
+    .sidebar-logo {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 8px;
+      background-color: #17a2b8;
+      padding: 0;
+      margin-bottom: 10px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 2px 8px rgba(23, 162, 184, 0.2);
+      transition: all 0.2s ease;
+    }
+    
+    .sidebar-logo:hover {
+      background-color: #138496;
+      transform: translateY(-1px);
+    }
+    
+    /* Logo animation for splash screen */
+    .logo-animated-container {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .logo-animated-shine {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shine 2s infinite;
+      border-radius: 15px;
+    }
+    
+    @keyframes shine {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    /* Responsive adjustments for logos */
+    @media (max-width: 768px) {
+      .main-logo {
+        width: 100px;
+        height: 100px;
+        padding: 0;
+      }
+      
+      .login-logo {
+        width: 70px;
+        height: 70px;
+        padding: 0;
+      }
+      
+      .sidebar-logo {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+      }
+    }
+    
+    /* Logo area styling */
+    .logo-area {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    /* Sidebar header logo positioning */
+    .sidebar-header .sidebar-logo {
+      margin-bottom: 15px;
+    }
+    
+    /* Filtros de orçamento nos cards */
+    .card-budget-filters {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .budget-filter-btn {
+      background: rgba(23, 162, 184, 0.1);
+      border: 2px solid #17a2b8;
+      border-radius: 20px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #17a2b8;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 100px;
+      justify-content: center;
+    }
+    
+    .budget-filter-btn:hover {
+      background: #17a2b8;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+    }
+    
+    .budget-filter-btn.active {
+      background: #17a2b8;
+      color: white;
+      box-shadow: 0 2px 6px rgba(23, 162, 184, 0.4);
+    }
+    
+    .budget-filter-btn i {
+      font-size: 1rem;
+    }
+    
+    /* Ajuste no layout dos cards para acomodar os filtros */
+    .card.has-filters {
+      cursor: default;
+      padding-bottom: 15px;
+    }
+    
+    .card.has-filters h3 {
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    
+    .card.has-filters .card-budget-filters {
+      border-top: 1px solid rgba(0,0,0,0.1);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    /* Filtros das telas internas */
+    .filter-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px 0;
+      border-bottom: 2px solid #f8f9fa;
+    }
+    
+    .filter-btn {
+      background: #fff;
+      border: 2px solid #17a2b8;
+      border-radius: 25px;
+      padding: 12px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #17a2b8;
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+      min-width: 120px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .filter-btn:hover {
+      background: #17a2b8;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(23, 162, 184, 0.3);
+    }
+    
+    .filter-btn.active {
+      background: #17a2b8;
+      color: white;
+      box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+      transform: translateY(-1px);
+    }
+    
+    .filter-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .filter-btn:hover::before {
+      left: 100%;
+    }
+    
+    /* Estilo para contadores dentro dos filter-btn */
+    .filter-btn .tab-count {
+      background: rgba(255, 255, 255, 0.2);
+      color: inherit;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-left: 8px;
+      min-width: 20px;
+      text-align: center;
+      display: inline-block;
+    }
+    
+    .filter-btn.active .tab-count {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+    
+    .filter-btn:not(.active) .tab-count {
+      background: rgba(23, 162, 184, 0.1);
+      color: #17a2b8;
+    }
+    
+    /* Responsividade para mobile */
+    @media (max-width: 768px) {
+      .filter-buttons {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px 15px;
+      }
+      
+      .filter-btn {
+        width: 100%;
+        min-width: auto;
+        margin: 0;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .filter-buttons {
+        padding: 10px;
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+      
+      .filter-btn {
+        padding: 12px 16px;
+        font-size: 1rem;
+        border-radius: 10px;
+      }
+    }
+
+    /* Estilo para modal de aviso com fundo amarelo */
+    .modal-content.warning-background {
+      background-color: #fff9c4;
+      border-left: 6px solid #f39c12;
+      box-shadow: 0 4px 20px rgba(243, 156, 18, 0.3);
+    }
+    
+    .modal-content.warning-background h2 {
+      color: #b7950b;
+      border-bottom: 2px solid #f39c12;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .modal-content.warning-background p {
+      color: #7d6608;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    /* Estilos para trabalhos em execução e finalizados */
+    .trabalhos-container {
+        padding: 20px;
+    }
+
+    .tab-count {
+        background-color: #1e88e5;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        min-width: 18px;
+        text-align: center;
+    }
+
+    .trabalho-item {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-left: 4px solid #1e88e5;
+    }
+
+    .trabalho-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .trabalho-info h3 {
+        margin: 0 0 5px 0;
+        color: #333;
+        font-size: 18px;
+    }
+
+    .trabalho-prestador {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .trabalho-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 15px 0;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .detail-item i {
+        color: #1e88e5;
+        width: 16px;
+    }
+
+    .progress-container {
+        margin: 15px 0;
+    }
+
+    .progress-label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        color: #666;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4caf50, #8bc34a);
+        transition: width 0.3s ease;
+    }
+
+    .trabalho-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+    }
+
+    .avaliacao-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 10px 0;
+    }
+
+    .stars {
+        color: #ffc107;
+    }
+
+    .comentario-trabalho {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        font-style: italic;
+        color: #666;
+        border-left: 3px solid #1e88e5;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-execucao {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-finalizado {
+        background-color: #e8f5e8;
+        color: #2e7d32;
+    }
+
+    /* Estilos para modal de indicação */
+    .prestador-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #1e88e5;
+    }
+
+    .prestador-info h3 {
+        margin: 0 0 10px 0;
+        color: #1e88e5;
+    }
+
+    .indicacao-options {
+        margin-top: 20px;
+    }
+
+    .indicacao-options h4 {
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .indicacao-options .btn {
+        width: 100%;
+        margin-bottom: 10px;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .indicacao-form .input-group {
+        margin-bottom: 15px;
+    }
+
+    .indicacao-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .indicacao-form input,
+    .indicacao-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .indicacao-form textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .prestador-preview {
+        background-color: #f0f8ff;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+    }
+
+    .prestador-preview h4 {
+        margin: 0 0 10px 0;
+        color: #1e88e5;
+    }
+
+    .prestador-preview p {
+        margin: 5px 0;
+        font-size: 14px;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    /* Responsividade para trabalhos */
+    @media (max-width: 768px) {
+        .trabalho-details {
+            grid-template-columns: 1fr;
+        }
+        
+        .trabalho-actions {
+            flex-direction: column;
+        }
+        
+        .trabalho-actions .btn {
+            width: 100%;
+        }
+        
+        .indicacao-options .btn {
+            font-size: 16px;
+            padding: 12px;
+        }
+        
+        .modal-actions {
+            flex-direction: column;
+        }
+        
+        .modal-actions .btn {
+            width: 100%;
+        }
+    }
+
+    /* Estilo especial para item de indicação ChamadoPro */
+    .sidebar-menu li:nth-child(2) a {
+        background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
+        color: #333 !important;
+        border-radius: 8px;
+        margin: 5px 10px;
+        padding: 12px 15px !important;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: none;
+        position: relative;
+        z-index: 1;
+    }
+
+    .sidebar-menu li:nth-child(2) a:hover {
+        background: linear-gradient(135deg, #bdbdbd, #9e9e9e);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .sidebar-menu li:nth-child(2) a i {
+        color: #333;
+        text-shadow: none;
+    }
+
+    /* Animação para chamar atenção - mais sutil */
+    @keyframes pulse-gray {
+        0% {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        50% {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        100% {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    .sidebar-menu li:nth-child(2) a {
+        animation: pulse-gray 4s infinite;
+    }
+
+    /* Garantir que outros itens do menu não sejam afetados */
+    .sidebar-menu li:not(:nth-child(2)) a {
+        position: relative;
+        z-index: auto;
+    }
+
+    /* Correções para o sidebar - evitar conteúdo vazando */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -300px;
+        width: 300px;
+        height: 100vh;
+        background-color: #fff;
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+        transition: left 0.3s ease;
+        z-index: 1000;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+        background-color: #f8f9fa;
+    }
+
+    .sidebar-header h3 {
+        margin: 10px 0 5px 0;
+        color: #333;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .sidebar-header p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+        border: 3px solid #1e88e5;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-menu li {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .sidebar-menu a:hover {
+        background-color: #f8f9fa;
+    }
+
+    .sidebar-menu a i {
+        margin-right: 10px;
+        width: 20px;
+        color: #1e88e5;
+    }
+
+    /* Garantir que o nome do usuário não seja duplicado ou posicionado incorretamente */
+    #sidebar-username {
+        position: relative !important;
+        z-index: auto !important;
+        margin: 10px 0 5px 0 !important;
+        color: #333 !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
+    }
+
+    /* Overlay para fechar sidebar quando clicado fora */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    /* Estilo para o logo no cabeçalho */
+    .header-logo {
+        height: 40px;
+        width: auto;
+        margin-left: 15px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .header-logo:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .header-logo {
+            height: 32px;
+            margin-left: 10px;
+        }
+    }
+    
+    /* ========================================
+       COMPONENTE DE ABAS PADRONIZADO (CP-TABS)
+       ======================================== */
+    
+    /* Container das abas */
+    .cp-tabs {
+        display: flex;
+        gap: 12px;
+        padding: 8px 0;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    
+    /* Aba individual */
+    .cp-tab {
+        background: #fff;
+        border: 2px solid #17a2b8;
+        border-radius: 25px;
+        padding: 12px 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #17a2b8;
+        font-size: 1rem;
+        font-weight: 600;
+        outline: none;
+        min-width: 120px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        box-sizing: border-box;
+    }
+    
+    /* Aba ativa */
+    .cp-tab.is-active {
+        background: #17a2b8;
+        color: white;
+        box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+        transform: translateY(-1px);
+    }
+    
+    /* Hover das abas */
+    .cp-tab:hover:not(.is-active) {
+        background: #17a2b8;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(23, 162, 184, 0.3);
+    }
+    
+    /* Efeito de brilho nas abas */
+    .cp-tab::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .cp-tab:hover::before {
+        left: 100%;
+    }
+    
+    /* Badge/contador dentro das abas */
+    .cp-badge {
+        background: rgba(255, 255, 255, 0.2);
+        color: inherit;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        min-width: 20px;
+        text-align: center;
+        display: inline-block;
+        margin-left: 4px;
+    }
+    
+    .cp-tab.is-active .cp-badge {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+    
+    .cp-tab:not(.is-active) .cp-badge {
+        background: rgba(23, 162, 184, 0.1);
+        color: #17a2b8;
+    }
+    
+    /* Ícones dentro das abas */
+    .cp-tab i {
+        font-size: 1.1em;
+        margin-right: 4px;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .cp-tabs {
+            gap: 8px;
+            padding: 12px 15px;
+        }
+        
+        .cp-tab {
+            min-width: 100px;
+            padding: 10px 18px;
+            font-size: 0.95rem;
+        }
+        
+        .cp-badge {
+            font-size: 0.8rem;
+            padding: 1px 6px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .cp-tabs {
+            flex-direction: column;
+            gap: 8px;
+            align-items: stretch;
+        }
+        
+        .cp-tab {
+            min-width: auto;
+            width: 100%;
+        }
+    }
+    
+    /* Estilos para preview de arquivos anexados */
+    .file-preview-container {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .file-preview-item {
+        position: relative;
+        display: inline-block;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 8px;
+        background: #f9f9f9;
+        max-width: 150px;
+    }
+    
+    .file-preview-item img {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    
+    .file-preview-item video {
+        width: 100%;
+        height: 80px;
+        border-radius: 4px;
+    }
+    
+    .file-preview-info {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+        word-break: break-all;
+    }
+    
+    .file-delete-btn {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ff4757;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .file-delete-btn:hover {
+        background: #ff3838;
+        transform: scale(1.1);
+    }
+    
+    .file-preview-item.video-file {
+        border-color: #3742fa;
+    }
+    
+    .file-preview-item.image-file {
+        border-color: #2ed573;
+    }
+
+    /* ===== ESTILOS DO FLUXO DE SERVIÇO REDESENHADO ===== */
+    
+    /* Barra Superior */
+    .flow-header-bar {
+        background: #17a2b8; /* Azul/Ciano */
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 10px 10px 0 0;
+        margin-bottom: 0;
+    }
+
+    .flow-menu-icon {
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .flow-title-bar {
+        font-size: 1.3rem;
+        font-weight: 600;
+        text-align: center;
+        flex: 1;
+    }
+
+    .flow-back-btn {
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: opacity 0.3s ease;
+    }
+
+    .flow-back-btn:hover {
+        opacity: 0.8;
+    }
+
+    /* Título Principal e Descrição */
+    .flow-main-header {
+        padding: 30px 20px 20px;
+        background: white;
+    }
+
+    .flow-main-title {
+        font-size: 2.2rem;
+        color: #17a2b8; /* Azul/Ciano */
+        font-weight: 700;
+        margin: 0 0 10px 0;
+        display: inline-block;
+    }
+
+    .flow-main-description {
+        font-size: 1.1rem;
+        color: #6c757d; /* Cinza */
+        margin: 0;
+        text-align: right;
+        margin-top: -40px;
+        padding-top: 10px;
+    }
+
+    /* Abas de Navegação */
+    .flow-tabs {
+        display: flex;
+        background: white;
+        padding: 0 20px 20px;
+        gap: 15px;
+    }
+
+    .flow-tab {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 20px;
+        color: #6c757d;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+    }
+
+    .flow-tab.active {
+        background: #17a2b8;
+        border-color: #17a2b8;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+    }
+
+    .flow-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #17a2b8;
+        border-radius: 0 0 4px 4px;
+    }
+
+    .flow-tab:hover:not(.active) {
+        background: #e9ecef;
+        border-color: #17a2b8;
+        transform: translateY(-1px);
+    }
+
+    /* Contêiner Principal do Fluxo */
+    .flow-container {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 0 20px 30px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        display: none;
+    }
+
+    .flow-container.active {
+        display: block;
+    }
+
+    /* Wrapper das Etapas - Layout Horizontal */
+    .flow-steps-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 20px 0;
+    }
+
+    /* Card Individual de Etapa */
+    .flow-step-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 25px 20px;
+        min-width: 140px;
+        text-align: center;
+        transition: all 0.6s ease;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        position: relative;
+    }
+
+    .flow-step-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Primeira Etapa Ativa - Azul/Ciano */
+    .flow-step-card.active {
+        background: #17a2b8;
+        border-color: #17a2b8;
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+        animation: pulseActive 2s infinite;
+    }
+
+    .flow-step-card.completed {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+        transform: scale(1.02);
+    }
+
+    @keyframes pulseActive {
+        0% { 
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+        }
+        50% { 
+            box-shadow: 0 8px 35px rgba(23, 162, 184, 0.5);
+            transform: scale(1.08);
+        }
+        100% { 
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+            transform: scale(1.05);
+        }
+    }
+
+    /* Ícone da Etapa */
+    .step-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: #17a2b8; /* Azul/Ciano quando fundo branco */
+    }
+
+    .flow-step-card.active .step-icon {
+        color: white; /* Branco quando fundo colorido */
+    }
+
+    .flow-step-card.completed .step-icon {
+        color: white;
+    }
+
+    /* Informações da Etapa */
+    .step-info {
+        text-align: left;
+    }
+
+    .step-number {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    .flow-step-card.active .step-number {
+        color: white;
+    }
+
+    .flow-step-card.completed .step-number {
+        color: white;
+    }
+
+    .step-title {
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.3;
+        color: #333;
+    }
+
+    .flow-step-card.active .step-title {
+        color: white;
+    }
+
+    .flow-step-card.completed .step-title {
+        color: white;
+    }
+
+    /* Setas de Conexão */
+    .flow-arrow {
+        color: #ced4da; /* Cinza claro */
+        font-size: 1.5rem;
+        opacity: 0.7;
+        margin: 0 10px;
+    }
+
+    /* Botões de Ação */
+    .flow-actions {
+        text-align: center;
+        padding: 30px 20px;
+        background: white;
+        border-radius: 0 0 10px 10px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .btn-flow-action {
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        margin: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-flow-action.primary {
+        background: #17a2b8;
+        color: white;
+    }
+
+    .btn-flow-action.primary:hover {
+        background: #138496;
+        transform: translateY(-2px);
+    }
+
+    .btn-flow-action.secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-flow-action.secondary:hover {
+        background: #545b62;
+        transform: translateY(-2px);
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .flow-main-description {
+            text-align: left;
+            margin-top: 10px;
+            padding-top: 0;
+        }
+
+        .flow-steps-wrapper {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .flow-arrow {
+            transform: rotate(90deg);
+            margin: 5px 0;
+        }
+
+        .flow-step-card {
+            min-width: 200px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .flow-tabs {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .flow-header-bar {
+            padding: 12px 15px;
+        }
+
+        .flow-title-bar {
+            font-size: 1.1rem;
+        }
+
+        .flow-main-title {
+            font-size: 1.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .flow-container {
+            margin: 0 10px 20px;
+            padding: 20px 15px;
+        }
+
+        .flow-main-header {
+            padding: 20px 15px 15px;
+        }
+
+        .flow-actions {
+            padding: 20px 15px;
+        }
+
+        .btn-flow-action {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            justify-content: center;
+        }
+    }
+
+    /* Remove estilos antigos que não são mais necessários */
+    .flow-info-card,
+    .modern-flow,
+    .flow-steps-container,
+    .flow-step-mini,
+    .step-mini-icon,
+    .step-mini-number,
+    .flow-arrow-mini,
+    .flow-step-details,
+    .step-detail,
+    .flow-benefits,
+    .visit-benefits,
+    .flow-migration,
+    .migration-card,
+    .comparison-section,
+    .comparison-table {
+        display: none !important;
     }
   </style>
 </head>
@@ -215,7 +1613,7 @@
   <div id="splash" class="splash-screen active">
     <div class="splash-content">
       <div class="splash-logo logo-animated-container">
-        <div class="logo-placeholder"><span class="logo-placeholder-text">logo</span></div>
+        <img src="https://raw.githubusercontent.com/chamadopro/site/main/logopadrao.png" alt="ChamadoPro Logo" class="main-logo" />
         <div class="logo-animated-shine"></div>
       </div>
       <h1>ChamadoPro</h1>
@@ -233,7 +1631,7 @@
   <div id="login-choice-screen" class="login-screen-v2">
     <div class="login-container">
       <div class="logo-area">
-        <div class="logo-placeholder small"><span class="logo-placeholder-text">logo</span></div>
+        <img src="https://raw.githubusercontent.com/chamadopro/site/main/logopadrao.png" alt="ChamadoPro Logo" class="login-logo" />
         <h2>Bem-vindo ao ChamadoPro</h2>
       </div>
       <div class="pill-group" style="justify-content:center; margin-top: 30px;">
@@ -292,7 +1690,7 @@
     <div class="login-container">
       <button class="btn" id="back-to-choice-client" style="margin-bottom:10px; float:right;">Voltar</button>
       <div class="logo-area">
-        <div class="logo-placeholder small"><span class="logo-placeholder-text">logo</span></div>
+        <img src="https://raw.githubusercontent.com/chamadopro/site/main/logopadrao.png" alt="ChamadoPro Logo" class="login-logo" />
         <h2>Cliente</h2>
       </div>
       <div class="auth-tabs">
@@ -362,7 +1760,7 @@
     <div class="login-container">
       <button class="btn" id="back-to-choice-provider" style="margin-bottom:10px; float:right;">Voltar</button>
       <div class="logo-area">
-        <div class="logo-placeholder small"><span class="logo-placeholder-text">logo</span></div>
+        <img src="https://raw.githubusercontent.com/chamadopro/site/main/logopadrao.png" alt="ChamadoPro Logo" class="login-logo" />
         <h2>Prestador</h2>
       </div>
       <div class="auth-tabs">
@@ -470,6 +1868,7 @@
       <div class="header-buttons">
         <button class="home-button" onclick="goToHome()"><i class="fas fa-home"></i> Home</button>
         <button class="back-button" onclick="goBack()"><i class="fas fa-arrow-left"></i> Voltar</button>
+        <img src="https://raw.githubusercontent.com/chamadopro/site/main/logopadrao.png" alt="ChamadoPro Logo" class="header-logo" />
       </div>
     </header>
 
@@ -478,10 +1877,11 @@
       <div class="sidebar-header">
         <img src="https://placehold.co/80x80/17a2b8/FFFFFF?text=User" alt="User Avatar" class="user-avatar">
         <h3 id="sidebar-username">Nome do Usuário</h3>
-        <p id="sidebar-usertype">Tipo: Cliente</p>
+        <p id="sidebar-usertype" style="display: none;">Tipo: Cliente</p>
       </div>
       <ul class="sidebar-menu">
         <li><a href="#" onclick="goToHome()"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="#" onclick="indicarChamadoPro()"><i class="fas fa-gift"></i> Indique o ChamadoPro e ganhe descontos</a></li>
         <li id="menu-item-orcamentos-usuario" style="display: none;"><a href="#" onclick="showScreen('orcamentos-usuario')"><i class="fas fa-file-invoice-dollar"></i> Meus Orçamentos</a></li>
         <li id="menu-item-orcamentos-prestador" style="display: none;"><a href="#" onclick="showScreen('orcamentos-prestador-recebidos')"><i class="fas fa-file-invoice-dollar"></i> Orçamentos</a></li>
         <li id="menu-item-servicos-ativos" style="display: none;"><a href="#" onclick="showScreen('servicos-ativos')"><i class="fas fa-tools"></i> Serviços Ativos</a></li>
@@ -499,6 +1899,9 @@
         <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
       </ul>
     </nav>
+
+    <!-- Overlay para fechar sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
     <!-- Conteúdo das Telas -->
     <div class="screen-content">
@@ -526,6 +1929,10 @@
             <h3>Visitas Marcadas</h3>
             <p><span id="orcamentos-usuario-visitas-count-dashboard">0</span></p>
           </div>
+          <div class="card" onclick="showScreen('trabalhos-execucao-finalizados', 'Trabalhos em Execução e Finalizados')">
+            <h3>Trabalhos em Execução e Finalizados</h3>
+            <p><span id="trabalhos-count-dashboard">0</span></p>
+          </div>
           <div class="card" onclick="showScreen('ocorrencias-usuario')">
             <h3>Minhas Ocorrências</h3>
             <p><span id="ocorrencias-usuario-count-dashboard">0</span></p>
@@ -543,7 +1950,7 @@
             <h3>Serviços Ativos</h3>
             <p><span id="servicos-ativos-count-dashboard">0</span></p>
           </div>
-          <div class="card" id="card-orcamentos" onclick="showScreen('orcamentos-prestador-recebidos', 'Orçamentos Recebidos')">
+          <div class="card" onclick="showScreen('orcamentos-prestador-recebidos', 'Orçamentos Recebidos')">
             <h3>Orçamentos Recebidos</h3>
             <p><span id="orcamentos-prestador-recebidos-count-dashboard">0</span></p>
           </div>
@@ -587,68 +1994,106 @@
 
       <!-- Tela de Orçamentos do Usuário -->
       <div id="orcamentos-usuario" class="screen">
-        <div class="section-header">
-          <h2 id="orcamentos-usuario-title">Meus Orçamentos</h2>
-        </div>
-        <div class="tab-bar">
-          <button class="tab active" id="tab-orcamentos-usuario-solicitados" onclick="showTab('orcamentos-usuario', 'solicitados')">
-            Solicitadas (<span id="orcamentos-usuario-solicitados-count-tab">0</span>)
+        <div class="cp-tabs" data-cp-group="orcamentos-usuario" role="tablist">
+          <button class="cp-tab is-active" data-cp-tab="solicitados" role="tab" aria-selected="true">
+            <i class="fas fa-paper-plane"></i>
+            Solicitadas
+            <span class="cp-badge" id="orcamentos-usuario-solicitados-count-tab">0</span>
           </button>
-          <button class="tab" id="tab-orcamentos-usuario-recebidos" onclick="showTab('orcamentos-usuario', 'recebidos')">
-            Recebidas (<span id="orcamentos-usuario-recebidos-count-tab">0</span>)
+          <button class="cp-tab" data-cp-tab="recebidos" role="tab" aria-selected="false">
+            <i class="fas fa-inbox"></i>
+            Recebidas
+            <span class="cp-badge" id="orcamentos-usuario-recebidos-count-tab">0</span>
           </button>
         </div>
 
-        <div id="orcamentos-usuario-solicitados-content" class="tab-content active">
-          <!-- Sub-abas APENAS para Solicitados -->
-          <div class="sub-tab-bar">
-            <button class="sub-tab active" onclick="showSubTab('orcamentos-usuario', 'solicitados', 'padrao')">
-              <i class="fas fa-tools"></i> Orçamento Padrão (<span id="solicitados-padrao-count">0</span>)
+        <div id="orcamentos-usuario-solicitados-content" class="tab-content active" data-cp-content="solicitados" data-cp-content-group="orcamentos-usuario">
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="todos" onclick="filterOrcamentosUsuarioSolicitados('todos')">
+              Todos
             </button>
-            <button class="sub-tab" onclick="showSubTab('orcamentos-usuario', 'solicitados', 'visita')">
-              <i class="fas fa-calendar-check"></i> Orçamento com Visita (<span id="solicitados-visita-count">0</span>)
+            <button class="filter-btn" data-filter="padrao" onclick="filterOrcamentosUsuarioSolicitados('padrao')">
+              Padrão
+            </button>
+            <button class="filter-btn" data-filter="visita" onclick="filterOrcamentosUsuarioSolicitados('visita')">
+              Visita
             </button>
           </div>
-          <div id="orcamentos-usuario-solicitados-padrao-content" class="sub-tab-content active">
-            <!-- Conteúdo de orçamentos padrão solicitados -->
-          </div>
-          <div id="orcamentos-usuario-solicitados-visita-content" class="sub-tab-content">
-            <!-- Conteúdo de orçamentos com visita solicitados -->
+          <div id="orcamentos-usuario-solicitados-list" class="service-list">
+            <!-- Conteúdo de orçamentos solicitados será inserido aqui -->
           </div>
         </div>
         
-        <div id="orcamentos-usuario-recebidos-content" class="tab-content">
+        <div id="orcamentos-usuario-recebidos-content" class="tab-content" data-cp-content="recebidos" data-cp-content-group="orcamentos-usuario">
           <!-- Conteúdo de orçamentos recebidos (sem sub-abas) -->
         </div>
       </div>
 
       <!-- Nova Tela de Orçamentos Aprovados/Recusados -->
       <div id="orcamentos-aprovados-recusados" class="screen">
-        <div class="section-header">
-          <h2 id="orcamentos-aprovados-recusados-title">Orçamentos Aprovados/Recusados</h2>
-        </div>
-        <div class="tab-bar">
-          <button class="tab active" id="tab-orcamentos-aprovados" onclick="showTab('orcamentos-aprovados-recusados', 'aprovados')">
-            Aprovados (<span id="orcamentos-aprovados-count-tab">0</span>)
+        <div class="cp-tabs" data-cp-group="orcamentos-aprovados-recusados" role="tablist">
+          <button class="cp-tab is-active" data-cp-tab="aprovados" role="tab" aria-selected="true">
+            <i class="fas fa-check-circle"></i>
+            Aprovados
+            <span class="cp-badge" id="orcamentos-aprovados-count-tab">0</span>
           </button>
-          <button class="tab" id="tab-orcamentos-recusados" onclick="showTab('orcamentos-aprovados-recusados', 'recusados')">
-            Recusados (<span id="orcamentos-recusados-count-tab">0</span>)
+          <button class="cp-tab" data-cp-tab="recusados" role="tab" aria-selected="false">
+            <i class="fas fa-times-circle"></i>
+            Recusados
+            <span class="cp-badge" id="orcamentos-recusados-count-tab">0</span>
           </button>
         </div>
 
-        <div id="orcamentos-aprovados-recusados-aprovados-content" class="tab-content active">
-          <!-- Conteúdo de orçamentos aprovados -->
+        <div id="orcamentos-aprovados-recusados-aprovados-content" class="tab-content active" data-cp-content="aprovados" data-cp-content-group="orcamentos-aprovados-recusados">
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="todos" onclick="filterOrcamentosAprovados('todos')">
+              Todos
+            </button>
+            <button class="filter-btn" data-filter="padrao" onclick="filterOrcamentosAprovados('padrao')">
+              Padrão
+            </button>
+            <button class="filter-btn" data-filter="visita" onclick="filterOrcamentosAprovados('visita')">
+              Visita
+            </button>
+          </div>
+          <div id="orcamentos-aprovados-list" class="service-list">
+            <!-- Conteúdo de orçamentos aprovados será inserido aqui -->
+          </div>
         </div>
         
-        <div id="orcamentos-aprovados-recusados-recusados-content" class="tab-content">
-          <!-- Conteúdo de orçamentos recusados -->
+        <div id="orcamentos-aprovados-recusados-recusados-content" class="tab-content" data-cp-content="recusados" data-cp-content-group="orcamentos-aprovados-recusados">
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="todos" onclick="filterOrcamentosRecusados('todos')">
+              Todos
+            </button>
+            <button class="filter-btn" data-filter="padrao" onclick="filterOrcamentosRecusados('padrao')">
+              Padrão
+            </button>
+            <button class="filter-btn" data-filter="visita" onclick="filterOrcamentosRecusados('visita')">
+              Visita
+            </button>
+          </div>
+          <div id="orcamentos-recusados-list" class="service-list">
+            <!-- Conteúdo de orçamentos recusados será inserido aqui -->
+          </div>
         </div>
       </div>
 
       <!-- Tela de Orçamentos Recebidos (Prestador) -->
       <div id="orcamentos-prestador-recebidos" class="screen">
         <div class="section-header">
-          <h2>Orçamentos Recebidos</h2>
+          <h2 class="sr-only">Orçamentos Recebidos</h2>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="todos" onclick="filterOrcamentosPrestadorRecebidos('todos')">
+              Todos
+            </button>
+            <button class="filter-btn" data-filter="padrao" onclick="filterOrcamentosPrestadorRecebidos('padrao')">
+              Padrão
+            </button>
+            <button class="filter-btn" data-filter="visita" onclick="filterOrcamentosPrestadorRecebidos('visita')">
+              Visita
+            </button>
+          </div>
         </div>
         <div id="orcamentos-prestador-recebidos-content">
           <!-- Conteúdo de orçamentos recebidos pelo prestador -->
@@ -658,7 +2103,18 @@
       <!-- Tela de Propostas Enviadas (Prestador) -->
       <div id="orcamentos-prestador-propostas-enviadas" class="screen">
         <div class="section-header">
-          <h2>Propostas Enviadas</h2>
+          <h2 class="sr-only">Propostas Enviadas</h2>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="todos" onclick="filterOrcamentosPrestadorPropostasEnviadas('todos')">
+              Todos
+            </button>
+            <button class="filter-btn" data-filter="padrao" onclick="filterOrcamentosPrestadorPropostasEnviadas('padrao')">
+              Padrão
+            </button>
+            <button class="filter-btn" data-filter="visita" onclick="filterOrcamentosPrestadorPropostasEnviadas('visita')">
+              Visita
+            </button>
+          </div>
         </div>
         <div id="orcamentos-prestador-propostas-enviadas-content">
           <!-- Conteúdo de propostas enviadas pelo prestador -->
@@ -668,7 +2124,18 @@
       <!-- Tela de Orçamentos Aprovados (Prestador) -->
       <div id="orcamentos-prestador-aprovados" class="screen">
         <div class="section-header">
-          <h2>Orçamentos Aprovados</h2>
+          <h2 class="sr-only">Orçamentos Aprovados</h2>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="todos" onclick="filterOrcamentosPrestadorAprovados('todos')">
+              Todos
+            </button>
+            <button class="filter-btn" data-filter="padrao" onclick="filterOrcamentosPrestadorAprovados('padrao')">
+              Padrão
+            </button>
+            <button class="filter-btn" data-filter="visita" onclick="filterOrcamentosPrestadorAprovados('visita')">
+              Visita
+            </button>
+          </div>
         </div>
         <div id="orcamentos-prestador-aprovados-content">
           <!-- Conteúdo de orçamentos aprovados pelo cliente -->
@@ -678,7 +2145,18 @@
       <!-- Tela de Orçamentos Recusados (Prestador) -->
       <div id="orcamentos-prestador-recusados" class="screen">
         <div class="section-header">
-          <h2>Orçamentos Recusados</h2>
+          <h2 class="sr-only">Orçamentos Recusados</h2>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="todos" onclick="filterOrcamentosPrestadorRecusados('todos')">
+              Todos
+            </button>
+            <button class="filter-btn" data-filter="padrao" onclick="filterOrcamentosPrestadorRecusados('padrao')">
+              Padrão
+            </button>
+            <button class="filter-btn" data-filter="visita" onclick="filterOrcamentosPrestadorRecusados('visita')">
+              Visita
+            </button>
+          </div>
         </div>
         <div id="orcamentos-prestador-recusados-content">
           <!-- Conteúdo de orçamentos recusados pelo prestador -->
@@ -688,7 +2166,7 @@
       <!-- Tela de Serviços Ativos (Prestador) -->
       <div id="servicos-ativos" class="screen">
         <div class="section-header">
-          <h2>Serviços Ativos</h2>
+          <h2 class="sr-only">Serviços Ativos</h2>
         </div>
         <div class="service-list">
           <!-- Exemplo de Card de Serviço Ativo -->
@@ -700,7 +2178,7 @@
             <div class="info">
               <p><i class="fas fa-user"></i> Cliente: João Silva</p>
               <p><i class="fas fa-map-marker-alt"></i> Endereço: Rua das Flores, 123</p>
-              <p><i class="fas fa-calendar-alt"></i> Agendado para: 2024-07-20 às 10:00</p>
+              <p><i class="fas fa-calendar-alt"></i> Agendado para: 20/07/2024 às 10:00h</p>
               <div class="alert-message" id="alert-1" style="display: none;">
                 <i class="fas fa-bell"></i> Aguardando confirmação do cliente!
               </div>
@@ -722,7 +2200,7 @@
             <div class="info">
               <p><i class="fas fa-user"></i> Cliente: Maria Oliveira</p>
               <p><i class="fas fa-map-marker-alt"></i> Endereço: Av. Central, 456</p>
-              <p><i class="fas fa-calendar-alt"></i> Agendado para: 2024-07-18 às 09:00</p>
+              <p><i class="fas fa-calendar-alt"></i> Agendado para: 18/07/2024 às 09:00h</p>
               <div class="alert-message" id="alert-2" style="display: none;">
                 <i class="fas fa-bell"></i> Aguardando confirmação do cliente!
               </div>
@@ -744,7 +2222,7 @@
             <div class="info">
               <p><i class="fas fa-user"></i> Cliente: Pedro Costa</p>
               <p><i class="fas fa-map-marker-alt"></i> Endereço: Praça da Matriz, 789</p>
-              <p><i class="fas fa-calendar-alt"></i> Agendado para: 2024-07-17 às 14:00</p>
+              <p><i class="fas fa-calendar-alt"></i> Agendado para: 17/07/2024 às 14:30h</p>
               <div class="alert-message" id="alert-3">
                 <i class="fas fa-bell"></i> Aguardando confirmação do cliente!
               </div>
@@ -764,9 +2242,48 @@
       <div id="visitas-marcadas" class="screen">
         <div class="section-header">
           <h2>Visitas Marcadas</h2>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="todos" onclick="filterVisitasMarcadas('todos')">
+              Todos
+            </button>
+            <button class="filter-btn" data-filter="padrao" onclick="filterVisitasMarcadas('padrao')">
+              Padrão
+            </button>
+            <button class="filter-btn" data-filter="visita" onclick="filterVisitasMarcadas('visita')">
+              Visita
+            </button>
+          </div>
         </div>
         <div id="visitas-marcadas-content" class="service-list">
           <!-- Conteúdo das visitas marcadas será inserido aqui pelo JavaScript -->
+        </div>
+      </div>
+
+      <!-- Tela de Trabalhos em Execução e Finalizados -->
+      <div id="trabalhos-execucao-finalizados" class="screen">
+        <div class="cp-tabs" data-cp-group="trabalhos-execucao-finalizados" role="tablist">
+          <button class="cp-tab is-active" data-cp-tab="execucao" role="tab" aria-selected="true">
+            <i class="fas fa-cogs"></i>
+            Em Execução
+            <span class="cp-badge" id="trabalhos-execucao-count-tab">0</span>
+          </button>
+          <button class="cp-tab" data-cp-tab="finalizados" role="tab" aria-selected="false">
+            <i class="fas fa-check-circle"></i>
+            Finalizados
+            <span class="cp-badge" id="trabalhos-finalizados-count-tab">0</span>
+          </button>
+        </div>
+
+        <div id="trabalhos-execucao-finalizados-execucao-content" class="tab-content active" data-cp-content="execucao" data-cp-content-group="trabalhos-execucao-finalizados">
+          <div id="trabalhos-execucao-list" class="trabalhos-container">
+            <!-- Conteúdo de trabalhos em execução será inserido aqui pelo JavaScript -->
+          </div>
+        </div>
+        
+        <div id="trabalhos-execucao-finalizados-finalizados-content" class="tab-content" data-cp-content="finalizados" data-cp-content-group="trabalhos-execucao-finalizados">
+          <div id="trabalhos-finalizados-list" class="trabalhos-container">
+            <!-- Conteúdo de trabalhos finalizados será inserido aqui pelo JavaScript -->
+          </div>
         </div>
       </div>
 
@@ -784,7 +2301,7 @@
             </div>
             <div class="info">
               <p><i class="fas fa-user"></i> Prestador: Eletricista Silva</p>
-              <p><i class="fas fa-calendar-alt"></i> Agendado para: 2024-07-20 às 10:00</p>
+              <p><i class="fas fa-calendar-alt"></i> Agendado para: 20/07/2024 às 10:00h</p>
             </div>
             <div class="actions">
               <button class="btn" onclick="showAlert('Ver detalhes do serviço contratado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
@@ -808,7 +2325,7 @@
       <!-- Tela de Ocorrências (Prestador) -->
       <div id="ocorrencias-prestador" class="screen">
         <div class="section-header">
-          <h2>Ocorrências para Meus Serviços</h2>
+          <h2 class="sr-only">Ocorrências para Meus Serviços</h2>
         </div>
         <!-- Conteúdo dinâmico renderizado por JS -->
       </div>
@@ -847,17 +2364,12 @@
 
       <!-- Nova Tela Unificada de Busca de Serviços -->
       <div id="buscar-servicos-unificado" class="screen">
-        <div class="section-header">
-          <h2>Buscar Serviço e Orçamento</h2>
-          <p>Encontre o profissional ideal para a sua necessidade ou solicite um orçamento.</p>
-        </div>
-
         <div class="tab-bar">
-          <button class="tab active" id="tab-buscar-servicos-unificado-padrao" onclick="showTab('buscar-servicos-unificado', 'padrao')">
-            Solicitar Orçamento
+          <button class="filter-btn active" id="tab-buscar-servicos-unificado-padrao" onclick="showTab('buscar-servicos-unificado', 'padrao')">
+            <span class="tab-icon">🔧</span> Orçamento Padrão
           </button>
-          <button class="tab" id="tab-buscar-servicos-unificado-visita" onclick="showTab('buscar-servicos-unificado', 'visita')">
-            Solicitar Orçamento com Visita no Local
+          <button class="filter-btn" id="tab-buscar-servicos-unificado-visita" onclick="showTab('buscar-servicos-unificado', 'visita')">
+            <span class="tab-icon">🏠</span> Orçamento com Visita
           </button>
         </div>
 
@@ -869,9 +2381,6 @@
           <div class="sponsored-services-grid" id="sponsored-services-list">
             <!-- Serviços patrocinados serão renderizados aqui pelo JS -->
           </div>
-          <div class="fixed-budget-btn-container">
-            <button class="btn" onclick="handleBudgetRequestClick()">Anuncie seu serviço aqui! Contato: (XX) XXXX-XXXX</button>
-          </div>
         </div>
 
         <div id="buscar-servicos-unificado-visita-content" class="tab-content">
@@ -882,17 +2391,11 @@
           <div class="sponsored-services-grid" id="sponsored-visit-services-list">
             <!-- Serviços de visita patrocinados serão renderizados aqui pelo JS -->
           </div>
-          <div class="fixed-banner-container">
-            <p>Anuncie seu serviço aqui! Contato: (XX) XXXX-XXXX</p>
-          </div>
         </div>
       </div>
 
       <!-- Tela de Solicitação de Orçamento (Usuário) -->
       <div id="solicitacao-orcamento" class="screen">
-        <div class="section-header">
-          <h2>Solicitar Orçamento</h2>
-        </div>
         <div class="form-container">
           <div class="input-group">
             <label for="orcamento-titulo">Título do Serviço:</label>
@@ -903,12 +2406,19 @@
             <textarea id="orcamento-descricao" rows="5" placeholder="Descreva o que precisa ser feito, o local, e qualquer detalhe relevante." required></textarea>
           </div>
           <div class="input-group">
+            <label for="prestador-especifico">Prestador Específico (opcional):</label>
+            <input type="text" id="prestador-especifico" placeholder="Nome do prestador que você gostaria que fizesse o serviço">
+            <small style="color: #666; font-size: 12px;">Se você já conhece um prestador específico, digite o nome aqui. Caso contrário, deixe em branco.</small>
+          </div>
+          <div class="input-group">
             <label for="orcamento-fotos">Anexar Fotos (máx. 5):</label>
-            <input type="file" id="orcamento-fotos" accept="image/*" multiple onchange="validateFiles(this, 5, 'image')">
+            <input type="file" id="orcamento-fotos" accept="image/*" multiple onchange="handleFileUpload(this, 'fotos', 5, 'image')">
+            <div id="preview-fotos" class="file-preview-container"></div>
           </div>
           <div class="input-group">
             <label for="orcamento-video">Anexar Vídeo (máx. 30s, 1 arquivo):</label>
-            <input type="file" id="orcamento-video" accept="video/*" onchange="validateFiles(this, 1, 'video', 30)">
+            <input type="file" id="orcamento-video" accept="video/*" onchange="handleFileUpload(this, 'video', 1, 'video', 30)">
+            <div id="preview-video" class="file-preview-container"></div>
           </div>
           <button class="btn primary-btn" onclick="submitBudgetRequest()">Enviar Solicitação</button>
         </div>
@@ -917,7 +2427,7 @@
       <!-- Tela de Cadastro de Especialidades (Prestador) -->
       <div id="cadastro-especialidades" class="screen">
         <div class="section-header">
-          <h2>Cadastro de Especialidades</h2>
+          <h2 class="sr-only">Cadastro de Especialidades</h2>
           <p>Selecione as áreas de serviço em que você atua.</p>
         </div>
         <div class="specialties-grid">
@@ -968,7 +2478,7 @@
       <!-- Tela de Calendário de Trabalho (Prestador) -->
       <div id="calendario-trabalho" class="screen">
         <div class="section-header">
-          <h2>Calendário de Trabalho</h2>
+          <h2 class="sr-only">Calendário de Trabalho</h2>
           <p>Configure seus horários de disponibilidade para receber solicitações de orçamento.</p>
         </div>
 
@@ -1291,7 +2801,7 @@
       <!-- Tela Financeiro (Prestador) -->
       <div id="financeiro" class="screen">
         <div class="section-header">
-          <h2>Financeiro</h2>
+          <h2 class="sr-only">Financeiro</h2>
         </div>
         <div class="finance-summary">
           <div class="summary-card">
@@ -1377,50 +2887,223 @@
 
       <!-- Tela de Fluxo de Serviço -->
       <div id="fluxo-servico-detalhes" class="screen">
-        <div class="section-header">
-          <h2>Fluxo de Serviço</h2>
-          <p>Entenda cada etapa do processo de um serviço no ChamadoPro.</p>
-        </div>
-        <div class="flow-chart">
-          <div class="flow-step" id="step-1">
-            <div class="step-icon"><i class="fas fa-clipboard-list"></i></div>
-            <div class="step-text">1. Solicitação do Serviço</div>
+        <!-- Barra Superior -->
+        <div class="flow-header-bar">
+          <div class="flow-menu-icon">
+            <i class="fas fa-bars"></i>
           </div>
-          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
-          <div class="flow-step" id="step-2">
-            <div class="step-icon"><i class="fas fa-check-circle"></i></div>
-            <div class="step-text">2. Aceite do Prestador</div>
-          </div>
-          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
-          <div class="flow-step" id="step-3">
-            <div class="step-icon"><i class="fas fa-car"></i></div>
-            <div class="step-text">3. Prestador a Caminho</div>
-          </div>
-          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
-          <div class="flow-step" id="step-4">
-            <div class="step-icon"><i class="fas fa-play-circle"></i></div>
-            <div class="step-text">4. Serviço em Andamento</div>
-          </div>
-          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
-          <div class="flow-step" id="step-5">
-            <div class="step-icon"><i class="fas fa-tools"></i></div>
-            <div class="step-text">5. Finalização do Serviço</div>
-          </div>
-          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
-          <div class="flow-step" id="step-6">
-            <div class="step-icon"><i class="fas fa-user-check"></i></div>
-            <div class="step-text">6. Confirmação do Cliente</div>
-          </div>
-          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
-          <div class="flow-step" id="step-7">
-            <div class="step-icon"><i class="fas fa-dollar-sign"></i></div>
-            <div class="step-text">7. Pagamento Processado</div>
+          <div class="flow-title-bar">Fluxo de Serviço</div>
+          <div class="flow-back-btn" onclick="showScreen('dashboard')">
+            <i class="fas fa-arrow-left"></i> Voltar
           </div>
         </div>
+
+        <!-- Título Principal e Descrição -->
+        <div class="flow-main-header">
+          <h1 class="flow-main-title">Fluxo de Serviço</h1>
+          <p class="flow-main-description">Entenda cada etapa do processo de um serviço no ChamadoPro.</p>
+        </div>
+
+        <!-- Abas para os dois tipos de fluxo -->
+        <div class="flow-tabs">
+          <button class="flow-tab active" data-flow="padrao">
+            <i class="fas fa-shield-alt"></i> Fluxo Padrão
+          </button>
+          <button class="flow-tab" data-flow="visita">
+            <i class="fas fa-calendar-check"></i> Fluxo com Visita
+          </button>
+        </div>
+
+        <!-- Contêiner Principal do Fluxo Padrão -->
+        <div id="flow-padrao" class="flow-container active">
+          <div class="flow-steps-wrapper">
+            <!-- Etapa 1 - Ativa (Azul) -->
+            <div class="flow-step-card active">
+              <div class="step-icon">
+                <i class="fas fa-clipboard-list"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">1.</div>
+                <div class="step-title">Solicitação do Serviço</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <!-- Etapa 2 -->
+            <div class="flow-step-card">
+              <div class="step-icon">
+                <i class="fas fa-paper-plane"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">2.</div>
+                <div class="step-title">Envio da Proposta</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <!-- Etapa 3 -->
+            <div class="flow-step-card">
+              <div class="step-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">3.</div>
+                <div class="step-title">Aprovação do Cliente</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <!-- Etapa 4 -->
+            <div class="flow-step-card">
+              <div class="step-icon">
+                <i class="fas fa-tools"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">4.</div>
+                <div class="step-title">Execução do Serviço</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <!-- Etapa 5 -->
+            <div class="flow-step-card">
+              <div class="step-icon">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">5.</div>
+                <div class="step-title">Pagamento Seguro</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contêiner Principal do Fluxo com Visita -->
+        <div id="flow-visita" class="flow-container">
+          <div class="flow-steps-wrapper">
+            <!-- Etapa 1 - Ativa (Azul) -->
+            <div class="flow-step-card active" onclick="clickFlowStep(0)">
+              <div class="step-icon">
+                <i class="fas fa-clipboard-list"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">01</div>
+                <div class="step-title">Solicitação do Serviço</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+
+            <!-- Etapa 2 -->
+            <div class="flow-step-card" onclick="clickFlowStep(1)">
+              <div class="step-icon">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">02</div>
+                <div class="step-title">Agendamento da Visita</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+
+            <!-- Etapa 3 -->
+            <div class="flow-step-card" onclick="clickFlowStep(2)">
+              <div class="step-icon">
+                <i class="fas fa-home"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">03</div>
+                <div class="step-title">Visita Técnica</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+
+            <!-- Etapa 4 -->
+            <div class="flow-step-card" onclick="clickFlowStep(3)">
+              <div class="step-icon">
+                <i class="fas fa-file-invoice-dollar"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">04</div>
+                <div class="step-title">Envio da Proposta</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+
+            <!-- Etapa 5 -->
+            <div class="flow-step-card" onclick="clickFlowStep(4)">
+              <div class="step-icon">
+                <i class="fas fa-thumbs-up"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">05</div>
+                <div class="step-title">Aprovação do Cliente</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+
+            <!-- Etapa 6 -->
+            <div class="flow-step-card" onclick="clickFlowStep(5)">
+              <div class="step-icon">
+                <i class="fas fa-tools"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">06</div>
+                <div class="step-title">Execução do Serviço</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+
+            <!-- Etapa 7 -->
+            <div class="flow-step-card" onclick="clickFlowStep(6)">
+              <div class="step-icon">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <div class="step-info">
+                <div class="step-number">07</div>
+                <div class="step-title">Pagamento Seguro</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botões de Ação -->
         <div class="flow-actions">
-          <button class="btn primary-btn" id="start-simulation-btn" onclick="startSimulation()">Iniciar Simulação</button>
-          <button class="btn" id="next-step-btn" onclick="nextSimulationStep()" style="display: none;">Próxima Etapa</button>
-          <button class="btn btn-finalizar" id="reset-simulation-btn" onclick="resetSimulation()" style="display: none;">Reiniciar Simulação</button>
+          <button class="btn-flow-action primary" onclick="iniciarFluxoDemo()">
+            <i class="fas fa-play"></i> Demonstrar Fluxo
+          </button>
+          <button class="btn-flow-action secondary" onclick="reiniciarFluxo()">
+            <i class="fas fa-redo"></i> Reiniciar
+          </button>
         </div>
       </div>
 
@@ -1453,12 +3136,106 @@
 
   <!-- Funções globais -->
   <script>
+    // Função para formatar data e hora de propostas e solicitações
+    function formatarDataHora(data) {
+      if (typeof data === 'string') {
+        // Se for uma string, tenta converter para Date
+        data = new Date(data);
+      }
+      
+      if (!(data instanceof Date) || isNaN(data)) {
+        // Se não for uma data válida, usa a data atual
+        data = new Date();
+      }
+      
+      const dia = data.getDate().toString().padStart(2, '0');
+      const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+      const ano = data.getFullYear();
+      const horas = data.getHours().toString().padStart(2, '0');
+      const minutos = data.getMinutes().toString().padStart(2, '0');
+      
+      return `${dia}/${mes}/${ano} às ${horas}:${minutos}h`;
+    }
+
+    // Função para formatar apenas data
+    function formatarData(data) {
+      if (typeof data === 'string') {
+        data = new Date(data);
+      }
+      
+      if (!(data instanceof Date) || isNaN(data)) {
+        data = new Date();
+      }
+      
+      const dia = data.getDate().toString().padStart(2, '0');
+      const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+      const ano = data.getFullYear();
+      
+      return `${dia}/${mes}/${ano}`;
+    }
+
+    // Função para simular dados com horário real
+    function obterDataHoraAtual() {
+      return new Date();
+    }
+
+    // Função para criar data/hora simulada (para demonstração)
+    function criarDataSimulada(diasAtras = 0, horasAtras = 0, minutosAtras = 0) {
+      const agora = new Date();
+      agora.setDate(agora.getDate() - diasAtras);
+      agora.setHours(agora.getHours() - horasAtras);
+      agora.setMinutes(agora.getMinutes() - minutosAtras);
+      return agora;
+    }
+
     // Função para mostrar/ocultar opções de recusa de visita
     function toggleRecusarVisita(btn) {
       var opcoes = btn.parentElement.nextElementSibling;
       if (opcoes && opcoes.style) {
         opcoes.style.display = (opcoes.style.display === 'none' || opcoes.style.display === '') ? 'block' : 'none';
       }
+    }
+
+    // Função de exemplo para carregar dados de solicitação com data/hora
+    function carregarDetalheSolicitacao(idSolicitacao) {
+      // Dados simulados - substitua por chamada real à API
+      const dadosSolicitacao = {
+        id: idSolicitacao,
+        cliente: "João Silva",
+        endereco: "Rua das Flores, 123",
+        dataSolicitacao: criarDataSimulada(2, 3, 30), // 2 dias, 3 horas, 30 min atrás
+        descricao: "Instalação de tomada na sala"
+      };
+
+      // Preenche os campos no modal
+      document.getElementById('request-details-id').textContent = dadosSolicitacao.id;
+      document.getElementById('request-details-client').textContent = dadosSolicitacao.cliente;
+      document.getElementById('request-details-address').textContent = dadosSolicitacao.endereco;
+      document.getElementById('request-details-date').textContent = formatarDataHora(dadosSolicitacao.dataSolicitacao);
+      document.getElementById('request-details-description').textContent = dadosSolicitacao.descricao;
+    }
+
+    // Função de exemplo para carregar dados de orçamento com data/hora
+    function carregarDetalheOrcamento(idOrcamento) {
+      // Dados simulados - substitua por chamada real à API
+      const dadosOrcamento = {
+        id: idOrcamento,
+        prestador: "Eletricista Silva",
+        servico: "Instalação de tomada",
+        valor: "R$ 150,00",
+        dataProposta: criarDataSimulada(1, 5, 15), // 1 dia, 5 horas, 15 min atrás
+        tempoEstimado: 2,
+        descricao: "Instalação de tomada padrão com aterramento"
+      };
+
+      // Preenche os campos no modal
+      document.getElementById('received-budget-id').textContent = dadosOrcamento.id;
+      document.getElementById('received-budget-prestador').textContent = dadosOrcamento.prestador;
+      document.getElementById('received-budget-service').textContent = dadosOrcamento.servico;
+      document.getElementById('received-budget-value').textContent = dadosOrcamento.valor;
+      document.getElementById('received-budget-date').textContent = formatarDataHora(dadosOrcamento.dataProposta);
+      document.getElementById('received-budget-estimated-time').textContent = dadosOrcamento.tempoEstimado;
+      document.getElementById('received-budget-prestador-description').textContent = dadosOrcamento.descricao;
     }
 
     // Funções do Calendário de Trabalho
@@ -1785,6 +3562,25 @@
     </div>
   </div>
 
+  <!-- 
+    IMPORTANTE: FORMATAÇÃO DE DATAS E HORÁRIOS
+    
+    Todos os campos de data/hora devem incluir data completa + horário:
+    - Data da Solicitação: formato "DD/MM/AAAA às HH:MMh"
+    - Proposta em: formato "DD/MM/AAAA às HH:MMh" 
+    - Exemplos: "17/07/2024 às 14:30h", "20/07/2024 às 09:15h"
+    
+    PRAZOS IMPORTANTES:
+    - Aceitar/Recusar proposta: 24 horas após recebimento
+    - Gerar proposta: 2 horas após solicitação
+    - Confirmação de serviço: 1 hora antes do agendamento
+    
+    Use as funções JavaScript:
+    - formatarDataHora(data) - para data + hora completa
+    - carregarDetalheSolicitacao(id) - exemplo de uso
+    - carregarDetalheOrcamento(id) - exemplo de uso
+  -->
+
   <!-- Modal de Detalhes da Solicitação (Usuário e Prestador) -->
   <div id="request-details-modal" class="modal">
     <div class="modal-content">
@@ -1793,7 +3589,7 @@
       <div class="details-section">
         <p><strong>Cliente:</strong> <span id="request-details-client"></span></p>
         <p><strong>Endereço:</strong> <span id="request-details-address"></span></p>
-        <p><strong>Data da Solicitação:</strong> <span id="request-details-date"></span></p>
+        <p><strong>Data e Hora da Solicitação:</strong> <span id="request-details-date"></span></p>
         <p><strong>Descrição:</strong> <span id="request-details-description"></span></p>
       </div>
       <h3>Anexos:</h3>
@@ -2033,6 +3829,34 @@
     </div>
   </div>
 
+  <!-- Modal de Aviso da Taxa para Orçamento com Visita -->
+  <div id="visit-fee-warning-modal" class="modal">
+      <div class="modal-content">
+          <span class="close-button" data-modal-id="visit-fee-warning-modal">&times;</span>
+          <h2 style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Taxa para Orçamento com Visita</h2>
+          <div style="padding: 20px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; margin: 15px 0;">
+              <p style="margin: 0; font-size: 1.1rem; font-weight: 600; color: #856404;">
+                  <i class="fas fa-info-circle"></i> <strong>ATENÇÃO:</strong>
+              </p>
+              <p style="margin: 10px 0; color: #856404;">
+                  Para atender a esse orçamento com visita, será cobrada uma <strong>taxa fixa de R$ 15,00</strong>.
+              </p>
+              <p style="margin: 10px 0; color: #856404;">
+                  <i class="fas fa-handshake"></i> <strong>Vantagem:</strong> Após a visita, todo o processo de negociação poderá ser tratado <strong>diretamente com o cliente</strong>, sem intermediação da plataforma.
+              </p>
+          </div>
+          <p style="text-align: center; font-weight: 600; color: #333;">Deseja continuar e propor a visita?</p>
+          <div class="modal-actions">
+              <button class="btn primary-btn" id="confirm-visit-proposal-btn" style="background-color: #28a745;">
+                  <i class="fas fa-check"></i> Sim, Continuar
+              </button>
+              <button class="btn btn-finalizar" onclick="closeModal('visit-fee-warning-modal')">
+                  <i class="fas fa-times"></i> Cancelar
+              </button>
+          </div>
+      </div>
+  </div>
+
   <!-- Custom Alert Modal -->
   <div id="custom-alert-modal" class="modal">
       <div class="modal-content">
@@ -2046,5 +3870,178 @@
   </div>
 
   <script src="./script.js?v=20250722-1758"></script>
+  
+  <!-- Funções específicas do fluxo de serviço redesenhado -->
+  <script>
+    // Variáveis globais do fluxo
+    let currentStepIndex = 0;
+    let isSimulating = false;
+    let stepTimeout = null;
+    let maxSteps = 5; // Será atualizado baseado no fluxo ativo
+
+    // Função para alternar entre abas do fluxo (Padrão/Visita)
+    function switchFlowTab(type) {
+        // Remover active de todas as abas e containers
+        document.querySelectorAll('.flow-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.flow-container').forEach(container => container.classList.remove('active'));
+        
+        // Ativar aba clicada
+        document.querySelector(`.flow-tab[onclick="switchFlowTab('${type}')"]`).classList.add('active');
+        
+        // Ativar container correspondente
+        document.querySelector(`#flow-${type}`).classList.add('active');
+        
+        // Atualizar número máximo de etapas
+        maxSteps = type === 'padrao' ? 5 : 7;
+        
+        // Resetar simulação
+        reiniciarFluxo();
+    }
+
+    // Função para iniciar demonstração do fluxo
+    function iniciarFluxoDemo() {
+        if (isSimulating) {
+            pausarSimulacao();
+            return;
+        }
+        
+        currentStepIndex = 0;
+        isSimulating = true;
+        updateFlowDisplay();
+        
+        // Encontrar o botão de simulação no flow ativo
+        const activeFlow = document.querySelector('.flow-container.active');
+        const simulateBtn = activeFlow ? activeFlow.querySelector('.btn-flow-action.primary') : null;
+        
+        if (simulateBtn) {
+            simulateBtn.innerHTML = '<i class="fas fa-pause"></i> Pausar Demonstração';
+        }
+        
+        setTimeout(() => {
+            nextFlowStep();
+        }, 1000);
+    }
+
+    // Função para pausar simulação
+    function pausarSimulacao() {
+        clearTimeout(stepTimeout);
+        isSimulating = false;
+        
+        const activeFlow = document.querySelector('.flow-container.active');
+        const simulateBtn = activeFlow ? activeFlow.querySelector('.btn-flow-action.primary') : null;
+        
+        if (simulateBtn) {
+            simulateBtn.innerHTML = '<i class="fas fa-play"></i> Continuar Demonstração';
+            simulateBtn.onclick = continuarSimulacao;
+        }
+    }
+
+    // Função para continuar simulação
+    function continuarSimulacao() {
+        isSimulating = true;
+        
+        const activeFlow = document.querySelector('.flow-container.active');
+        const simulateBtn = activeFlow ? activeFlow.querySelector('.btn-flow-action.primary') : null;
+        
+        if (simulateBtn) {
+            simulateBtn.innerHTML = '<i class="fas fa-pause"></i> Pausar Demonstração';
+            simulateBtn.onclick = iniciarFluxoDemo;
+        }
+        
+        setTimeout(() => {
+            nextFlowStep();
+        }, 1000);
+    }
+
+    // Função para avançar para próxima etapa
+    function nextFlowStep() {
+        if (!isSimulating) return;
+        
+        if (currentStepIndex < maxSteps - 1) {
+            currentStepIndex++;
+            updateFlowDisplay();
+            
+            stepTimeout = setTimeout(() => {
+                nextFlowStep();
+            }, 1800); // 1.8 segundos entre etapas
+        } else {
+            // Fim da simulação - retornar ao estado inicial
+            setTimeout(() => {
+                reiniciarFluxo();
+                
+                const activeFlow = document.querySelector('.flow-container.active');
+                const simulateBtn = activeFlow ? activeFlow.querySelector('.btn-flow-action.primary') : null;
+                
+                if (simulateBtn) {
+                    simulateBtn.innerHTML = '<i class="fas fa-play"></i> Demonstrar Fluxo';
+                    simulateBtn.onclick = iniciarFluxoDemo;
+                }
+            }, 1500);
+        }
+    }
+
+    // Função para reiniciar fluxo (estado inicial)
+    function reiniciarFluxo() {
+        // Parar simulação se estiver rodando
+        clearTimeout(stepTimeout);
+        isSimulating = false;
+        
+        // Resetar para primeira etapa
+        currentStepIndex = 0;
+        updateFlowDisplay();
+        
+        // Atualizar botão
+        const activeFlow = document.querySelector('.flow-container.active');
+        const simulateBtn = activeFlow ? activeFlow.querySelector('.btn-flow-action.primary') : null;
+        
+        if (simulateBtn) {
+            simulateBtn.innerHTML = '<i class="fas fa-play"></i> Demonstrar Fluxo';
+            simulateBtn.onclick = iniciarFluxoDemo;
+        }
+    }
+
+    // Função para atualizar display do fluxo
+    function updateFlowDisplay() {
+        const activeFlow = document.querySelector('.flow-container.active');
+        if (!activeFlow) return;
+        
+        // Atualizar cards de etapas
+        const stepCards = activeFlow.querySelectorAll('.flow-step-card');
+        stepCards.forEach((card, index) => {
+            card.classList.remove('active', 'completed');
+            if (index < currentStepIndex) {
+                card.classList.add('completed');
+            } else if (index === currentStepIndex) {
+                card.classList.add('active');
+            }
+        });
+    }
+
+    // Função para clicar em etapa específica
+    function clickFlowStep(stepIndex) {
+        // Parar simulação se estiver rodando
+        if (isSimulating) {
+            pausarSimulacao();
+        }
+        
+        currentStepIndex = stepIndex;
+        updateFlowDisplay();
+    }
+
+    // Inicializar ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ativar primeira aba por padrão
+        const firstTab = document.querySelector('.flow-tab');
+        const firstContainer = document.querySelector('.flow-container');
+        
+        if (firstTab) firstTab.classList.add('active');
+        if (firstContainer) firstContainer.classList.add('active');
+        
+        // Definir número inicial de etapas
+        maxSteps = 5; // Fluxo padrão por padrão
+        
+        updateFlowDisplay();
+    });
+  </script>
 </body>
 </html>
