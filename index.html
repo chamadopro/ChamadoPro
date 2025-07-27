@@ -926,7 +926,7 @@
         background-color: #fff;
         box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
         transition: left 0.3s ease;
-        z-index: 1001; /* Aumentado para ficar acima do overlay */
+        z-index: 1000; /* Acima do overlay (999) */
         overflow-y: auto;
         overflow-x: hidden;
     }
@@ -1002,31 +1002,43 @@
         font-weight: 600 !important;
     }
 
-    /* Overlay para fechar sidebar quando clicado fora */
+    /* Overlay para fechar sidebar quando clicado fora - MELHORADO */
     .sidebar-overlay {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000; /* Abaixo do sidebar */
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.6); /* Mais escuro para debug */
+        z-index: 999; /* Abaixo do sidebar mas acima do conteúdo */
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
-        cursor: pointer; /* Indicar que é clicável */
-        -webkit-tap-highlight-color: transparent; /* Remove destaque no touch mobile */
-        touch-action: manipulation; /* Otimizar para touch */
-        user-select: none; /* Prevenir seleção de texto */
+        cursor: pointer;
+        
+        /* Otimizações para mobile */
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
         -webkit-user-select: none;
+        -khtml-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
+        user-select: none;
+        
+        /* Garantir que receba eventos de toque */
+        touch-action: manipulation;
+        pointer-events: none;
     }
 
     .sidebar-overlay.active {
         opacity: 1;
         visibility: visible;
-        pointer-events: all; /* Garantir que receba eventos */
+        pointer-events: all; /* CRÍTICO: Permitir cliques/toques quando ativo */
+    }
+
+    /* Mostrar indicador de debug quando overlay estiver ativo */
+    .sidebar-overlay.active #overlay-hint {
+        display: block !important;
     }
     
     /* Estilo para o logo no cabeçalho */
@@ -1914,7 +1926,13 @@
     </nav>
 
     <!-- Overlay para fechar sidebar -->
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()" ontouchend="closeSidebar()"></div>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()" ontouchend="closeSidebar()">
+        <!-- Indicador visual para ajudar o usuário -->
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 14px; opacity: 0.8; pointer-events: none; text-align: center; display: none;" id="overlay-hint">
+            <i class="fas fa-times" style="font-size: 24px; margin-bottom: 8px;"></i><br>
+            Toque para fechar
+        </div>
+    </div>
 
     <!-- Conteúdo das Telas -->
     <div class="screen-content">
@@ -4096,73 +4114,96 @@
         }
     }
 
-    // Configurar eventos do sidebar quando o DOM carregar
-    document.addEventListener('DOMContentLoaded', function() {
+    // Funções para controle do sidebar mobile - SOLUÇÃO DEFINITIVA
+    function toggleMenu() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
-        const menuToggle = document.querySelector('.menu-toggle');
         
-        // Função simples e direta para fechar sidebar
-        function forceCloseSidebar(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeSidebar();
-        }
-        
-        // Eventos do overlay - MÚLTIPLOS para garantir funcionamento
-        if (overlay) {
-            overlay.addEventListener('click', forceCloseSidebar, true);
-            overlay.addEventListener('touchend', forceCloseSidebar, true);
-            overlay.addEventListener('touchstart', forceCloseSidebar, true);
-        }
-        
-        // Fechar sidebar quando clicar em qualquer link do menu
-        const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                setTimeout(closeSidebar, 50);
-            });
-        });
-        
-        // Detecção global de cliques/toques fora do sidebar
-        function handleGlobalTouch(event) {
-            if (!sidebar || !sidebar.classList.contains('active')) return;
-            
-            const target = event.target;
-            
-            // Se tocou no sidebar ou no botão menu, não fazer nada
-            if (sidebar.contains(target) || (menuToggle && menuToggle.contains(target))) {
-                return;
+        if (sidebar && overlay) {
+            if (sidebar.classList.contains('active')) {
+                // Fechar menu
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+            } else {
+                // Abrir menu
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
             }
+        }
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        
+        if (sidebar && overlay) {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+        }
+    }
+
+    // Configuração de eventos - ABORDAGEM SIMPLIFICADA E EFICAZ
+    document.addEventListener('DOMContentLoaded', function() {
+        const overlay = document.getElementById('sidebar-overlay');
+        const sidebar = document.getElementById('sidebar');
+        const menuButton = document.querySelector('.menu-toggle');
+        
+        // 1. Evento do overlay (área escura) - PRIORIDADE MÁXIMA
+        if (overlay) {
+            // Múltiplos eventos para garantir funcionamento
+            overlay.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSidebar();
+            }, false);
             
-            // Se tocou em qualquer outro lugar, fechar
-            event.preventDefault();
-            closeSidebar();
+            overlay.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSidebar();
+            }, false);
         }
         
-        // Eventos globais para desktop e mobile
-        document.addEventListener('click', handleGlobalTouch, true);
-        document.addEventListener('touchend', handleGlobalTouch, true);
-        
-        // Prevenir scroll quando sidebar aberto
+        // 2. Fechar ao clicar em links do menu
         if (sidebar) {
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.attributeName === 'class') {
-                        if (sidebar.classList.contains('active')) {
-                            document.body.style.overflow = 'hidden';
-                            document.body.style.position = 'fixed';
-                            document.body.style.width = '100%';
-                        } else {
-                            document.body.style.overflow = '';
-                            document.body.style.position = '';
-                            document.body.style.width = '';
-                        }
-                    }
+            const menuLinks = sidebar.querySelectorAll('.sidebar-menu a');
+            menuLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    // Pequeno delay para permitir navegação
+                    setTimeout(closeSidebar, 100);
                 });
             });
-            observer.observe(sidebar, { attributes: true });
         }
+        
+        // 3. Evento global de documento - BACKUP REDUNDANTE
+        document.addEventListener('click', function(e) {
+            if (!sidebar || !sidebar.classList.contains('active')) return;
+            
+            // Se clicou no botão menu ou dentro do sidebar, não fechar
+            if (menuButton && menuButton.contains(e.target)) return;
+            if (sidebar.contains(e.target)) return;
+            
+            // Qualquer outro clique fecha o menu
+            closeSidebar();
+        }, true);
+        
+        // 4. Evento touch global para mobile - BACKUP REDUNDANTE
+        document.addEventListener('touchstart', function(e) {
+            if (!sidebar || !sidebar.classList.contains('active')) return;
+            
+            // Se tocou no botão menu ou dentro do sidebar, não fechar
+            if (menuButton && menuButton.contains(e.target)) return;
+            if (sidebar.contains(e.target)) return;
+            
+            // Qualquer outro toque fecha o menu
+            closeSidebar();
+        }, true);
     });
   </script>
 </body>
