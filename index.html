@@ -1017,11 +1017,16 @@
         cursor: pointer; /* Indicar que é clicável */
         -webkit-tap-highlight-color: transparent; /* Remove destaque no touch mobile */
         touch-action: manipulation; /* Otimizar para touch */
+        user-select: none; /* Prevenir seleção de texto */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
 
     .sidebar-overlay.active {
         opacity: 1;
         visibility: visible;
+        pointer-events: all; /* Garantir que receba eventos */
     }
     
     /* Estilo para o logo no cabeçalho */
@@ -1909,7 +1914,7 @@
     </nav>
 
     <!-- Overlay para fechar sidebar -->
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()" ontouchend="closeSidebar()"></div>
 
     <!-- Conteúdo das Telas -->
     <div class="screen-content">
@@ -4051,7 +4056,7 @@
         updateFlowDisplay();
     });
 
-    // Funções para controle do sidebar mobile
+    // Funções para controle do sidebar mobile - VERSÃO SIMPLIFICADA
     function toggleMenu() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
@@ -4062,9 +4067,17 @@
             if (isActive) {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
+                // Liberar scroll
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
             } else {
                 sidebar.classList.add('active');
                 overlay.classList.add('active');
+                // Bloquear scroll
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
             }
         }
     }
@@ -4076,54 +4089,74 @@
         if (sidebar && overlay) {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
+            // Liberar scroll
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
         }
     }
 
     // Configurar eventos do sidebar quando o DOM carregar
     document.addEventListener('DOMContentLoaded', function() {
-        // Fechar sidebar quando clicar no overlay
+        const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
+        const menuToggle = document.querySelector('.menu-toggle');
+        
+        // Função simples e direta para fechar sidebar
+        function forceCloseSidebar(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeSidebar();
+        }
+        
+        // Eventos do overlay - MÚLTIPLOS para garantir funcionamento
         if (overlay) {
-            overlay.addEventListener('click', closeSidebar);
-            overlay.addEventListener('touchstart', closeSidebar); // Para mobile
+            overlay.addEventListener('click', forceCloseSidebar, true);
+            overlay.addEventListener('touchend', forceCloseSidebar, true);
+            overlay.addEventListener('touchstart', forceCloseSidebar, true);
         }
         
         // Fechar sidebar quando clicar em qualquer link do menu
         const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
         sidebarLinks.forEach(link => {
             link.addEventListener('click', function() {
-                setTimeout(closeSidebar, 100); // Pequeno delay para permitir navegação
+                setTimeout(closeSidebar, 50);
             });
         });
         
-        // Fechar sidebar quando clicar/tocar fora dele - MELHORADO PARA MOBILE
-        function handleOutsideClick(event) {
-            const sidebar = document.getElementById('sidebar');
-            const menuToggle = document.querySelector('.menu-toggle');
+        // Detecção global de cliques/toques fora do sidebar
+        function handleGlobalTouch(event) {
+            if (!sidebar || !sidebar.classList.contains('active')) return;
             
-            if (sidebar && sidebar.classList.contains('active')) {
-                // Se clicou/tocou fora do sidebar e não no botão de menu
-                if (!sidebar.contains(event.target) && 
-                    menuToggle && !menuToggle.contains(event.target)) {
-                    closeSidebar();
-                }
+            const target = event.target;
+            
+            // Se tocou no sidebar ou no botão menu, não fazer nada
+            if (sidebar.contains(target) || (menuToggle && menuToggle.contains(target))) {
+                return;
             }
+            
+            // Se tocou em qualquer outro lugar, fechar
+            event.preventDefault();
+            closeSidebar();
         }
         
-        // Adicionar eventos para mouse e touch
-        document.addEventListener('click', handleOutsideClick);
-        document.addEventListener('touchstart', handleOutsideClick, { passive: true });
+        // Eventos globais para desktop e mobile
+        document.addEventListener('click', handleGlobalTouch, true);
+        document.addEventListener('touchend', handleGlobalTouch, true);
         
-        // Prevenir scroll do body quando sidebar estiver aberto (mobile)
-        const sidebar = document.getElementById('sidebar');
+        // Prevenir scroll quando sidebar aberto
         if (sidebar) {
             const observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.attributeName === 'class') {
                         if (sidebar.classList.contains('active')) {
                             document.body.style.overflow = 'hidden';
+                            document.body.style.position = 'fixed';
+                            document.body.style.width = '100%';
                         } else {
                             document.body.style.overflow = '';
+                            document.body.style.position = '';
+                            document.body.style.width = '';
                         }
                     }
                 });
