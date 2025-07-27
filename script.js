@@ -238,14 +238,14 @@ let adIntervalPrestador;
 
 // Dados de exemplo de serviços patrocinados (Buscar Serviços)
 const sponsoredServices = [
-    { id: 1, name: "Eletricista 24h", description: "Atendimento rápido para emergências elétricas.", type: "eletricista" },
-    { id: 2, name: "Encanador Especialista", description: "Reparos hidráulicos e desentupimento.", type: "encanador" },
-    { id: 3, name: "Montador de Móveis Profissional", description: "Montagem e desmontagem de todos os tipos de móveis.", type: "montador" },
-    { id: 4, name: "Serviços de Limpeza Residencial", description: "Limpeza profunda para sua casa ou apartamento.", type: "limpeza" },
-    { id: 5, name: "Jardineiro Completo", description: "Poda, paisagismo e manutenção de jardins.", type: "jardineiro" },
-    { id: 6, name: "Pedreiro para Pequenas Reformas", description: "Pequenos reparos e construções.", type: "pedreiro" },
-    { id: 7, name: "Pintor de Interiores", description: "Pintura de paredes e tetos com acabamento impecável.", type: "pintor" },
-    { id: 8, name: "Técnico em Ar Condicionado", description: "Instalação, manutenção e reparo de sistemas de climatização.", type: "ar condicionado" }
+    { id: 1, name: "Eletricista 24h", description: "Atendimento rápido para emergências elétricas.", type: "eletricista", profile: { photos: ['https://placehold.co/150x100/FFD700/000000?text=Eletrica1', 'https://placehold.co/150x100/FF8C00/FFFFFF?text=Eletrica2'], bio: 'Eletricista com 15 anos de experiência em residências e comércios. Atendimento 24h para emergências.' } },
+    { id: 2, name: "Encanador Especialista", description: "Reparos hidráulicos e desentupimento.", type: "encanador", profile: { photos: ['https://placehold.co/150x100/0066CC/FFFFFF?text=Hidraulica1', 'https://placehold.co/150x100/0080FF/FFFFFF?text=Hidraulica2'], bio: 'Especialista em sistemas hidráulicos residenciais e comerciais. Desentupimentos e reparos rápidos.' } },
+    { id: 3, name: "Montador de Móveis Profissional", description: "Montagem e desmontagem de todos os tipos de móveis.", type: "montador", profile: { photos: ['https://placehold.co/150x100/8B4513/FFFFFF?text=Moveis1', 'https://placehold.co/150x100/A0522D/FFFFFF?text=Moveis2'], bio: 'Montador especializado em móveis planejados e convencionais. Trabalho rápido e limpo.' } },
+    { id: 4, name: "Serviços de Limpeza Residencial", description: "Limpeza profunda para sua casa ou apartamento.", type: "limpeza", profile: { photos: ['https://placehold.co/150x100/32CD32/FFFFFF?text=Limpeza1', 'https://placehold.co/150x100/228B22/FFFFFF?text=Limpeza2'], bio: 'Equipe de limpeza profissional com produtos e equipamentos especializados.' } },
+    { id: 5, name: "Jardineiro Completo", description: "Poda, paisagismo e manutenção de jardins.", type: "jardineiro", profile: { photos: ['https://placehold.co/150x100/90EE90/000000?text=Jardim1', 'https://placehold.co/150x100/7CFC00/000000?text=Jardim2'], bio: 'Jardineiro especialista em paisagismo e manutenção de áreas verdes.' } },
+    { id: 6, name: "Pedreiro para Pequenas Reformas", description: "Pequenos reparos e construções.", type: "pedreiro", profile: { photos: ['https://placehold.co/150x100/CD853F/FFFFFF?text=Obra1', 'https://placehold.co/150x100/D2691E/FFFFFF?text=Obra2'], bio: 'Pedreiro experiente em pequenas reformas, reparos e acabamentos.' } },
+    { id: 7, name: "Pintor de Interiores", description: "Pintura de paredes e tetos com acabamento impecável.", type: "pintor", profile: { photos: ['https://placehold.co/150x100/FF6347/FFFFFF?text=Pintura1', 'https://placehold.co/150x100/FF4500/FFFFFF?text=Pintura2'], bio: 'Pintor especializado em interiores com técnicas modernas e acabamento perfeito.' } },
+    { id: 8, name: "Técnico em Ar Condicionado", description: "Instalação, manutenção e reparo de sistemas de climatização.", type: "ar condicionado", profile: { photos: ['https://placehold.co/150x100/87CEEB/000000?text=ArCond1', 'https://placehold.co/150x100/4682B4/FFFFFF?text=ArCond2'], bio: 'Técnico certificado em climatização, instalação e manutenção preventiva.' } }
 ];
 
 // Dados de exemplo de serviços de visita patrocinados
@@ -2377,7 +2377,10 @@ function renderSponsoredServices(searchTerm = '') {
         card.innerHTML = `
             <h3>${service.name}</h3>
             <p>${service.description}</p>
-            <button class="btn" onclick="showScreen('solicitacao-orcamento')">Solicitar Orçamento</button>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn" onclick="openPrestadorProfileModal(${service.id})">Ver Perfil</button>
+                <button class="btn" onclick="showScreen('solicitacao-orcamento')">Solicitar Orçamento</button>
+            </div>
         `;
         container.appendChild(card);
     });
@@ -3304,7 +3307,15 @@ function sendScheduleProposals(budgetId, estimatedTime) {
 
 
 function openPrestadorProfileModal(serviceId) {
-    const prestador = sponsoredVisitServices.find(s => s.id === serviceId);
+    // Procura primeiro em sponsoredVisitServices, depois em sponsoredServices
+    let prestador = sponsoredVisitServices.find(s => s.id === serviceId);
+    let isVisitService = true;
+    
+    if (!prestador) {
+        prestador = sponsoredServices.find(s => s.id === serviceId);
+        isVisitService = false;
+    }
+    
     if (!prestador || !prestador.profile) return;
 
     document.getElementById('prestador-profile-name').textContent = prestador.name;
@@ -3323,7 +3334,19 @@ function openPrestadorProfileModal(serviceId) {
         photosGallery.innerHTML = '<p style="text-align: center; color: #888;">Nenhuma foto disponível.</p>';
     }
 
-    document.getElementById('request-visit-from-profile-btn').onclick = () => solicitarVisitaComAviso(prestador.name);
+    // Configura o botão dependendo do tipo de serviço
+    const actionButton = document.getElementById('request-visit-from-profile-btn');
+    if (isVisitService) {
+        actionButton.textContent = 'Solicitar Visita';
+        actionButton.onclick = () => solicitarVisitaComAviso(prestador.name);
+    } else {
+        actionButton.textContent = 'Solicitar Orçamento';
+        actionButton.onclick = () => {
+            closeModal('prestador-profile-modal');
+            showScreen('solicitacao-orcamento');
+        };
+    }
+    
     document.getElementById('prestador-profile-modal').style.display = 'flex';
 }
 
