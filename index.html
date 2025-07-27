@@ -598,6 +598,46 @@
       }
     }
 
+    /* Otimização dos botões de trabalhos finalizados no mobile */
+    @media (max-width: 768px) {
+      .trabalhos-finalizados-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: space-between;
+      }
+      
+      .trabalhos-finalizados-actions .btn {
+        flex: 1;
+        min-width: 110px;
+        padding: 8px 6px;
+        font-size: 0.8rem;
+        text-align: center;
+      }
+      
+      .trabalhos-finalizados-actions .btn-detalhes {
+        flex-basis: 100%;
+        margin-bottom: 4px;
+      }
+      
+      .trabalhos-finalizados-actions .btn-indicar,
+      .trabalhos-finalizados-actions .btn-solicitar {
+        flex-basis: calc(50% - 3px);
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .trabalhos-finalizados-actions .btn {
+        padding: 6px 4px;
+        font-size: 0.75rem;
+        min-width: 100px;
+      }
+      
+      .trabalhos-finalizados-actions .btn i {
+        font-size: 0.8rem;
+      }
+    }
+
     /* Estilo para modal de aviso com fundo amarelo */
     .modal-content.warning-background {
       background-color: #fff9c4;
@@ -1968,8 +2008,8 @@
             <h3>Visitas Marcadas</h3>
             <p><span id="orcamentos-usuario-visitas-count-dashboard">0</span></p>
           </div>
-          <div class="card" onclick="showScreen('trabalhos-execucao-finalizados', 'Trabalhos em Execução e Finalizados')">
-            <h3>Trabalhos em Execução e Finalizados</h3>
+          <div class="card" onclick="showScreen('trabalhos-execucao-finalizados', 'Execução e Finalizados')">
+            <h3>Execução e Finalizados</h3>
             <p><span id="trabalhos-count-dashboard">0</span></p>
           </div>
           <div class="card" onclick="showScreen('ocorrencias-usuario')">
@@ -2311,7 +2351,7 @@
         </div>
       </div>
 
-      <!-- Tela de Trabalhos em Execução e Finalizados -->
+      <!-- Tela de Execução e Finalizados -->
       <div id="trabalhos-execucao-finalizados" class="screen">
         <div class="cp-tabs" data-cp-group="trabalhos-execucao-finalizados" role="tablist">
           <button class="cp-tab is-active" data-cp-tab="execucao" role="tab" aria-selected="true">

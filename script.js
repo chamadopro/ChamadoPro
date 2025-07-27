@@ -392,7 +392,7 @@ function showScreen(screenId, title = '') {
                     headerTitleElement.textContent = 'Orçamentos Recusados';
                     break;
                 case 'trabalhos-execucao-finalizados':
-                    headerTitleElement.textContent = 'Trabalhos em Execução e Finalizados';
+                    headerTitleElement.textContent = 'Execução e Finalizados';
                     break;
                 case 'orcamentos-aprovados-recusados':
                     headerTitleElement.textContent = 'Orçamentos Aprovados e Recusados';
@@ -1623,10 +1623,10 @@ function renderTrabalhosFinalizados() {
                     ${trabalho.comentario ? `<p class="comentario"><i class="fas fa-comment"></i> "${trabalho.comentario}"</p>` : ''}
                 </div>
             </div>
-            <div class="actions">
-                <button class="btn" onclick="openTrabalhoDetailsModal(${trabalho.id}, 'finalizado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
-                <button class="btn" style="background-color: #28a745;" onclick="indicarPrestador(${trabalho.id})"><i class="fas fa-share"></i> Indicar Prestador</button>
-                <button class="btn" style="background-color: #007bff;" onclick="solicitarNovoServico('${trabalho.prestador}')"><i class="fas fa-plus-circle"></i> Solicitar Novo Serviço</button>
+            <div class="actions trabalhos-finalizados-actions">
+                <button class="btn btn-detalhes" onclick="openTrabalhoDetailsModal(${trabalho.id}, 'finalizado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
+                <button class="btn btn-indicar" style="background-color: #28a745;" onclick="indicarPrestador(${trabalho.id})"><i class="fas fa-share"></i> Indicar Prestador</button>
+                <button class="btn btn-solicitar" style="background-color: #007bff;" onclick="solicitarNovoServico('${trabalho.prestador}')"><i class="fas fa-plus-circle"></i> Solicitar Novo Serviço</button>
             </div>
         `;
         container.appendChild(card);
