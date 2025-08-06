@@ -5,6 +5,2334 @@ let currentUserType = null; // Adicionado para rastrear o tipo de usuário logad
 let screenHistory = []; // Histórico de telas para o botão Voltar
 let servicosHistoricoCount = 2; // Simulação de serviços finalizados para o histórico
 
+// Sistema de Seleção Múltipla para Serviços Urgentes
+let selectedProviders = new Set(); // Prestadores selecionados
+let urgentRequestActive = false; // Se há uma solicitação urgente ativa
+let urgentRequestData = null; // Dados da solicitação ativa
+
+// Frases motivacionais para inicialização do sistema
+const frasesMotivacionais = [
+    "Seja a solução. Seu talento move o mundo, um chamado de cada vez.",
+    "O problema se torna pequeno quando tem ajuda a um chamado de distancia.",
+    "Seu problema está a um chamado da solução."
+];
+
+// Sistema de Badge de Verificação - Monetização Premium
+let badgeSystem = {
+    enabled: true,
+    premiumPrice: 29.90,
+    currentPlan: 'gratuito' // gratuito, premium
+};
+
+// Tipos de badges disponíveis
+const badgeTypes = {
+    verificado: {
+        name: 'Verificado',
+        icon: 'fas fa-check-circle',
+        color: '#1DA1F2',
+        description: 'Profissional com identidade verificada',
+        premium: false
+    },
+    premium: {
+        name: 'Premium',
+        icon: 'fas fa-crown',
+        color: '#FFD700',
+        description: 'Profissional premium com benefícios exclusivos',
+        premium: true
+    },
+    destaque: {
+        name: 'Destaque',
+        icon: 'fas fa-star',
+        color: '#FF6B35',
+        description: 'Profissional em destaque na plataforma',
+        premium: true
+    },
+    especialista: {
+        name: 'Especialista',
+        icon: 'fas fa-medal',
+        color: '#8A2BE2',
+        description: 'Especialista reconhecido na área',
+        premium: true
+    }
+};
+
+// ===== INSTRUÇÃO 1: MELHORIAS NA INTERFACE =====
+
+// Sistema de Tema Escuro/Claro
+let themeSystem = {
+    currentTheme: 'light', // light, dark
+    autoSwitch: false
+};
+
+// Sistema de Animações Melhoradas
+let animationSystem = {
+    enabled: true,
+    speed: 'normal', // slow, normal, fast
+    effects: {
+        fadeIn: true,
+        slideIn: true,
+        bounce: true,
+        glow: true
+    }
+};
+
+// Sistema de Loading States
+let loadingSystem = {
+    active: false,
+    messages: [
+        'Carregando prestadores...',
+        'Verificando disponibilidade...',
+        'Calculando distâncias...',
+        'Finalizando busca...'
+    ],
+    currentMessage: 0
+};
+
+// Função para alternar tema
+function toggleTheme() {
+    const currentTheme = themeSystem.currentTheme;
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    themeSystem.currentTheme = newTheme;
+    document.body.classList.toggle('dark-theme', newTheme === 'dark');
+    
+    // Salvar preferência
+    localStorage.setItem('chamadopro-theme', newTheme);
+    
+    // Mostrar notificação
+    showNotification(`Tema ${newTheme === 'dark' ? 'escuro' : 'claro'} ativado!`, 'success');
+}
+
+// Função para mostrar loading com mensagens rotativas
+function showAdvancedLoading(container, duration = 3000) {
+    if (!animationSystem.enabled) return;
+    
+    const loadingHtml = `
+        <div class="advanced-loading" style="
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 40px 20px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        ">
+            <div class="loading-spinner" style="
+                width: 40px; 
+                height: 40px; 
+                border: 4px solid #f3f3f3; 
+                border-top: 4px solid #00BCD4; 
+                border-radius: 50%; 
+                animation: spin 1s linear infinite;
+                margin-bottom: 15px;
+            "></div>
+            <div class="loading-message" style="
+                color: #00BCD4; 
+                font-weight: 600; 
+                text-align: center;
+                min-height: 20px;
+            ">${loadingSystem.messages[0]}</div>
+        </div>
+    `;
+    
+    if (container) {
+        container.innerHTML = loadingHtml;
+        
+        // Rotacionar mensagens
+        const messageElement = container.querySelector('.loading-message');
+        let messageIndex = 0;
+        
+        const messageInterval = setInterval(() => {
+            messageIndex = (messageIndex + 1) % loadingSystem.messages.length;
+            if (messageElement) {
+                messageElement.style.opacity = '0';
+                setTimeout(() => {
+                    messageElement.textContent = loadingSystem.messages[messageIndex];
+                    messageElement.style.opacity = '1';
+                }, 200);
+            }
+        }, 800);
+        
+        // Limpar loading após duração
+        setTimeout(() => {
+            clearInterval(messageInterval);
+        }, duration);
+    }
+}
+
+// Função para adicionar animação de entrada
+function addEntranceAnimation(element, animationType = 'fadeIn') {
+    if (!animationSystem.enabled || !element) return;
+    
+    const animations = {
+        fadeIn: 'opacity: 0; animation: fadeInUp 0.6s ease forwards;',
+        slideIn: 'transform: translateY(20px); opacity: 0; animation: slideInUp 0.5s ease forwards;',
+        bounce: 'transform: scale(0.8); opacity: 0; animation: bounceIn 0.7s ease forwards;'
+    };
+    
+    const animationCSS = animations[animationType] || animations.fadeIn;
+    element.style.cssText += animationCSS;
+}
+
+// CSS das animações (será injetado dinamicamente)
+function injectAnimationCSS() {
+    const animationCSS = `
+        <style id="chamadopro-animations">
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes slideInUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes bounceIn {
+                0% { opacity: 0; transform: scale(0.3); }
+                50% { opacity: 1; transform: scale(1.05); }
+                70% { transform: scale(0.9); }
+                100% { opacity: 1; transform: scale(1); }
+            }
+            
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            /* Tema escuro */
+            .dark-theme {
+                background-color: #1a1a1a;
+                color: #ffffff;
+            }
+            
+            .dark-theme .card,
+            .dark-theme .modal-content {
+                background-color: #2d2d2d;
+                color: #ffffff;
+                border-color: #404040;
+            }
+            
+            .dark-theme .btn {
+                background-color: #404040;
+                color: #ffffff;
+                border-color: #555555;
+            }
+            
+            .dark-theme .btn.primary-btn {
+                background-color: #00BCD4;
+                color: #ffffff;
+            }
+            
+            /* Efeitos de hover melhorados */
+            .enhanced-hover {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .enhanced-hover:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            }
+            
+            /* Loading states */
+            .loading-shimmer {
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                background-size: 200% 100%;
+                animation: shimmer 2s infinite;
+            }
+            
+            @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+        </style>
+    `;
+    
+    // Injetar CSS se não existir
+    if (!document.getElementById('chamadopro-animations')) {
+        document.head.insertAdjacentHTML('beforeend', animationCSS);
+    }
+}
+
+// ===== INSTRUÇÃO 2: SISTEMA DE NOTIFICAÇÕES AVANÇADO =====
+
+// Sistema de Notificações Inteligentes
+let notificationSystem = {
+    enabled: true,
+    position: 'top-right', // top-right, top-left, bottom-right, bottom-left
+    autoClose: true,
+    duration: 4000,
+    maxVisible: 5,
+    sound: true,
+    queue: []
+};
+
+// Tipos de notificação
+const notificationTypes = {
+    success: {
+        title: 'Sucesso',
+        icon: 'fas fa-check-circle',
+        color: '#28a745',
+        sound: 'success.mp3'
+    },
+    error: {
+        title: 'Erro',
+        icon: 'fas fa-exclamation-circle', 
+        color: '#dc3545',
+        sound: 'error.mp3'
+    },
+    warning: {
+        title: 'Aviso',
+        icon: 'fas fa-exclamation-triangle',
+        color: '#ffc107',
+        sound: 'warning.mp3'
+    },
+    info: {
+        title: 'Informação',
+        icon: 'fas fa-info-circle',
+        color: '#17a2b8',
+        sound: 'info.mp3'
+    },
+    proposal: {
+        title: 'Proposta',
+        icon: 'fas fa-file-contract',
+        color: '#6f42c1',
+        sound: 'notification.mp3'
+    },
+    message: {
+        title: 'Mensagem',
+        icon: 'fas fa-envelope',
+        color: '#007bff',
+        sound: 'message.mp3'
+    }
+};
+
+// Função melhorada para mostrar notificações
+function showNotification(message, type = 'info', options = {}) {
+    if (!notificationSystem.enabled) return;
+    
+    const config = {
+        duration: options.duration || notificationSystem.duration,
+        persistent: options.persistent || false,
+        actions: options.actions || [],
+        data: options.data || {}
+    };
+    
+    const notification = {
+        id: Date.now() + Math.random(),
+        message,
+        type,
+        config,
+        timestamp: new Date()
+    };
+    
+    // Adicionar à fila
+    notificationSystem.queue.push(notification);
+    
+    // Processar fila
+    processNotificationQueue();
+}
+
+// Função para processar fila de notificações
+function processNotificationQueue() {
+    const container = getNotificationContainer();
+    const visibleNotifications = container.children.length;
+    
+    if (visibleNotifications >= notificationSystem.maxVisible) {
+        // Remover mais antiga se exceder limite
+        const oldest = container.firstChild;
+        if (oldest) removeNotification(oldest);
+    }
+    
+    if (notificationSystem.queue.length > 0) {
+        const notification = notificationSystem.queue.shift();
+        renderNotification(notification);
+    }
+}
+
+// Função para criar container de notificações
+function getNotificationContainer() {
+    let container = document.getElementById('notification-container');
+    
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'notification-container';
+        container.style.cssText = `
+            position: fixed;
+            ${getPositionStyles()}
+            z-index: 10000;
+            pointer-events: none;
+            max-width: 400px;
+        `;
+        document.body.appendChild(container);
+    }
+    
+    return container;
+}
+
+// Função para obter estilos de posição
+function getPositionStyles() {
+    const positions = {
+        'top-right': 'top: 20px; right: 20px;',
+        'top-left': 'top: 20px; left: 20px;',
+        'bottom-right': 'bottom: 20px; right: 20px;',
+        'bottom-left': 'bottom: 20px; left: 20px;'
+    };
+    
+    return positions[notificationSystem.position] || positions['top-right'];
+}
+
+// Função para renderizar notificação (VERSÃO SIMPLES E FUNCIONAL)
+function renderNotification(notification) {
+    let container = getNotificationContainer();
+    if (!container) {
+        container = createNotificationContainer();
+        document.body.appendChild(container);
+    }
+    
+    const { message, type, config } = notification;
+    const typeConfig = notificationTypes[type] || notificationTypes.info;
+    
+    const notificationElement = document.createElement('div');
+    notificationElement.className = 'notification-item';
+    notificationElement.dataset.id = notification.id;
+    
+    notificationElement.innerHTML = `
+        <div style="
+            background: white;
+            border-left: 4px solid ${typeConfig.color};
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            pointer-events: all;
+            transform: translateX(100px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            max-width: 350px;
+            min-width: 300px;
+        ">
+            <i class="${typeConfig.icon}" style="
+                color: ${typeConfig.color};
+                font-size: 1.2rem;
+                margin-top: 2px;
+                flex-shrink: 0;
+            "></i>
+            <div style="flex: 1;">
+                <div style="font-weight: 600; color: #333; margin-bottom: 4px;">
+                    ${typeConfig.title}
+                </div>
+                <div style="color: #666; font-size: 0.9rem; line-height: 1.4;">
+                    ${message}
+                </div>
+            </div>
+            <button onclick="removeNotification(this.closest('.notification-item'))" style="
+                background: none;
+                border: none;
+                color: #999;
+                cursor: pointer;
+                font-size: 1.1rem;
+                padding: 0;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            ">×</button>
+        </div>
+    `;
+    
+    container.appendChild(notificationElement);
+    
+    // Animar entrada
+    setTimeout(() => {
+        const notificationDiv = notificationElement.querySelector('div');
+        if (notificationDiv) {
+            notificationDiv.style.transform = 'translateX(0)';
+            notificationDiv.style.opacity = '1';
+        }
+    }, 50);
+    
+    // Tocar som se habilitado
+    if (notificationSystem.sound) {
+        playNotificationSound(typeConfig.sound);
+    }
+    
+    // Auto-remove se especificado
+    if (config && config.duration && config.duration > 0) {
+        setTimeout(() => {
+            removeNotification(notificationElement);
+        }, config.duration);
+    }
+    
+    return notificationElement;
+}
+
+// Função para remover notificação (VERSÃO SIMPLES)
+function removeNotification(element) {
+    if (!element) return;
+    
+    try {
+        const notificationDiv = element.querySelector('div');
+        if (notificationDiv) {
+            notificationDiv.style.transform = 'translateX(100px)';
+            notificationDiv.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (element && element.parentNode) {
+                    element.parentNode.removeChild(element);
+                }
+            }, 300);
+        } else if (element.parentNode) {
+            element.parentNode.removeChild(element);
+        }
+    } catch (error) {
+        console.warn('Erro ao remover notificação:', error);
+        if (element && element.parentNode) {
+            element.parentNode.removeChild(element);
+        }
+    }
+}
+
+// Função para tocar som (simulada)
+function playNotificationSound(soundFile) {
+    console.log(`Playing notification sound: ${soundFile}`);
+}
+
+// Notificações específicas do sistema
+function notifyNewProposal(proposalData) {
+    showNotification(
+        `Nova proposta recebida de ${proposalData.prestador}!`,
+        'proposal',
+        {
+            actions: [
+                {
+                    label: 'Ver Proposta',
+                    callback: `viewProposal(${proposalData.id})`,
+                    color: '#6f42c1'
+                }
+            ],
+            data: proposalData
+        }
+    );
+}
+
+function notifyServiceUpdate(serviceData) {
+    showNotification(
+        `Serviço "${serviceData.title}" foi atualizado!`,
+        'info',
+        {
+            actions: [
+                {
+                    label: 'Ver Detalhes',
+                    callback: `viewService(${serviceData.id})`,
+                    color: '#17a2b8'
+                }
+            ]
+        }
+    );
+}
+
+function notifyPaymentConfirmed(paymentData) {
+    showNotification(
+        `Pagamento de R$ ${paymentData.amount} confirmado!`,
+        'success',
+        {
+            duration: 6000
+        }
+    );
+}
+
+// ===== INSTRUÇÃO 3: FILTROS AVANÇADOS =====
+
+// Sistema de Filtros Inteligentes
+let advancedFilterSystem = {
+    enabled: true,
+    savedFilters: [],
+    currentFilters: {},
+    autoSave: true,
+    history: []
+};
+
+// Configuração de filtros disponíveis
+const filterConfig = {
+    price: {
+        type: 'range',
+        label: 'Preço',
+        min: 0,
+        max: 1000,
+        step: 10,
+        prefix: 'R$ '
+    },
+    distance: {
+        type: 'range',
+        label: 'Distância',
+        min: 0,
+        max: 50,
+        step: 1,
+        suffix: ' km'
+    },
+    rating: {
+        type: 'select',
+        label: 'Avaliação Mínima',
+        options: [
+            { value: '0', label: 'Qualquer avaliação' },
+            { value: '3', label: '3+ estrelas' },
+            { value: '4', label: '4+ estrelas' },
+            { value: '4.5', label: '4.5+ estrelas' }
+        ]
+    },
+    specialty: {
+        type: 'multiselect',
+        label: 'Especialidades',
+        options: [
+            { value: 'eletricista', label: 'Eletricista' },
+            { value: 'encanador', label: 'Encanador' },
+            { value: 'chaveiro', label: 'Chaveiro' },
+            { value: 'mecânico', label: 'Mecânico' },
+            { value: 'borracheiro', label: 'Borracheiro' },
+            { value: 'vidraceiro', label: 'Vidraceiro' }
+        ]
+    },
+    availability: {
+        type: 'select',
+        label: 'Disponibilidade',
+        options: [
+            { value: 'all', label: 'Qualquer horário' },
+            { value: 'now', label: 'Disponível agora' },
+            { value: 'today', label: 'Hoje' },
+            { value: 'weekend', label: 'Final de semana' }
+        ]
+    },
+    verified: {
+        type: 'checkbox',
+        label: 'Apenas verificados',
+        description: 'Mostrar somente prestadores verificados'
+    },
+    premium: {
+        type: 'checkbox',
+        label: 'Premium',
+        description: 'Prestadores com plano premium'
+    }
+};
+
+// Função para criar interface de filtros avançados
+function createAdvancedFilterPanel() {
+    const filterPanel = document.createElement('div');
+    filterPanel.id = 'advanced-filter-panel';
+    filterPanel.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        display: none;
+    `;
+    
+    const filtersHtml = Object.entries(filterConfig).map(([key, config]) => {
+        return createFilterInput(key, config);
+    }).join('');
+    
+    filterPanel.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #00BCD4; font-size: 1.2rem;">
+                <i class="fas fa-filter"></i> Filtros Avançados
+            </h3>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="saveCurrentFilter()" style="
+                    background: #6c757d; color: white; border: none; padding: 6px 12px;
+                    border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+                ">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+                <button onclick="resetAllFilters()" style="
+                    background: #dc3545; color: white; border: none; padding: 6px 12px;
+                    border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+                ">
+                    <i class="fas fa-undo"></i> Limpar
+                </button>
+                <button onclick="toggleFilterPanel()" style="
+                    background: #6c757d; color: white; border: none; padding: 6px 12px;
+                    border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+                ">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            ${filtersHtml}
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e9ecef;">
+            <div id="filter-results-count" style="color: #666; font-size: 0.9rem;">
+                <!-- Contador será atualizado dinamicamente -->
+            </div>
+            <button onclick="applyAdvancedFilters()" style="
+                background: #00BCD4; color: white; border: none; padding: 10px 20px;
+                border-radius: 8px; cursor: pointer; font-weight: 600;
+            ">
+                <i class="fas fa-search"></i> Aplicar Filtros
+            </button>
+        </div>
+    `;
+    
+    return filterPanel;
+}
+
+// Função para criar input de filtro específico
+function createFilterInput(key, config) {
+    switch (config.type) {
+        case 'range':
+            return `
+                <div class="filter-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        ${config.label}
+                    </label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="range" id="filter-${key}" min="${config.min}" max="${config.max}" 
+                               step="${config.step}" value="${config.max}" 
+                               style="flex: 1;"
+                               oninput="updateRangeDisplay('${key}', this.value)">
+                        <span id="filter-${key}-display" style="min-width: 60px; font-weight: 600; color: #00BCD4;">
+                            ${config.prefix || ''}${config.max}${config.suffix || ''}
+                        </span>
+                    </div>
+                </div>
+            `;
+            
+        case 'select':
+            return `
+                <div class="filter-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        ${config.label}
+                    </label>
+                    <select id="filter-${key}" style="
+                        width: 100%; padding: 8px; border: 1px solid #ddd; 
+                        border-radius: 6px; background: white;
+                    ">
+                        ${config.options.map(opt => 
+                            `<option value="${opt.value}">${opt.label}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+            `;
+            
+        case 'checkbox':
+            return `
+                <div class="filter-group">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="filter-${key}" style="margin: 0;">
+                        <span style="font-weight: 600; color: #333;">${config.label}</span>
+                    </label>
+                    ${config.description ? `
+                        <small style="color: #666; margin-left: 24px; display: block;">
+                            ${config.description}
+                        </small>
+                    ` : ''}
+                </div>
+            `;
+            
+        case 'multiselect':
+            return `
+                <div class="filter-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        ${config.label}
+                    </label>
+                    <div id="filter-${key}" style="
+                        border: 1px solid #ddd; border-radius: 6px; padding: 8px;
+                        max-height: 120px; overflow-y: auto; background: white;
+                    ">
+                        ${config.options.map(opt => `
+                            <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; cursor: pointer;">
+                                <input type="checkbox" value="${opt.value}" style="margin: 0;">
+                                <span style="font-size: 0.9rem;">${opt.label}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+        default:
+            return '';
+    }
+}
+
+// Função para alternar painel de filtros
+function toggleFilterPanel() {
+    const panel = document.getElementById('advanced-filter-panel');
+    if (panel) {
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+// Função para atualizar display de range
+function updateRangeDisplay(key, value) {
+    const config = filterConfig[key];
+    const display = document.getElementById(`filter-${key}-display`);
+    if (display && config) {
+        display.textContent = `${config.prefix || ''}${value}${config.suffix || ''}`;
+    }
+}
+
+// Função para aplicar filtros avançados
+function applyAdvancedFilters() {
+    const filters = collectFilterValues();
+    advancedFilterSystem.currentFilters = filters;
+    
+    // Aplicar filtros aos prestadores
+    const filteredProviders = filterProviders(prestadoresSimulados, filters);
+    
+    // Atualizar interface
+    updateProviderDisplay(filteredProviders);
+    
+    // Salvar no histórico
+    if (advancedFilterSystem.autoSave) {
+        saveFilterHistory(filters);
+    }
+    
+    // Notificar resultado
+    showNotification(
+        `${filteredProviders.length} prestadores encontrados com os filtros aplicados`,
+        'success'
+    );
+}
+
+// Função para coletar valores dos filtros
+function collectFilterValues() {
+    const filters = {};
+    
+    Object.keys(filterConfig).forEach(key => {
+        const element = document.getElementById(`filter-${key}`);
+        if (element) {
+            const config = filterConfig[key];
+            
+            switch (config.type) {
+                case 'range':
+                case 'select':
+                    filters[key] = element.value;
+                    break;
+                case 'checkbox':
+                    filters[key] = element.checked;
+                    break;
+                case 'multiselect':
+                    const checkboxes = element.querySelectorAll('input[type="checkbox"]:checked');
+                    filters[key] = Array.from(checkboxes).map(cb => cb.value);
+                    break;
+            }
+        }
+    });
+    
+    return filters;
+}
+
+// Função para filtrar prestadores
+function filterProviders(providers, filters) {
+    return providers.filter(provider => {
+        // Filtro de preço (simulado)
+        if (filters.price && provider.valorBase > parseFloat(filters.price)) {
+            return false;
+        }
+        
+        // Filtro de distância
+        if (filters.distance && provider.localizacaoSimulada > parseFloat(filters.distance)) {
+            return false;
+        }
+        
+        // Filtro de avaliação
+        if (filters.rating && parseFloat(provider.avaliacao) < parseFloat(filters.rating)) {
+            return false;
+        }
+        
+        // Filtro de especialidade
+        if (filters.specialty && filters.specialty.length > 0) {
+            const specialtyMatch = filters.specialty.some(specialty => 
+                provider.especialidade.toLowerCase().includes(specialty.toLowerCase())
+            );
+            if (!specialtyMatch) return false;
+        }
+        
+        // Filtro de verificação
+        if (filters.verified && (!provider.badges || !provider.badges.includes('verificado'))) {
+            return false;
+        }
+        
+        // Filtro premium
+        if (filters.premium && (!provider.badges || !provider.badges.some(badge => 
+            badgeTypes[badge] && badgeTypes[badge].premium
+        ))) {
+            return false;
+        }
+        
+        return true;
+    });
+}
+
+// ===== INSTRUÇÃO 4: PAINÉIS ADMINISTRATIVOS =====
+
+// Sistema de Dashboard Administrativo
+let adminSystem = {
+    enabled: true,
+    currentUser: null,
+    permissions: {
+        viewUsers: true,
+        editUsers: true,
+        viewReports: true,
+        managePayments: true,
+        systemSettings: true
+    },
+    realTimeData: true
+};
+
+// Dados simulados para dashboard administrativo
+const adminData = {
+    statistics: {
+        totalUsers: 1247,
+        activeProviders: 89,
+        totalServices: 3456,
+        monthlyRevenue: 45623.50,
+        pendingPayments: 12,
+        averageRating: 4.7
+    },
+    recentActivity: [
+        { type: 'new_user', message: 'Novo cliente cadastrado: Maria Silva', time: '2 min atrás' },
+        { type: 'service_completed', message: 'Serviço concluído: Eletricista - R$ 150', time: '5 min atrás' },
+        { type: 'payment', message: 'Pagamento processado: R$ 320,00', time: '8 min atrás' },
+        { type: 'review', message: 'Nova avaliação: 5 estrelas para João Santos', time: '15 min atrás' }
+    ],
+    topProviders: [
+        { name: 'João Silva', specialty: 'Eletricista', rating: 4.9, services: 45 },
+        { name: 'Auto Socorro Silva', specialty: 'Mecânico', rating: 4.8, services: 38 },
+        { name: 'Pedro Lima', specialty: 'Chaveiro', rating: 4.7, services: 32 }
+    ]
+};
+
+// Função para criar dashboard administrativo
+function createAdminDashboard() {
+    const dashboard = document.createElement('div');
+    dashboard.id = 'admin-dashboard';
+    dashboard.style.cssText = `
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding: 20px;
+        display: none;
+    `;
+    
+    dashboard.innerHTML = `
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <!-- Header do Dashboard -->
+            <div style="
+                background: white; 
+                border-radius: 12px; 
+                padding: 20px; 
+                margin-bottom: 20px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            ">
+                <div>
+                    <h1 style="margin: 0; color: #00BCD4; font-size: 1.8rem;">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard Administrativo
+                    </h1>
+                    <p style="margin: 5px 0 0 0; color: #666;">
+                        Visão geral da plataforma ChamadoPro
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="refreshAdminData()" style="
+                        background: #28a745; color: white; border: none; padding: 10px 15px;
+                        border-radius: 8px; cursor: pointer; font-weight: 600;
+                    ">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                    <button onclick="exportAdminReport()" style="
+                        background: #17a2b8; color: white; border: none; padding: 10px 15px;
+                        border-radius: 8px; cursor: pointer; font-weight: 600;
+                    ">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Cards de Estatísticas -->
+            <div style="
+                display: grid; 
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                gap: 20px; 
+                margin-bottom: 20px;
+            ">
+                ${createStatCards()}
+            </div>
+            
+            <!-- Seção de Gráficos e Atividades -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <!-- Gráfico de Receita -->
+                <div style="
+                    background: white; 
+                    border-radius: 12px; 
+                    padding: 20px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                ">
+                    <h3 style="margin: 0 0 15px 0; color: #333;">
+                        <i class="fas fa-chart-line"></i> Receita Mensal
+                    </h3>
+                    <div id="revenue-chart" style="height: 200px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: #666;">Gráfico de receita seria exibido aqui</span>
+                    </div>
+                </div>
+                
+                <!-- Atividade Recente -->
+                <div style="
+                    background: white; 
+                    border-radius: 12px; 
+                    padding: 20px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                ">
+                    <h3 style="margin: 0 0 15px 0; color: #333;">
+                        <i class="fas fa-bell"></i> Atividade Recente
+                    </h3>
+                    <div id="recent-activity" style="max-height: 200px; overflow-y: auto;">
+                        ${createActivityList()}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabelas de Dados -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Top Prestadores -->
+                <div style="
+                    background: white; 
+                    border-radius: 12px; 
+                    padding: 20px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                ">
+                    <h3 style="margin: 0 0 15px 0; color: #333;">
+                        <i class="fas fa-star"></i> Top Prestadores
+                    </h3>
+                    ${createTopProvidersTable()}
+                </div>
+                
+                <!-- Controles do Sistema -->
+                <div style="
+                    background: white; 
+                    border-radius: 12px; 
+                    padding: 20px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                ">
+                    <h3 style="margin: 0 0 15px 0; color: #333;">
+                        <i class="fas fa-cogs"></i> Controles do Sistema
+                    </h3>
+                    ${createSystemControls()}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return dashboard;
+}
+
+// Função para criar cards de estatísticas
+function createStatCards() {
+    const stats = [
+        { label: 'Total de Usuários', value: adminData.statistics.totalUsers, icon: 'fas fa-users', color: '#007bff' },
+        { label: 'Prestadores Ativos', value: adminData.statistics.activeProviders, icon: 'fas fa-user-tie', color: '#28a745' },
+        { label: 'Serviços Realizados', value: adminData.statistics.totalServices, icon: 'fas fa-tasks', color: '#17a2b8' },
+        { label: 'Receita Mensal', value: `R$ ${adminData.statistics.monthlyRevenue.toLocaleString('pt-BR')}`, icon: 'fas fa-dollar-sign', color: '#ffc107' },
+        { label: 'Pagamentos Pendentes', value: adminData.statistics.pendingPayments, icon: 'fas fa-clock', color: '#dc3545' },
+        { label: 'Avaliação Média', value: `${adminData.statistics.averageRating} ★`, icon: 'fas fa-star', color: '#6f42c1' }
+    ];
+    
+    return stats.map(stat => `
+        <div style="
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid ${stat.color};
+            transition: transform 0.3s ease;
+        " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p style="margin: 0; color: #666; font-size: 0.9rem;">${stat.label}</p>
+                    <h3 style="margin: 5px 0 0 0; color: #333; font-size: 1.5rem;">${stat.value}</h3>
+                </div>
+                <i class="${stat.icon}" style="font-size: 2rem; color: ${stat.color}; opacity: 0.7;"></i>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Função para criar lista de atividades
+function createActivityList() {
+    return adminData.recentActivity.map(activity => {
+        const iconMap = {
+            new_user: 'fas fa-user-plus',
+            service_completed: 'fas fa-check-circle',
+            payment: 'fas fa-credit-card',
+            review: 'fas fa-star'
+        };
+        
+        const colorMap = {
+            new_user: '#28a745',
+            service_completed: '#17a2b8',
+            payment: '#ffc107',
+            review: '#6f42c1'
+        };
+        
+        return `
+            <div style="
+                display: flex; 
+                align-items: center; 
+                gap: 12px; 
+                padding: 10px 0; 
+                border-bottom: 1px solid #f0f0f0;
+            ">
+                <i class="${iconMap[activity.type]}" style="
+                    color: ${colorMap[activity.type]}; 
+                    font-size: 1.1rem;
+                    width: 20px;
+                "></i>
+                <div style="flex: 1;">
+                    <p style="margin: 0; font-size: 0.9rem; color: #333;">${activity.message}</p>
+                    <small style="color: #666;">${activity.time}</small>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Função para criar tabela de top prestadores
+function createTopProvidersTable() {
+    return `
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 10px; text-align: left; color: #666; font-weight: 600;">Nome</th>
+                        <th style="padding: 10px; text-align: left; color: #666; font-weight: 600;">Especialidade</th>
+                        <th style="padding: 10px; text-align: center; color: #666; font-weight: 600;">Avaliação</th>
+                        <th style="padding: 10px; text-align: center; color: #666; font-weight: 600;">Serviços</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${adminData.topProviders.map(provider => `
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 10px; color: #333;">${provider.name}</td>
+                            <td style="padding: 10px; color: #666;">${provider.specialty}</td>
+                            <td style="padding: 10px; text-align: center; color: #ffc107; font-weight: 600;">
+                                ${provider.rating} ★
+                            </td>
+                            <td style="padding: 10px; text-align: center; color: #00BCD4; font-weight: 600;">
+                                ${provider.services}
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// Função para criar controles do sistema
+function createSystemControls() {
+    return `
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button onclick="toggleSystemMaintenance()" style="
+                background: #dc3545; color: white; border: none; padding: 12px;
+                border-radius: 8px; cursor: pointer; font-weight: 600;
+                display: flex; align-items: center; gap: 8px;
+            ">
+                <i class="fas fa-tools"></i> Modo Manutenção
+            </button>
+            
+            <button onclick="sendSystemNotification()" style="
+                background: #17a2b8; color: white; border: none; padding: 12px;
+                border-radius: 8px; cursor: pointer; font-weight: 600;
+                display: flex; align-items: center; gap: 8px;
+            ">
+                <i class="fas fa-bullhorn"></i> Enviar Notificação
+            </button>
+            
+            <button onclick="generateReport()" style="
+                background: #6f42c1; color: white; border: none; padding: 12px;
+                border-radius: 8px; cursor: pointer; font-weight: 600;
+                display: flex; align-items: center; gap: 8px;
+            ">
+                <i class="fas fa-file-pdf"></i> Gerar Relatório
+            </button>
+            
+            <button onclick="manageUsers()" style="
+                background: #28a745; color: white; border: none; padding: 12px;
+                border-radius: 8px; cursor: pointer; font-weight: 600;
+                display: flex; align-items: center; gap: 8px;
+            ">
+                <i class="fas fa-users-cog"></i> Gerenciar Usuários
+            </button>
+        </div>
+    `;
+}
+
+// Funções administrativas
+function refreshAdminData() {
+    showNotification('Dados administrativos atualizados!', 'success');
+    // Aqui você recarregaria os dados do servidor
+}
+
+function exportAdminReport() {
+    showNotification('Relatório exportado com sucesso!', 'success');
+    // Simular download do relatório
+}
+
+function toggleSystemMaintenance() {
+    const isMaintenanceMode = confirm('Deseja ativar o modo de manutenção?');
+    if (isMaintenanceMode) {
+        showNotification('Modo de manutenção ativado!', 'warning');
+    }
+}
+
+function sendSystemNotification() {
+    const message = prompt('Digite a mensagem para enviar a todos os usuários:');
+    if (message) {
+        showNotification(`Notificação enviada: "${message}"`, 'info');
+    }
+}
+
+function generateReport() {
+    showAdvancedLoading(document.querySelector('#admin-dashboard'), 2000);
+    setTimeout(() => {
+        showNotification('Relatório gerado com sucesso!', 'success');
+    }, 2000);
+}
+
+function manageUsers() {
+    showNotification('Abrindo painel de gerenciamento de usuários...', 'info');
+    // Aqui você abriria um modal ou navegaria para a tela de usuários
+}
+
+// Sistema de Relatórios e Análises Avançadas
+const reportingSystem = {
+    enabled: true,
+    reportTypes: ['financial', 'users', 'services', 'performance'],
+    charts: {
+        revenue: null,
+        users: null,
+        services: null
+    }
+};
+
+// Dados para relatórios
+const reportData = {
+    financial: {
+        monthlyRevenue: [32000, 38000, 45000, 42000, 47000, 52000],
+        months: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+        expenses: [15000, 18000, 20000, 19000, 21000, 23000],
+        profit: [17000, 20000, 25000, 23000, 26000, 29000]
+    },
+    users: {
+        growth: [850, 920, 1050, 1180, 1280, 1400],
+        active: [680, 740, 820, 890, 950, 1020],
+        retention: [0.85, 0.88, 0.82, 0.89, 0.91, 0.87]
+    },
+    services: {
+        completed: [234, 267, 298, 312, 345, 378],
+        categories: {
+            'Eletricista': 145,
+            'Encanador': 112,
+            'Chaveiro': 89,
+            'Mecânico': 98,
+            'Limpeza': 67,
+            'Outros': 123
+        }
+    }
+};
+
+// Função para criar sistema de relatórios
+function createReportingSystem() {
+    const reportModal = document.createElement('div');
+    reportModal.id = 'reporting-modal';
+    reportModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: none;
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    reportModal.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            width: 95%;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: #00BCD4;">
+                    <i class="fas fa-chart-bar"></i> Sistema de Relatórios
+                </h2>
+                <button onclick="closeReportingModal()" style="
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    color: #666;
+                ">×</button>
+            </div>
+            
+            <!-- Filtros de Relatório -->
+            <div style="
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 10px;
+                margin-bottom: 20px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            ">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">
+                        Tipo de Relatório:
+                    </label>
+                    <select id="report-type" onchange="updateReportType()" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        font-size: 1rem;
+                    ">
+                        <option value="financial">Financeiro</option>
+                        <option value="users">Usuários</option>
+                        <option value="services">Serviços</option>
+                        <option value="performance">Performance</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">
+                        Período:
+                    </label>
+                    <select id="report-period" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        font-size: 1rem;
+                    ">
+                        <option value="7">Últimos 7 dias</option>
+                        <option value="30">Últimos 30 dias</option>
+                        <option value="90">Últimos 3 meses</option>
+                        <option value="365" selected>Último ano</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">
+                        Formato:
+                    </label>
+                    <select id="report-format" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        font-size: 1rem;
+                    ">
+                        <option value="pdf">PDF</option>
+                        <option value="excel">Excel</option>
+                        <option value="csv">CSV</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; align-items: end;">
+                    <button onclick="generateCustomReport()" style="
+                        background: #00BCD4;
+                        color: white;
+                        border: none;
+                        padding: 12px 20px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        width: 100%;
+                    ">
+                        <i class="fas fa-download"></i> Gerar Relatório
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Área de Visualização do Relatório -->
+            <div id="report-content">
+                ${createFinancialReport()}
+            </div>
+        </div>
+    `;
+    
+    return reportModal;
+}
+
+// Função para criar relatório financeiro
+function createFinancialReport() {
+    return `
+        <div style="display: grid; gap: 20px;">
+            <!-- Resumo Financeiro -->
+            <div style="
+                background: linear-gradient(135deg, #00BCD4, #00ACC1);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            ">
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">R$ 52K</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Receita do Mês</p>
+                </div>
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">R$ 29K</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Lucro Líquido</p>
+                </div>
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">+15%</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Crescimento</p>
+                </div>
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">378</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Serviços</p>
+                </div>
+            </div>
+            
+            <!-- Gráficos -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                <!-- Gráfico de Receita -->
+                <div style="
+                    background: white;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 12px;
+                    padding: 20px;
+                ">
+                    <h4 style="margin: 0 0 15px 0; color: #333;">
+                        <i class="fas fa-chart-line"></i> Evolução da Receita
+                    </h4>
+                    <div id="revenue-chart-detailed" style="
+                        height: 250px;
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: relative;
+                    ">
+                        <canvas id="revenue-canvas" width="400" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Distribuição por Categoria -->
+                <div style="
+                    background: white;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 12px;
+                    padding: 20px;
+                ">
+                    <h4 style="margin: 0 0 15px 0; color: #333;">
+                        <i class="fas fa-chart-pie"></i> Por Categoria
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        ${Object.entries(reportData.services.categories).map(([category, value]) => `
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #666; font-size: 0.9rem;">${category}</span>
+                                <span style="font-weight: 600; color: #00BCD4;">${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabela Detalhada -->
+            <div style="
+                background: white;
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 20px;
+            ">
+                <h4 style="margin: 0 0 15px 0; color: #333;">
+                    <i class="fas fa-table"></i> Detalhamento Mensal
+                </h4>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e0e0e0;">Mês</th>
+                                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e0e0e0;">Receita</th>
+                                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e0e0e0;">Despesas</th>
+                                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e0e0e0;">Lucro</th>
+                                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e0e0e0;">Margem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${reportData.financial.months.map((month, index) => {
+                                const revenue = reportData.financial.monthlyRevenue[index];
+                                const expenses = reportData.financial.expenses[index];
+                                const profit = reportData.financial.profit[index];
+                                const margin = ((profit / revenue) * 100).toFixed(1);
+                                
+                                return `
+                                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                                        <td style="padding: 12px; font-weight: 600;">${month}/2024</td>
+                                        <td style="padding: 12px; text-align: right; color: #28a745;">
+                                            R$ ${revenue.toLocaleString('pt-BR')}
+                                        </td>
+                                        <td style="padding: 12px; text-align: right; color: #dc3545;">
+                                            R$ ${expenses.toLocaleString('pt-BR')}
+                                        </td>
+                                        <td style="padding: 12px; text-align: right; color: #00BCD4; font-weight: 600;">
+                                            R$ ${profit.toLocaleString('pt-BR')}
+                                        </td>
+                                        <td style="padding: 12px; text-align: right; color: #6f42c1;">
+                                            ${margin}%
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Funções de controle do sistema de relatórios
+function updateReportType() {
+    const reportType = document.getElementById('report-type').value;
+    const reportContent = document.getElementById('report-content');
+    
+    showAdvancedLoading(reportContent, 1000);
+    
+    setTimeout(() => {
+        switch(reportType) {
+            case 'financial':
+                reportContent.innerHTML = createFinancialReport();
+                break;
+            case 'users':
+                reportContent.innerHTML = createUsersReport();
+                break;
+            case 'services':
+                reportContent.innerHTML = createServicesReport();
+                break;
+            case 'performance':
+                reportContent.innerHTML = createPerformanceReport();
+                break;
+        }
+    }, 1000);
+}
+
+function generateCustomReport() {
+    const type = document.getElementById('report-type').value;
+    const period = document.getElementById('report-period').value;
+    const format = document.getElementById('report-format').value;
+    
+    showAdvancedLoading(document.querySelector('#reporting-modal'), 2000);
+    
+    setTimeout(() => {
+        showNotification(`Relatório ${type} (${period} dias) gerado em ${format.toUpperCase()}!`, 'success');
+        closeReportingModal();
+    }, 2000);
+}
+
+function openReportingModal() {
+    const modal = document.getElementById('reporting-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeReportingModal() {
+    const modal = document.getElementById('reporting-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// ===== INSTRUÇÃO 5: MELHORIAS DE EXPERIÊNCIA =====
+
+// Sistema de Tutorial Interativo
+let tutorialSystem = {
+    enabled: true,
+    currentStep: 0,
+    isActive: false,
+    steps: [
+        {
+            target: '#search-input',
+            title: 'Bem-vindo ao ChamadoPro!',
+            content: 'Use a barra de pesquisa para encontrar prestadores próximos a você.',
+            position: 'bottom'
+        },
+        {
+            target: '#filter-toggle',
+            title: 'Filtros Avançados',
+            content: 'Use os filtros para refinar sua busca por preço, distância e avaliação.',
+            position: 'left'
+        },
+        {
+            target: '.badge-premium',
+            title: 'Prestadores Premium',
+            content: 'Prestadores com selo premium oferecem garantia e atendimento prioritário.',
+            position: 'top'
+        },
+        {
+            target: '#notification-bell',
+            title: 'Notificações',
+            content: 'Receba atualizações em tempo real sobre seus chamados.',
+            position: 'bottom'
+        }
+    ]
+};
+
+// Sistema de Onboarding
+function createOnboardingSystem() {
+    const onboarding = document.createElement('div');
+    onboarding.id = 'onboarding-overlay';
+    onboarding.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 15000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    onboarding.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            animation: bounceIn 0.8s ease;
+        ">
+            <div id="onboarding-content">
+                <!-- Conteúdo será inserido dinamicamente -->
+            </div>
+            
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 30px;
+            ">
+                <button onclick="skipOnboarding()" style="
+                    background: none;
+                    border: 1px solid #ddd;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    color: #666;
+                ">
+                    Pular Tutorial
+                </button>
+                
+                <div style="display: flex; gap: 5px;">
+                    <span id="step-indicators"></span>
+                </div>
+                
+                <button onclick="nextOnboardingStep()" style="
+                    background: #00BCD4;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">
+                    <span id="next-button-text">Próximo</span>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return onboarding;
+}
+
+// Sistema de Assistente Virtual (Chatbot)
+let virtualAssistant = {
+    enabled: true,
+    isOpen: false,
+    context: 'general',
+    responses: {
+        greeting: [
+            'Olá! Como posso ajudá-lo hoje? 😊',
+            'Oi! Precisa de ajuda para encontrar um prestador?',
+            'Bem-vindo! Estou aqui para ajudá-lo.'
+        ],
+        help: [
+            'Posso ajudá-lo a encontrar prestadores, explicar como funciona a plataforma ou tirar dúvidas sobre pagamentos.',
+            'Estou aqui para ajudar! Posso explicar como usar os filtros, como contratar um serviço ou como avaliar um prestador.'
+        ],
+        services: [
+            'Temos prestadores nas categorias: Eletricista, Encanador, Chaveiro, Mecânico, Limpeza e muito mais!',
+            'Você pode encontrar profissionais qualificados em diversas áreas. Que tipo de serviço precisa?'
+        ]
+    }
+};
+
+function createVirtualAssistant() {
+    const assistant = document.createElement('div');
+    assistant.id = 'virtual-assistant';
+    assistant.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 12000;
+    `;
+    
+    assistant.innerHTML = `
+        <!-- Botão do Assistente -->
+        <button id="assistant-toggle" onclick="toggleAssistant()" style="
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00BCD4, #00ACC1);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,188,212,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            <i class="fas fa-headset"></i>
+        </button>
+        
+        <!-- Chat do Assistente -->
+        <div id="assistant-chat" style="
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 350px;
+            height: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        ">
+            <!-- Header do Chat -->
+            <div style="
+                background: linear-gradient(135deg, #00BCD4, #00ACC1);
+                color: white;
+                padding: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            ">
+                <i class="fas fa-headset"></i>
+                <div>
+                    <h4 style="margin: 0; font-size: 1rem;">Assistente ChamadoPro</h4>
+                    <small style="opacity: 0.9;">Online agora</small>
+                </div>
+            </div>
+            
+            <!-- Área de Mensagens -->
+            <div id="chat-messages" style="
+                flex: 1;
+                padding: 15px;
+                overflow-y: auto;
+                background: #f8f9fa;
+            ">
+                <div class="assistant-message">
+                    <div style="
+                        background: white;
+                        padding: 12px;
+                        border-radius: 12px;
+                        margin-bottom: 10px;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                        animation: slideInLeft 0.5s ease;
+                    ">
+                        Olá! Como posso ajudá-lo hoje? 😊
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input de Mensagem -->
+            <div style="
+                padding: 15px;
+                background: white;
+                border-top: 1px solid #e0e0e0;
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            ">
+                <input 
+                    type="text" 
+                    id="assistant-input"
+                    placeholder="Digite sua mensagem..."
+                    style="
+                        flex: 1;
+                        padding: 10px;
+                        border: 1px solid #ddd;
+                        border-radius: 20px;
+                        outline: none;
+                        font-size: 0.9rem;
+                    "
+                    onkeypress="if(event.key==='Enter') sendAssistantMessage()"
+                >
+                <button onclick="sendAssistantMessage()" style="
+                    background: #00BCD4;
+                    color: white;
+                    border: none;
+                    width: 35px;
+                    height: 35px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            
+            <!-- Sugestões Rápidas -->
+            <div id="quick-suggestions" style="
+                padding: 10px 15px;
+                background: white;
+                border-top: 1px solid #e0e0e0;
+                display: flex;
+                gap: 5px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="askAssistant('Como funciona?')" style="
+                    background: #f0f0f0;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 15px;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                    color: #666;
+                ">Como funciona?</button>
+                <button onclick="askAssistant('Encontrar eletricista')" style="
+                    background: #f0f0f0;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 15px;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                    color: #666;
+                ">Eletricista</button>
+                <button onclick="askAssistant('Como pagar?')" style="
+                    background: #f0f0f0;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 15px;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                    color: #666;
+                ">Pagamento</button>
+            </div>
+        </div>
+    `;
+    
+    return assistant;
+}
+
+// Sistema de Feedback e Avaliação Melhorado
+function createAdvancedFeedbackSystem() {
+    const feedbackModal = document.createElement('div');
+    feedbackModal.id = 'advanced-feedback-modal';
+    feedbackModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: none;
+        z-index: 11000;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    feedbackModal.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: bounceIn 0.6s ease;
+        ">
+            <button onclick="closeFeedbackModal()" style="
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #666;
+            ">×</button>
+            
+            <div style="text-align: center; margin-bottom: 25px;">
+                <h2 style="margin: 0; color: #333;">Como foi sua experiência?</h2>
+                <p style="color: #666; margin: 10px 0 0 0;">
+                    Sua opinião nos ajuda a melhorar a plataforma
+                </p>
+            </div>
+            
+            <!-- Avaliação por Estrelas -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 2rem; margin-bottom: 10px;">
+                    <span class="star-rating" data-rating="0">
+                        <i class="far fa-star" data-star="1" onclick="setFeedbackRating(1)"></i>
+                        <i class="far fa-star" data-star="2" onclick="setFeedbackRating(2)"></i>
+                        <i class="far fa-star" data-star="3" onclick="setFeedbackRating(3)"></i>
+                        <i class="far fa-star" data-star="4" onclick="setFeedbackRating(4)"></i>
+                        <i class="far fa-star" data-star="5" onclick="setFeedbackRating(5)"></i>
+                    </span>
+                </div>
+                <p id="rating-text" style="color: #666; margin: 0;">Clique nas estrelas para avaliar</p>
+            </div>
+            
+            <!-- Aspectos Específicos -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin: 0 0 15px 0; color: #333;">O que você achou de:</h4>
+                <div style="display: grid; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Facilidade de uso:</span>
+                        <div class="aspect-rating" data-aspect="usability">
+                            <i class="far fa-star" data-rating="1" onclick="setAspectRating('usability', 1)"></i>
+                            <i class="far fa-star" data-rating="2" onclick="setAspectRating('usability', 2)"></i>
+                            <i class="far fa-star" data-rating="3" onclick="setAspectRating('usability', 3)"></i>
+                            <i class="far fa-star" data-rating="4" onclick="setAspectRating('usability', 4)"></i>
+                            <i class="far fa-star" data-rating="5" onclick="setAspectRating('usability', 5)"></i>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Qualidade dos prestadores:</span>
+                        <div class="aspect-rating" data-aspect="quality">
+                            <i class="far fa-star" data-rating="1" onclick="setAspectRating('quality', 1)"></i>
+                            <i class="far fa-star" data-rating="2" onclick="setAspectRating('quality', 2)"></i>
+                            <i class="far fa-star" data-rating="3" onclick="setAspectRating('quality', 3)"></i>
+                            <i class="far fa-star" data-rating="4" onclick="setAspectRating('quality', 4)"></i>
+                            <i class="far fa-star" data-rating="5" onclick="setAspectRating('quality', 5)"></i>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Velocidade de resposta:</span>
+                        <div class="aspect-rating" data-aspect="speed">
+                            <i class="far fa-star" data-rating="1" onclick="setAspectRating('speed', 1)"></i>
+                            <i class="far fa-star" data-rating="2" onclick="setAspectRating('speed', 2)"></i>
+                            <i class="far fa-star" data-rating="3" onclick="setAspectRating('speed', 3)"></i>
+                            <i class="far fa-star" data-rating="4" onclick="setAspectRating('speed', 4)"></i>
+                            <i class="far fa-star" data-rating="5" onclick="setAspectRating('speed', 5)"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Comentário -->
+            <div style="margin-bottom: 20px;">
+                <textarea 
+                    id="feedback-comment" 
+                    placeholder="Conte-nos mais sobre sua experiência (opcional)..."
+                    style="
+                        width: 100%;
+                        min-height: 80px;
+                        padding: 12px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        resize: vertical;
+                        font-family: inherit;
+                        font-size: 0.9rem;
+                    "
+                ></textarea>
+            </div>
+            
+            <!-- Botões de Ação -->
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="closeFeedbackModal()" style="
+                    background: none;
+                    border: 1px solid #ddd;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    color: #666;
+                ">
+                    Cancelar
+                </button>
+                <button onclick="submitAdvancedFeedback()" style="
+                    background: #00BCD4;
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">
+                    Enviar Feedback
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return feedbackModal;
+}
+
+// Funções de controle dos sistemas de experiência
+
+// Controle do Assistente Virtual
+function toggleAssistant() {
+    const chat = document.getElementById('assistant-chat');
+    const toggle = document.getElementById('assistant-toggle');
+    
+    if (virtualAssistant.isOpen) {
+        chat.style.display = 'none';
+        toggle.innerHTML = '<i class="fas fa-headset"></i>';
+        virtualAssistant.isOpen = false;
+    } else {
+        chat.style.display = 'flex';
+        toggle.innerHTML = '<i class="fas fa-times"></i>';
+        virtualAssistant.isOpen = true;
+    }
+}
+
+function sendAssistantMessage() {
+    const input = document.getElementById('assistant-input');
+    const message = input.value.trim();
+    
+    if (message) {
+        addChatMessage(message, 'user');
+        input.value = '';
+        
+        // Simular resposta do assistente
+        setTimeout(() => {
+            const response = generateAssistantResponse(message);
+            addChatMessage(response, 'assistant');
+        }, 1000);
+    }
+}
+
+function askAssistant(question) {
+    const input = document.getElementById('assistant-input');
+    input.value = question;
+    sendAssistantMessage();
+}
+
+function addChatMessage(message, sender) {
+    const messagesContainer = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    
+    if (sender === 'user') {
+        messageDiv.innerHTML = `
+            <div style="
+                background: #00BCD4;
+                color: white;
+                padding: 12px;
+                border-radius: 12px;
+                margin-bottom: 10px;
+                margin-left: 50px;
+                animation: slideInRight 0.5s ease;
+            ">${message}</div>
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div style="
+                background: white;
+                padding: 12px;
+                border-radius: 12px;
+                margin-bottom: 10px;
+                margin-right: 50px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                animation: slideInLeft 0.5s ease;
+            ">${message}</div>
+        `;
+    }
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function generateAssistantResponse(message) {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('olá') || lowerMessage.includes('oi')) {
+        return virtualAssistant.responses.greeting[Math.floor(Math.random() * virtualAssistant.responses.greeting.length)];
+    }
+    
+    if (lowerMessage.includes('ajuda') || lowerMessage.includes('help')) {
+        return virtualAssistant.responses.help[Math.floor(Math.random() * virtualAssistant.responses.help.length)];
+    }
+    
+    if (lowerMessage.includes('serviço') || lowerMessage.includes('prestador')) {
+        return virtualAssistant.responses.services[Math.floor(Math.random() * virtualAssistant.responses.services.length)];
+    }
+    
+    if (lowerMessage.includes('eletricista')) {
+        return 'Encontrei vários eletricistas qualificados na sua região! Use o filtro de especialidade para ver apenas eletricistas. 💡';
+    }
+    
+    if (lowerMessage.includes('preço') || lowerMessage.includes('quanto')) {
+        return 'Os preços variam conforme o tipo de serviço. Use nosso filtro de faixa de preço para encontrar opções dentro do seu orçamento! 💰';
+    }
+    
+    if (lowerMessage.includes('pagar') || lowerMessage.includes('pagamento')) {
+        return 'Aceitamos várias formas de pagamento: cartão, PIX, dinheiro. O pagamento é feito diretamente com o prestador após o serviço! 💳';
+    }
+    
+    return 'Interessante! Posso ajudá-lo a encontrar prestadores, explicar como usar a plataforma ou tirar dúvidas sobre pagamentos. O que gostaria de saber?';
+}
+
+// Controle do Sistema de Feedback
+let feedbackData = {
+    overall: 0,
+    aspects: {
+        usability: 0,
+        quality: 0,
+        speed: 0
+    }
+};
+
+function setFeedbackRating(rating) {
+    feedbackData.overall = rating;
+    const stars = document.querySelectorAll('.star-rating i');
+    const ratingText = document.getElementById('rating-text');
+    
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.className = 'fas fa-star';
+            star.style.color = '#ffc107';
+        } else {
+            star.className = 'far fa-star';
+            star.style.color = '#ddd';
+        }
+    });
+    
+    const ratingTexts = [
+        'Clique nas estrelas para avaliar',
+        'Muito ruim 😞',
+        'Ruim 😐',
+        'Regular 🙂',
+        'Bom 😊',
+        'Excelente! 🌟'
+    ];
+    
+    ratingText.textContent = ratingTexts[rating];
+}
+
+function setAspectRating(aspect, rating) {
+    feedbackData.aspects[aspect] = rating;
+    const container = document.querySelector(`[data-aspect="${aspect}"]`);
+    const stars = container.querySelectorAll('i');
+    
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.className = 'fas fa-star';
+            star.style.color = '#ffc107';
+        } else {
+            star.className = 'far fa-star';
+            star.style.color = '#ddd';
+        }
+    });
+}
+
+function submitAdvancedFeedback() {
+    const comment = document.getElementById('feedback-comment').value;
+    
+    if (feedbackData.overall === 0) {
+        showNotification('Por favor, avalie sua experiência geral', 'warning');
+        return;
+    }
+    
+    // Simular envio do feedback
+    showAdvancedLoading(document.querySelector('#advanced-feedback-modal'), 1500);
+    
+    setTimeout(() => {
+        showNotification('Obrigado pelo seu feedback! 🙏', 'success');
+        closeFeedbackModal();
+        
+        // Reset feedback data
+        feedbackData = {
+            overall: 0,
+            aspects: { usability: 0, quality: 0, speed: 0 }
+        };
+    }, 1500);
+}
+
+function openFeedbackModal() {
+    const modal = document.getElementById('advanced-feedback-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeFeedbackModal() {
+    const modal = document.getElementById('advanced-feedback-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Sistema de Onboarding
+function startOnboarding() {
+    tutorialSystem.isActive = true;
+    tutorialSystem.currentStep = 0;
+    
+    const overlay = document.getElementById('onboarding-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        updateOnboardingContent();
+    }
+}
+
+function updateOnboardingContent() {
+    const content = document.getElementById('onboarding-content');
+    const indicators = document.getElementById('step-indicators');
+    const nextButton = document.getElementById('next-button-text');
+    
+    const currentStep = tutorialSystem.steps[tutorialSystem.currentStep];
+    
+    content.innerHTML = `
+        <div style="margin-bottom: 20px;">
+            <i class="fas fa-lightbulb" style="font-size: 3rem; color: #00BCD4; margin-bottom: 15px;"></i>
+            <h3 style="margin: 0; color: #333;">${currentStep.title}</h3>
+            <p style="color: #666; margin: 10px 0 0 0; line-height: 1.5;">
+                ${currentStep.content}
+            </p>
+        </div>
+    `;
+    
+    // Indicadores de progresso
+    indicators.innerHTML = tutorialSystem.steps.map((_, index) => 
+        `<div style="
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: ${index === tutorialSystem.currentStep ? '#00BCD4' : '#ddd'};
+            transition: all 0.3s ease;
+        "></div>`
+    ).join('');
+    
+    // Texto do botão
+    nextButton.textContent = tutorialSystem.currentStep === tutorialSystem.steps.length - 1 ? 'Concluir' : 'Próximo';
+}
+
+function nextOnboardingStep() {
+    if (tutorialSystem.currentStep < tutorialSystem.steps.length - 1) {
+        tutorialSystem.currentStep++;
+        updateOnboardingContent();
+    } else {
+        completeOnboarding();
+    }
+}
+
+function skipOnboarding() {
+    if (confirm('Deseja pular o tutorial? Você pode acessá-lo novamente no menu de ajuda.')) {
+        completeOnboarding();
+    }
+}
+
+function completeOnboarding() {
+    const overlay = document.getElementById('onboarding-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+    
+    tutorialSystem.isActive = false;
+    localStorage.setItem('onboarding_completed', 'true');
+    showNotification('Tutorial concluído! Bem-vindo ao ChamadoPro! 🎉', 'success');
+}
+
+// Funções de inicialização dos sistemas de experiência
+function initializeExperienceSystems() {
+    // Verificar se é a primeira visita
+    const isFirstVisit = !localStorage.getItem('onboarding_completed');
+    
+    // Adicionar sistemas ao DOM
+    if (!document.getElementById('onboarding-overlay')) {
+        document.body.appendChild(createOnboardingSystem());
+    }
+    
+    if (!document.getElementById('virtual-assistant')) {
+        document.body.appendChild(createVirtualAssistant());
+    }
+    
+    if (!document.getElementById('advanced-feedback-modal')) {
+        document.body.appendChild(createAdvancedFeedbackSystem());
+    }
+    
+    // Iniciar onboarding para novos usuários
+    if (isFirstVisit) {
+        setTimeout(() => {
+            startOnboarding();
+        }, 2000);
+    }
+}
+
+// Função para mostrar o painel administrativo
+function showAdminDashboard() {
+    // Verificar se o dashboard já existe
+    let dashboard = document.getElementById('admin-dashboard');
+    if (!dashboard) {
+        dashboard = createAdminDashboard();
+        document.body.appendChild(dashboard);
+    }
+    
+    // Ocultar outras seções
+    const sections = ['home-section', 'provider-section', 'profile-section'];
+    sections.forEach(sectionId => {
+        const section = document.getElementById(sectionId);
+        if (section) section.style.display = 'none';
+    });
+    
+    // Mostrar dashboard
+    dashboard.style.display = 'block';
+    
+    // Atualizar navegação
+    updateActiveNavItem('admin');
+}
+
+// Atualizar sistema de navegação para incluir admin
+function updateActiveNavItem(activeItem) {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.textContent.toLowerCase().includes(activeItem) || 
+            (activeItem === 'admin' && item.textContent.includes('Admin'))) {
+            item.classList.add('active');
+        }
+    });
+}
+
 // Array de exemplo para propostas recebidas
 const propostasRecebidas = [
   {
@@ -164,6 +2492,169 @@ let trabalhosFinalizados = [
     }
 ];
 
+// Copiloto: Implementar a funcionalidade 'Serviços 24Hrs' conforme instruções detalhadas.
+// Foco em demonstração simulada para investidores.
+
+// Dados simulados para TIPOS de Serviços 24 Horas
+const servicosUrgentesTipos = [
+    { id: 'urg_eletricista', nome: 'Eletricista - Curto Circuito', valorBase: 180.00, icone: 'fas fa-bolt' },
+    { id: 'urg_encanador', nome: 'Encanador - Vazamento Grave', valorBase: 220.00, icone: 'fas fa-faucet' },
+    { id: 'urg_chaveiro', nome: 'Chaveiro - Abertura de Porta', valorBase: 150.00, icone: 'fas fa-key' },
+    { id: 'urg_vidraceiro', nome: 'Vidraceiro - Vidro Quebrado', valorBase: 200.00, icone: 'fas fa-glass-martini-alt' },
+    { id: 'urg_borracheiro', nome: 'Borracheiro - Pneu Furado', valorBase: 120.00, icone: 'fas fa-tire' },
+    { id: 'urg_mecanico', nome: 'Mecânico - Emergência Auto', valorBase: 250.00, icone: 'fas fa-wrench' }
+];
+
+// Dados dos Prestadores de Serviços de Urgência com informações de valor
+const prestadoresUrgentesSimulados = [
+  {
+    id: 1,
+    nome: "João Chaveiro Express",
+    especialidade: "Chaveiro",
+    especialidadeId: 1,
+    foto: "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=100&h=100&fit=crop&crop=face",
+    avaliacao: 4.9,
+    distancia: 2.3,
+    valorBaseServico: 80,
+    custoPorKmDeslocamento: 3.50,
+    telefone: "(11) 98765-4321",
+    bio: "Especialista em emergências com fechaduras. Atendimento 24h com chegada em até 30 minutos.",
+    patrocinado: true
+  },
+  {
+    id: 2,
+    nome: "Maria Desentupidora Rápida",
+    especialidade: "Desentupimento",
+    especialidadeId: 2,
+    foto: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=100&h=100&fit=crop&crop=face",
+    avaliacao: 4.7,
+    distancia: 1.8,
+    valorBaseServico: 120,
+    custoPorKmDeslocamento: 4.00,
+    telefone: "(11) 99876-5432",
+    bio: "Desentupimento de emergência com equipamentos profissionais. Garantia de 30 dias.",
+    patrocinado: false
+  },
+  {
+    id: 3,
+    nome: "Carlos Eletricista 24h",
+    especialidade: "Eletricista",
+    especialidadeId: 3,
+    foto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+    avaliacao: 4.8,
+    distancia: 3.1,
+    valorBaseServico: 150,
+    custoPorKmDeslocamento: 5.00,
+    telefone: "(11) 97654-3210",
+    bio: "Eletricista especializado em emergências residenciais e comerciais. Certificado pelo CREA.",
+    patrocinado: true
+  },
+  {
+    id: 4,
+    nome: "Ana Encanadora SOS",
+    especialidade: "Encanamento",
+    especialidadeId: 4,
+    foto: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
+    avaliacao: 4.6,
+    distancia: 4.2,
+    valorBaseServico: 100,
+    custoPorKmDeslocamento: 3.00,
+    telefone: "(11) 96543-2109",
+    bio: "Encanadora com 15 anos de experiência. Atendimento de emergência com desconto para idosos.",
+    patrocinado: false
+  },
+  {
+    id: 5,
+    nome: "Roberto Borracheiro Móvel",
+    especialidade: "Borracheiro",
+    especialidadeId: 5,
+    foto: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop&crop=face",
+    avaliacao: 4.5,
+    distancia: 5.7,
+    valorBaseServico: 60,
+    custoPorKmDeslocamento: 2.50,
+    telefone: "(11) 95432-1098",
+    bio: "Borracheiro móvel com van equipada. Troca de pneus e consertos no local onde você estiver.",
+    patrocinado: false
+  },
+  {
+    id: 6,
+    nome: "Marcos Mecânico Express",
+    especialidade: "Mecânico",
+    especialidadeId: 6,
+    foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    avaliacao: 4.9,
+    distancia: 3.8,
+    valorBaseServico: 200,
+    custoPorKmDeslocamento: 6.00,
+    telefone: "(11) 94321-0987",
+    bio: "Mecânico especializado em emergências automotivas. Guincho próprio e ferramentas completas.",
+    patrocinado: true
+  },
+  {
+    id: 7,
+    nome: "Pedro Chaveiro Noturno",
+    especialidade: "Chaveiro",
+    especialidadeId: 1,
+    foto: "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=100&h=100&fit=crop&crop=face",
+    avaliacao: 4.4,
+    distancia: 6.2,
+    valorBaseServico: 75,
+    custoPorKmDeslocamento: 3.00,
+    telefone: "(11) 93210-9876",
+    bio: "Chaveiro especializado em atendimento noturno. Experiência com todos os tipos de fechadura.",
+    patrocinado: false
+  },
+  {
+    id: 8,
+    nome: "Lúcia Eletricista Urgente",
+    especialidade: "Eletricista",
+    especialidadeId: 3,
+    foto: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    avaliacao: 4.7,
+    distancia: 2.9,
+    valorBaseServico: 140,
+    custoPorKmDeslocamento: 4.50,
+    telefone: "(11) 92109-8765",
+    bio: "Eletricista com especialização em sistemas de emergência e geradores. Atendimento feminino disponível.",
+    patrocinado: false
+  },
+  {
+    id: 9,
+    nome: "Fernando Encanador 24h",
+    especialidade: "Encanamento",
+    especialidadeId: 4,
+    foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
+    avaliacao: 4.8,
+    distancia: 1.5,
+    valorBaseServico: 110,
+    custoPorKmDeslocamento: 3.50,
+    telefone: "(11) 91098-7654",
+    bio: "Encanador emergencial com equipamentos de alta pressão. Atendimento garantido em menos de 1 hora.",
+    patrocinado: true
+  }
+];
+
+// Dados simulados de prestadores para a DEMO (manter para compatibilidade)
+const prestadoresSimulados = [
+    { id: 'p_001', nome: 'João Silva', especialidade: 'Eletricista', avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', avaliacao: '4.8', localizacaoSimulada: 5, badges: ['verificado', 'premium'] },
+    { id: 'p_002', nome: 'Maria Souza', especialidade: 'Encanador', avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', avaliacao: '4.7', localizacaoSimulada: 8, badges: ['verificado'] },
+    { id: 'p_003', nome: 'Pedro Lima', especialidade: 'Chaveiro', avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', avaliacao: '4.9', localizacaoSimulada: 3, badges: ['verificado', 'destaque'] },
+    { id: 'p_004', nome: 'Ana Costa', especialidade: 'Vidraceiro', avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', avaliacao: '4.6', localizacaoSimulada: 12, badges: ['verificado'] },
+    { id: 'p_005', nome: 'Carlos Mendes', especialidade: 'Eletricista', avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', avaliacao: '4.5', localizacaoSimulada: 18, badges: [] },
+    { id: 'p_006', nome: 'Ricardo Pneus', especialidade: 'Borracheiro', avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', avaliacao: '4.7', localizacaoSimulada: 6, badges: ['verificado', 'especialista'] },
+    { id: 'p_007', nome: 'Auto Socorro Silva', especialidade: 'Mecânico', avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', avaliacao: '4.9', localizacaoSimulada: 9, badges: ['verificado', 'premium', 'destaque'] },
+    { id: 'p_008', nome: 'Borracharia do Paulo', especialidade: 'Borracheiro', avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', avaliacao: '4.6', localizacaoSimulada: 14, badges: ['verificado'] },
+    { id: 'p_009', nome: 'Oficina Rápida', especialidade: 'Mecânico', avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', avaliacao: '4.8', localizacaoSimulada: 7, badges: ['verificado', 'especialista'] }
+];
+
+const TAXA_DESLOCAMENTO_KM = 3.50; // R$ 3,50 por km
+
+let currentSelectedUrgentServiceData = null; // Armazena dados do serviço e prestador selecionado
+
+// Configuração da plataforma para custo de deslocamento
+const DISTANCIA_MAX_SIMULADA = 15; // Distância máxima simulada para o prestador em km
+
 let orcamentosPrestadorRecebidos = [
     { id: 501, title: 'Instalação de Chuveiro', description: 'Preciso instalar um chuveiro novo no banheiro.', client: 'Mariana Costa', address: 'Rua D, 10', date: '2024-07-18', photos: [], video: '', tipo: 'padrao' },
     { id: 502, title: 'Manutenção de Ar Condicionado', description: 'Limpeza e verificação de um ar condicionado split.', client: 'Roberto Santos', address: 'Av. Brasil, 200', date: '2024-07-19', photos: [], video: '', tipo: 'padrao' },
@@ -238,14 +2729,14 @@ let adIntervalPrestador;
 
 // Dados de exemplo de serviços patrocinados (Buscar Serviços)
 const sponsoredServices = [
-    { id: 1, name: "Eletricista 24h", description: "Atendimento rápido para emergências elétricas.", type: "eletricista", profile: { photos: ['https://placehold.co/150x100/FFD700/000000?text=Eletrica1', 'https://placehold.co/150x100/FF8C00/FFFFFF?text=Eletrica2'], bio: 'Eletricista com 15 anos de experiência em residências e comércios. Atendimento 24h para emergências.' } },
-    { id: 2, name: "Encanador Especialista", description: "Reparos hidráulicos e desentupimento.", type: "encanador", profile: { photos: ['https://placehold.co/150x100/0066CC/FFFFFF?text=Hidraulica1', 'https://placehold.co/150x100/0080FF/FFFFFF?text=Hidraulica2'], bio: 'Especialista em sistemas hidráulicos residenciais e comerciais. Desentupimentos e reparos rápidos.' } },
-    { id: 3, name: "Montador de Móveis Profissional", description: "Montagem e desmontagem de todos os tipos de móveis.", type: "montador", profile: { photos: ['https://placehold.co/150x100/8B4513/FFFFFF?text=Moveis1', 'https://placehold.co/150x100/A0522D/FFFFFF?text=Moveis2'], bio: 'Montador especializado em móveis planejados e convencionais. Trabalho rápido e limpo.' } },
-    { id: 4, name: "Serviços de Limpeza Residencial", description: "Limpeza profunda para sua casa ou apartamento.", type: "limpeza", profile: { photos: ['https://placehold.co/150x100/32CD32/FFFFFF?text=Limpeza1', 'https://placehold.co/150x100/228B22/FFFFFF?text=Limpeza2'], bio: 'Equipe de limpeza profissional com produtos e equipamentos especializados.' } },
-    { id: 5, name: "Jardineiro Completo", description: "Poda, paisagismo e manutenção de jardins.", type: "jardineiro", profile: { photos: ['https://placehold.co/150x100/90EE90/000000?text=Jardim1', 'https://placehold.co/150x100/7CFC00/000000?text=Jardim2'], bio: 'Jardineiro especialista em paisagismo e manutenção de áreas verdes.' } },
-    { id: 6, name: "Pedreiro para Pequenas Reformas", description: "Pequenos reparos e construções.", type: "pedreiro", profile: { photos: ['https://placehold.co/150x100/CD853F/FFFFFF?text=Obra1', 'https://placehold.co/150x100/D2691E/FFFFFF?text=Obra2'], bio: 'Pedreiro experiente em pequenas reformas, reparos e acabamentos.' } },
-    { id: 7, name: "Pintor de Interiores", description: "Pintura de paredes e tetos com acabamento impecável.", type: "pintor", profile: { photos: ['https://placehold.co/150x100/FF6347/FFFFFF?text=Pintura1', 'https://placehold.co/150x100/FF4500/FFFFFF?text=Pintura2'], bio: 'Pintor especializado em interiores com técnicas modernas e acabamento perfeito.' } },
-    { id: 8, name: "Técnico em Ar Condicionado", description: "Instalação, manutenção e reparo de sistemas de climatização.", type: "ar condicionado", profile: { photos: ['https://placehold.co/150x100/87CEEB/000000?text=ArCond1', 'https://placehold.co/150x100/4682B4/FFFFFF?text=ArCond2'], bio: 'Técnico certificado em climatização, instalação e manutenção preventiva.' } }
+    { id: 1, name: "Eletricista 24h", description: "Atendimento rápido para emergências elétricas.", type: "eletricista" },
+    { id: 2, name: "Encanador Especialista", description: "Reparos hidráulicos e desentupimento.", type: "encanador" },
+    { id: 3, name: "Montador de Móveis Profissional", description: "Montagem e desmontagem de todos os tipos de móveis.", type: "montador" },
+    { id: 4, name: "Serviços de Limpeza Residencial", description: "Limpeza profunda para sua casa ou apartamento.", type: "limpeza" },
+    { id: 5, name: "Jardineiro Completo", description: "Poda, paisagismo e manutenção de jardins.", type: "jardineiro" },
+    { id: 6, name: "Pedreiro para Pequenas Reformas", description: "Pequenos reparos e construções.", type: "pedreiro" },
+    { id: 7, name: "Pintor de Interiores", description: "Pintura de paredes e tetos com acabamento impecável.", type: "pintor" },
+    { id: 8, name: "Técnico em Ar Condicionado", description: "Instalação, manutenção e reparo de sistemas de climatização.", type: "ar condicionado" }
 ];
 
 // Dados de exemplo de serviços de visita patrocinados
@@ -351,6 +2842,9 @@ function showScreen(screenId, title = '') {
                     break;
                 case 'buscar-servicos-unificado':
                     headerTitleElement.textContent = 'Buscar Serviço e Orçamento';
+                    break;
+                case 'servicos-24hrs-screen':
+                    headerTitleElement.textContent = 'Serviços 24 Horas';
                     break;
                 case 'solicitacao-orcamento':
                     headerTitleElement.textContent = 'Solicitar Orçamento';
@@ -470,6 +2964,11 @@ function showScreen(screenId, title = '') {
         renderSponsoredServices(); // Garante que os serviços padrão sejam renderizados
         renderSponsoredVisitServices(); // Garante que os serviços de visita sejam renderizados
         showTab('buscar-servicos-unificado', 'padrao'); // Ativa a aba padrão por default
+    } else if (screenId === 'servicos-24hrs-screen') { // ATUALIZADO
+        // Limpa os campos de busca/filtro e renderiza os cards iniciais
+        document.getElementById('urgent-service-search').value = '';
+        document.getElementById('distance-radius').value = '10'; // Valor padrão
+        filterUrgentServices(); // Chama para popular os cards inicialmente
     } else if (screenId === 'financeiro') {
         updateFinanceiroDashboard();
         renderBankAccounts();
@@ -489,6 +2988,9 @@ function showScreen(screenId, title = '') {
         renderOrcamentosPrestadorRecusados();
     } else if (screenId === 'calendario-trabalho') {
         carregarCalendarioTrabalho();
+    } else if (screenId === 'fluxo-servico-detalhes') {
+        // Inicializa a simulação apenas se os elementos existirem
+        initializeSimulationIfExists();
     }
 
     // Atualiza títulos de seção específicos baseados no contexto
@@ -1981,32 +4483,9 @@ function renderOrcamentosPrestadorAprovados() {
 }
 
 function renderOrcamentosPrestadorRecusados() {
-    const container = document.getElementById('orcamentos-prestador-recusados-content');
-    if (!container) return;
-    container.innerHTML = '';
-    if (orcamentosPrestadorRecusados.length === 0) {
-        container.innerHTML = '<p class="no-content-message">Nenhum orçamento recusado por você ainda.</p>';
-        return;
-    }
-    orcamentosPrestadorRecusados.forEach(req => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-        card.innerHTML = `
-            <div class="card-header">
-                <h3>${req.title}</h3>
-                <div class="status default">Recusado</div>
-            </div>
-            <div class="info">
-                <p><i class="fas fa-user"></i> Cliente: ${req.client}</p>
-                <p><i class="fas fa-map-marker-alt"></i> Data: ${req.date}</p>
-                <p><i class="fas fa-info-circle"></i> Motivo: ${req.reason}</p>
-            </div>
-            <div class="actions">
-                <button class="btn" onclick="openRequestDetailsModal(${req.id}, 'recusado')"><i class="fas fa-info-circle"></i> Ver Detalhes</button>
-            </div>
-        `;
-        container.appendChild(card);
-    });
+    // Não modifica o container principal pois contém as abas estáticas
+    // As abas e conteúdo estão definidos estaticamente no HTML
+    console.log('renderOrcamentosPrestadorRecusados chamada - conteúdo estático já presente no HTML');
 }
 
 
@@ -2377,10 +4856,7 @@ function renderSponsoredServices(searchTerm = '') {
         card.innerHTML = `
             <h3>${service.name}</h3>
             <p>${service.description}</p>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="btn" onclick="openPrestadorProfileModal(${service.id})">Ver Perfil</button>
-                <button class="btn" onclick="showScreen('solicitacao-orcamento')">Solicitar Orçamento</button>
-            </div>
+            <button class="btn" onclick="showScreen('solicitacao-orcamento')">Solicitar Orçamento</button>
         `;
         container.appendChild(card);
     });
@@ -2835,12 +5311,26 @@ function updateSimulationDisplay() {
         }
     });
 
-    document.getElementById('start-simulation-btn').style.display = currentSimulationStep ===  0 ? 'inline-flex' : 'none';
-    document.getElementById('next-step-btn').style.display = currentSimulationStep < simulationSteps.length ? 'inline-flex' : 'none';
-    document.getElementById('reset-simulation-btn').style.display = currentSimulationStep > 0 ? 'inline-flex' : 'none';
+    const startBtn = document.getElementById('start-simulation-btn');
+    const nextBtn = document.getElementById('next-step-btn');
+    const resetBtn = document.getElementById('reset-simulation-btn');
+    
+    if (startBtn) {
+        startBtn.style.display = currentSimulationStep === 0 ? 'inline-flex' : 'none';
+    }
+    
+    if (nextBtn) {
+        nextBtn.style.display = currentSimulationStep < simulationSteps.length ? 'inline-flex' : 'none';
+    }
+    
+    if (resetBtn) {
+        resetBtn.style.display = currentSimulationStep > 0 ? 'inline-flex' : 'none';
+    }
 
     if (currentSimulationStep >= simulationSteps.length) {
-        document.getElementById('next-step-btn').style.display = 'none';
+        if (nextBtn) {
+            nextBtn.style.display = 'none';
+        }
         showAlert('Simulação concluída!');
     }
 }
@@ -2860,6 +5350,14 @@ function nextSimulationStep() {
 function resetSimulation() {
     currentSimulationStep = 0;
     updateSimulationDisplay();
+}
+
+// Função para inicializar simulação apenas se elementos existirem
+function initializeSimulationIfExists() {
+    const startBtn = document.getElementById('start-simulation-btn');
+    if (startBtn) {
+        updateSimulationDisplay();
+    }
 }
 
 
@@ -3008,18 +5506,19 @@ function openProposalFormModal(requestId) {
 // Função para mostrar o modal de aviso da taxa de visita
 function showVisitFeeWarning(request) {
     const modal = document.getElementById('visit-fee-warning-modal');
-    const confirmBtn = document.getElementById('confirm-visit-proposal-btn');
-    
+    const payBtn = document.getElementById('visit-fee-pay-btn');
     // Remove listeners anteriores para evitar duplicação
-    const newConfirmBtn = confirmBtn.cloneNode(true);
-    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-    
-    // Adiciona o listener para confirmar
-    newConfirmBtn.onclick = function() {
+    const newPayBtn = payBtn.cloneNode(true);
+    payBtn.parentNode.replaceChild(newPayBtn, payBtn);
+    // Adiciona o listener para abrir o modal de pagamento
+    newPayBtn.onclick = function() {
         closeModal('visit-fee-warning-modal');
-        openProposalForm(request);
+        setTimeout(() => {
+            document.getElementById('visit-fee-payment-modal').style.display = 'block';
+            // Seleciona PIX como padrão
+            if (typeof selectVisitPaymentMethod === 'function') selectVisitPaymentMethod('pix');
+        }, 200);
     };
-    
     // Mostra o modal
     modal.style.display = 'flex';
 }
@@ -3293,7 +5792,7 @@ function sendScheduleProposals(budgetId, estimatedTime) {
         const prestadorApprovedBudget = { ...approvedBudget }; // Copia para o array do prestador
         orcamentosPrestadorAprovados.push(prestadorApprovedBudget);
 
-        showAlert(`Orçamento #${budgetId} aprovado e sugestões de agendamento enviadas!`);
+        // Não mostra mais o alerta aqui. Só fecha o modal e abre o de pagamento.
         updateUserDashboardCounts(); // Atualiza o contador do dashboard do usuário
         updateUserBudgetCounts(); // Atualiza o contador da aba de orçamentos do usuário
         updatePrestadorDashboardCounts(); // Atualiza o contador do dashboard do prestador
@@ -3302,20 +5801,34 @@ function sendScheduleProposals(budgetId, estimatedTime) {
         renderOrcamentosUsuarioAprovados();
         renderOrcamentosPrestadorAprovados();
         closeModal('schedule-proposal-modal');
+        // Exibe o modal de pagamento
+        const paymentModal = document.getElementById('payment-modal');
+        if (paymentModal) {
+          paymentModal.style.display = 'flex';
+        }
+// Lógica do formulário de pagamento
+document.addEventListener('DOMContentLoaded', function() {
+  const paymentForm = document.getElementById('payment-form');
+  if (paymentForm) {
+    paymentForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Simula processamento do pagamento
+      document.getElementById('payment-success').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('payment-success').style.display = 'none';
+        closeModal('payment-modal');
+        // Agora sim, mostra o alerta de sucesso do agendamento
+        showAlert('Agendamento realizado e pagamento confirmado com sucesso!');
+      }, 1800);
+    });
+  }
+});
     }
 }
 
 
 function openPrestadorProfileModal(serviceId) {
-    // Procura primeiro em sponsoredVisitServices, depois em sponsoredServices
-    let prestador = sponsoredVisitServices.find(s => s.id === serviceId);
-    let isVisitService = true;
-    
-    if (!prestador) {
-        prestador = sponsoredServices.find(s => s.id === serviceId);
-        isVisitService = false;
-    }
-    
+    const prestador = sponsoredVisitServices.find(s => s.id === serviceId);
     if (!prestador || !prestador.profile) return;
 
     document.getElementById('prestador-profile-name').textContent = prestador.name;
@@ -3334,19 +5847,7 @@ function openPrestadorProfileModal(serviceId) {
         photosGallery.innerHTML = '<p style="text-align: center; color: #888;">Nenhuma foto disponível.</p>';
     }
 
-    // Configura o botão dependendo do tipo de serviço
-    const actionButton = document.getElementById('request-visit-from-profile-btn');
-    if (isVisitService) {
-        actionButton.textContent = 'Solicitar Visita';
-        actionButton.onclick = () => solicitarVisitaComAviso(prestador.name);
-    } else {
-        actionButton.textContent = 'Solicitar Orçamento';
-        actionButton.onclick = () => {
-            closeModal('prestador-profile-modal');
-            showScreen('solicitacao-orcamento');
-        };
-    }
-    
+    document.getElementById('request-visit-from-profile-btn').onclick = () => solicitarVisitaComAviso(prestador.name);
     document.getElementById('prestador-profile-modal').style.display = 'flex';
 }
 
@@ -3624,8 +6125,10 @@ function toggleMenu() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     
-    // Comportamento consistente: apenas alterna a classe active
-    sidebar.classList.toggle('active');
+    if (sidebar) {
+        // Comportamento consistente: apenas alterna a classe active
+        sidebar.classList.toggle('active');
+    }
     
     // Alterna o overlay também
     if (overlay) {
@@ -3779,6 +6282,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // Inicializa a exibição da tela de splash, que depois transiciona para o login V2
     showScreen('splash');
+
+    // Verificar se o logo carregou corretamente
+    const logoImg = document.querySelector('.splash-logo .main-logo');
+    if (logoImg) {
+        logoImg.addEventListener('error', function() {
+            console.warn('Logo não carregou, usando fallback');
+            this.style.backgroundColor = '#00BCD4';
+            this.style.opacity = '0.8';
+        });
+        
+        logoImg.addEventListener('load', function() {
+            console.log('Logo carregado com sucesso');
+            this.style.opacity = '1';
+        });
+    }
 
     // Transição da Splash para a nova Tela de Login
     setTimeout(() => {
@@ -3950,13 +6468,18 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFinanceiroDashboard();
     renderBankAccounts();
 
-    // Inicializa a simulação do fluxo de serviço
-    updateSimulationDisplay();
+    // Inicializa a simulação do fluxo de serviço (comentado para evitar erro)
+    // updateSimulationDisplay();
 
     // Chama a função para atualizar o menu lateral e os contadores assim que o DOM é carregado
     // Isso garante que, se o usuário já estiver "logado" (simulado), o menu e dashboard sejam corretos
     updateSidebarMenu();
-    document.getElementById('dashboard-client-name').textContent = nomeDoClienteLogado;
+    
+    // Atualiza o nome do cliente no dashboard se o elemento existir
+    const dashboardClientName = document.getElementById('dashboard-client-name');
+    if (dashboardClientName) {
+        dashboardClientName.textContent = nomeDoClienteLogado;
+    }
     
     // Inicializa as sub-abas
     initializeSubTabs();
@@ -4541,3 +7064,1691 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(tab, { attributes: true });
     });
 });
+
+// ============= FUNÇÕES PARA SERVIÇOS 24 HORAS =============
+
+// Funções auxiliares para loading
+function showLoading(message = 'Carregando...') {
+    // Cria ou atualiza modal de loading
+    let loadingModal = document.getElementById('loading-modal');
+    if (!loadingModal) {
+        loadingModal = document.createElement('div');
+        loadingModal.id = 'loading-modal';
+        loadingModal.className = 'modal';
+        loadingModal.style.display = 'flex';
+        loadingModal.innerHTML = `
+            <div class="modal-content" style="text-align: center; max-width: 300px;">
+                <div style="font-size: 2rem; margin-bottom: 10px;">
+                    <i class="fas fa-spinner fa-spin" style="color: #00BCD4;"></i>
+                </div>
+                <p id="loading-message">${message}</p>
+            </div>
+        `;
+        document.body.appendChild(loadingModal);
+    } else {
+        document.getElementById('loading-message').textContent = message;
+        loadingModal.style.display = 'flex';
+    }
+}
+
+function hideLoading() {
+    const loadingModal = document.getElementById('loading-modal');
+    if (loadingModal) {
+        loadingModal.style.display = 'none';
+    }
+}
+
+// Função para calcular valor e simular distância com prestador disponível
+function calcularValorESimularDistancia(tipoServicoId, maxDistanceRadius) {
+    // Encontra o tipo de serviço base
+    const tipoServico = servicosUrgentesTipos.find(s => s.id === tipoServicoId);
+    if (!tipoServico) return null;
+
+    // Mapeamento de especialidades (mais robusto)
+    const especialidadeMap = {
+        'urg_eletricista': 'Eletricista',
+        'urg_encanador': 'Encanador', 
+        'urg_chaveiro': 'Chaveiro',
+        'urg_vidraceiro': 'Vidraceiro',
+        'urg_borracheiro': 'Borracheiro',
+        'urg_mecanico': 'Mecânico'
+    };
+    
+    const especialidadeNecessaria = especialidadeMap[tipoServicoId];
+    if (!especialidadeNecessaria) return null;
+    
+    // Filtra prestadores pela especialidade e distância
+    const prestadoresCompativeis = prestadoresSimulados.filter(p =>
+        p.especialidade === especialidadeNecessaria && 
+        p.localizacaoSimulada <= maxDistanceRadius
+    );
+
+    if (prestadoresCompativeis.length === 0) {
+        return null; // Nenhuma opção disponível dentro do raio
+    }
+
+    // Pega o prestador mais próximo
+    const prestadorEncontrado = prestadoresCompativeis[0];
+    const distanciaRealSimulada = prestadorEncontrado.localizacaoSimulada;
+    const custoDeslocamento = distanciaRealSimulada * TAXA_DESLOCAMENTO_KM;
+    const valorTotal = tipoServico.valorBase + custoDeslocamento;
+
+    return {
+        tipoServico: tipoServico,
+        prestador: prestadorEncontrado,
+        valorTotal: valorTotal.toFixed(2),
+        distanciaEstimada: distanciaRealSimulada,
+        custoDeslocamento: custoDeslocamento.toFixed(2)
+    };
+}
+
+// NOVAS FUNÇÕES PARA O FLUXO REFATORADO
+
+// Variável global para armazenar prestador selecionado
+let selectedUrgentProvider = null;
+
+// Função para renderizar prestadores patrocinados
+function renderSponsoredProviderCards() {
+    const sponsoredContainer = document.querySelector('#sponsored-providers-container');
+    if (!sponsoredContainer) return;
+
+    const sponsoredProviders = prestadoresUrgentesSimulados.filter(p => p.patrocinado);
+    
+    if (sponsoredProviders.length === 0) {
+        sponsoredContainer.innerHTML = '<p class="text-center text-muted">Nenhum prestador patrocinado disponível no momento.</p>';
+        return;
+    }
+
+    sponsoredContainer.innerHTML = sponsoredProviders.map(provider => {
+        const valorTotal = provider.valorBaseServico + (provider.distancia * provider.custoPorKmDeslocamento);
+        const stars = '★'.repeat(Math.floor(provider.avaliacao)) + (provider.avaliacao % 1 >= 0.5 ? '☆' : '');
+        
+        return `
+            <div class="provider-card" onclick="openServiceDescriptionModal(${provider.id})">
+                <div class="provider-avatar">
+                    <img src="${provider.foto}" alt="${provider.nome}">
+                    <span class="sponsored-badge">Patrocinado</span>
+                </div>
+                <div class="provider-info">
+                    <h4>${provider.nome}</h4>
+                    <p class="specialty">${provider.especialidade}</p>
+                    <div class="rating">
+                        <span class="stars">${stars}</span>
+                        <span class="rating-number">${provider.avaliacao}</span>
+                    </div>
+                    <p class="distance"><i class="fas fa-map-marker-alt"></i> ${provider.distancia} km</p>
+                    <p class="price">A partir de <strong>R$ ${valorTotal.toFixed(2)}</strong></p>
+                </div>
+                <button class="btn-select-provider">
+                    <i class="fas fa-check"></i> Selecionar
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+// Função para filtrar e renderizar prestadores urgentes
+function filterUrgentServices() {
+    const searchTerm = document.getElementById('urgent-service-search')?.value.toLowerCase() || '';
+    const maxDistanceRadius = parseInt(document.getElementById('distance-radius')?.value || '10');
+
+    const serviceListContainer = document.querySelector('.service-list-urgent');
+    const noServicesMessage = document.getElementById('no-urgent-services-found');
+    
+    if (!serviceListContainer || !noServicesMessage) {
+        console.error('Elementos não encontrados na página');
+        return;
+    }
+    
+    serviceListContainer.innerHTML = ''; // Limpa antes de renderizar
+
+    // Filtra prestadores pelo termo de busca e distância
+    const filteredProviders = prestadoresUrgentesSimulados.filter(provider => {
+        const matchesSearch = provider.nome.toLowerCase().includes(searchTerm) || 
+                            provider.especialidade.toLowerCase().includes(searchTerm);
+        const withinDistance = provider.distancia <= maxDistanceRadius;
+        return matchesSearch && withinDistance && !provider.patrocinado; // Exclui patrocinados desta lista
+    });
+
+    if (filteredProviders.length === 0) {
+        noServicesMessage.style.display = 'block';
+        renderSponsoredProviderCards(); // Sempre renderiza patrocinados
+        return;
+    }
+
+    noServicesMessage.style.display = 'none';
+
+    // Renderiza prestadores não patrocinados
+    filteredProviders.forEach(provider => {
+        const valorTotal = provider.valorBaseServico + (provider.distancia * provider.custoPorKmDeslocamento);
+        const stars = '★'.repeat(Math.floor(provider.avaliacao)) + (provider.avaliacao % 1 >= 0.5 ? '☆' : '');
+        
+        const card = document.createElement('div');
+        card.classList.add('provider-card');
+        card.onclick = () => openServiceDescriptionModal(provider.id);
+        card.innerHTML = `
+            <div class="provider-avatar">
+                <img src="${provider.foto}" alt="${provider.nome}">
+            </div>
+            <div class="provider-info">
+                <h4>${provider.nome}</h4>
+                <p class="specialty">${provider.especialidade}</p>
+                <div class="rating">
+                    <span class="stars">${stars}</span>
+                    <span class="rating-number">${provider.avaliacao}</span>
+                </div>
+                <p class="distance"><i class="fas fa-map-marker-alt"></i> ${provider.distancia} km</p>
+                <p class="price">A partir de <strong>R$ ${valorTotal.toFixed(2)}</strong></p>
+            </div>
+            <button class="btn-select-provider">
+                <i class="fas fa-check"></i> Selecionar
+            </button>
+        `;
+        serviceListContainer.appendChild(card);
+    });
+
+    // Renderiza prestadores patrocinados
+    renderSponsoredProviderCards();
+}
+
+// Função para abrir modal de descrição do serviço
+function openServiceDescriptionModal(providerId) {
+    selectedUrgentProvider = prestadoresUrgentesSimulados.find(p => p.id === providerId);
+    if (!selectedUrgentProvider) return;
+
+    const modal = document.getElementById('urgent-service-description-modal');
+    const providerInfo = document.getElementById('selected-provider-info');
+    
+    if (modal && providerInfo) {
+        providerInfo.innerHTML = `
+            <strong>Prestador selecionado:</strong> ${selectedUrgentProvider.nome} (${selectedUrgentProvider.especialidade}) - ${selectedUrgentProvider.distancia}km
+        `;
+        providerInfo.style.display = 'block';
+        
+        // Limpa a descrição anterior
+        document.getElementById('urgent-description').value = '';
+        
+        modal.style.display = 'flex';
+    }
+}
+
+// Função para enviar solicitação urgente
+function sendUrgentRequest() {
+    const description = document.getElementById('urgent-description')?.value.trim();
+    
+    if (!description) {
+        alert('Por favor, descreva sua emergência.');
+        return;
+    }
+    
+    if (!selectedUrgentProvider) {
+        alert('Erro: Nenhum prestador selecionado.');
+        return;
+    }
+
+    // Fecha modal de descrição
+    closeModal('urgent-service-description-modal');
+    
+    // Mostra loading
+    showLoading('Enviando solicitação...');
+    
+    // Simula envio da solicitação
+    setTimeout(() => {
+        showLoading('Aguardando propostas...');
+        
+        // Simula chegada de propostas
+        setTimeout(() => {
+            hideLoading();
+            generateSimulatedProposals(description);
+        }, 3000);
+    }, 2000);
+}
+
+// Função para gerar propostas simuladas
+function generateSimulatedProposals(serviceDescription) {
+    // Gera 2-4 propostas aleatórias
+    const proposalCount = Math.floor(Math.random() * 3) + 2;
+    const allProviders = prestadoresUrgentesSimulados.filter(p => p.especialidade === selectedUrgentProvider.especialidade);
+    
+    const proposals = [];
+    for (let i = 0; i < Math.min(proposalCount, allProviders.length); i++) {
+        const provider = allProviders[i];
+        const baseValue = provider.valorBaseServico + (provider.distancia * provider.custoPorKmDeslocamento);
+        const variation = (Math.random() - 0.5) * 0.2; // ±10% de variação
+        const finalValue = baseValue * (1 + variation);
+        const estimatedTime = Math.floor(Math.random() * 60) + 30; // 30-90 minutos
+        
+        proposals.push({
+            provider: provider,
+            value: finalValue,
+            estimatedTime: estimatedTime,
+            message: `Olá! Posso atender sua emergência de ${selectedUrgentProvider.especialidade.toLowerCase()}. Chego em aproximadamente ${estimatedTime} minutos.`
+        });
+    }
+    
+    // Ordena por preço (menor para maior)
+    proposals.sort((a, b) => a.value - b.value);
+    
+    renderProposalsModal(proposals);
+}
+
+// Função para renderizar modal de propostas
+function renderProposalsModal(proposals) {
+    const modal = document.getElementById('urgent-proposals-modal');
+    const proposalsList = document.getElementById('proposals-list');
+    const noProposalsMsg = document.getElementById('no-proposals-found');
+    
+    if (!modal || !proposalsList) return;
+
+    if (proposals.length === 0) {
+        noProposalsMsg.style.display = 'block';
+        proposalsList.innerHTML = '';
+    } else {
+        noProposalsMsg.style.display = 'none';
+        
+        proposalsList.innerHTML = proposals.map((proposal, index) => {
+            const isFirstPlace = index === 0;
+            const stars = '★'.repeat(Math.floor(proposal.provider.avaliacao)) + (proposal.provider.avaliacao % 1 >= 0.5 ? '☆' : '');
+            
+            return `
+                <div class="proposal-item ${isFirstPlace ? 'best-proposal' : ''}" onclick="selectProposal(${index})">
+                    ${isFirstPlace ? '<div class="best-badge"><i class="fas fa-crown"></i> Melhor Oferta</div>' : ''}
+                    <div class="proposal-header">
+                        <div class="provider-mini-info">
+                            <img src="${proposal.provider.foto}" alt="${proposal.provider.nome}" class="mini-avatar">
+                            <div>
+                                <h4>${proposal.provider.nome}</h4>
+                                <div class="mini-rating">
+                                    <span class="stars">${stars}</span>
+                                    <span class="rating-number">${proposal.provider.avaliacao}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="proposal-value">
+                            <h3>R$ ${proposal.value.toFixed(2)}</h3>
+                            <p>em ${proposal.estimatedTime} min</p>
+                        </div>
+                    </div>
+                    <p class="proposal-message">"${proposal.message}"</p>
+                    <button class="btn-accept-proposal">
+                        <i class="fas fa-check"></i> Aceitar Proposta
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    modal.style.display = 'flex';
+}
+
+// Função para selecionar uma proposta
+function selectProposal(proposalIndex) {
+    closeModal('urgent-proposals-modal');
+    
+    showLoading('Confirmando serviço...');
+    
+    setTimeout(() => {
+        hideLoading();
+        alert('🎉 Serviço confirmado! O prestador está a caminho. Você receberá uma notificação quando ele chegar.');
+        
+        // Volta para a tela inicial
+        showScreen('home-screen');
+    }, 2000);
+}
+
+// ============= FUNÇÕES PARA SERVIÇOS 24 HORAS =============
+
+// Funções auxiliares para loading
+function showLoading(message = 'Carregando...') {
+    // Cria ou atualiza modal de loading
+    let loadingModal = document.getElementById('loading-modal');
+    if (!loadingModal) {
+        loadingModal = document.createElement('div');
+        loadingModal.id = 'loading-modal';
+        loadingModal.className = 'modal';
+        loadingModal.style.display = 'flex';
+        loadingModal.innerHTML = `
+            <div class="modal-content" style="text-align: center; max-width: 300px;">
+                <div style="font-size: 2rem; margin-bottom: 10px;">
+                    <i class="fas fa-spinner fa-spin" style="color: #00BCD4;"></i>
+                </div>
+                <p id="loading-message">${message}</p>
+            </div>
+        `;
+        document.body.appendChild(loadingModal);
+    } else {
+        document.getElementById('loading-message').textContent = message;
+        loadingModal.style.display = 'flex';
+    }
+}
+
+function hideLoading() {
+    const loadingModal = document.getElementById('loading-modal');
+    if (loadingModal) {
+        loadingModal.style.display = 'none';
+    }
+}
+
+// Função para calcular valor e simular distância com prestador disponível
+function calcularValorESimularDistancia(tipoServicoId, maxDistanceRadius) {
+    // Encontra o tipo de serviço base
+    const tipoServico = servicosUrgentesTipos.find(s => s.id === tipoServicoId);
+    if (!tipoServico) return null;
+
+    // Mapeamento de especialidades (mais robusto)
+    const especialidadeMap = {
+        'urg_eletricista': 'Eletricista',
+        'urg_encanador': 'Encanador', 
+        'urg_chaveiro': 'Chaveiro',
+        'urg_vidraceiro': 'Vidraceiro',
+        'urg_borracheiro': 'Borracheiro',
+        'urg_mecanico': 'Mecânico'
+    };
+    
+    const especialidadeNecessaria = especialidadeMap[tipoServicoId];
+    if (!especialidadeNecessaria) return null;
+    
+    // Filtra prestadores pela especialidade e distância
+    const prestadoresCompativeis = prestadoresSimulados.filter(p =>
+        p.especialidade === especialidadeNecessaria && 
+        p.localizacaoSimulada <= maxDistanceRadius
+    );
+
+    if (prestadoresCompativeis.length === 0) {
+        return null; // Nenhuma opção disponível dentro do raio
+    }
+
+    // Pega o prestador mais próximo
+    const prestadorEncontrado = prestadoresCompativeis[0];
+    const distanciaRealSimulada = prestadorEncontrado.localizacaoSimulada;
+    const custoDeslocamento = distanciaRealSimulada * TAXA_DESLOCAMENTO_KM;
+    const valorTotal = tipoServico.valorBase + custoDeslocamento;
+
+    return {
+        tipoServico: tipoServico,
+        prestador: prestadorEncontrado,
+        valorTotal: valorTotal.toFixed(2),
+        distanciaEstimada: distanciaRealSimulada,
+        custoDeslocamento: custoDeslocamento.toFixed(2)
+    };
+}
+
+// NOVAS FUNÇÕES PARA O FLUXO REFATORADO
+
+// Função para renderizar prestadores patrocinados
+function renderSponsoredProviderCards() {
+    const sponsoredContainer = document.querySelector('#sponsored-providers-container');
+    if (!sponsoredContainer) return;
+
+    const sponsoredProviders = prestadoresUrgentesSimulados.filter(p => p.patrocinado);
+    
+    if (sponsoredProviders.length === 0) {
+        sponsoredContainer.innerHTML = '<p class="text-center text-muted">Nenhum prestador patrocinado disponível no momento.</p>';
+        return;
+    }
+
+    sponsoredContainer.innerHTML = sponsoredProviders.map(provider => {
+        const valorTotal = provider.valorBaseServico + (provider.distancia * provider.custoPorKmDeslocamento);
+        const stars = '★'.repeat(Math.floor(provider.avaliacao)) + (provider.avaliacao % 1 >= 0.5 ? '☆' : '');
+        
+        return `
+            <div class="provider-card" onclick="openServiceDescriptionModal(${provider.id})">
+                <div class="provider-avatar">
+                    <img src="${provider.foto}" alt="${provider.nome}">
+                    <span class="sponsored-badge">Patrocinado</span>
+                </div>
+                <div class="provider-info">
+                    <h4>${provider.nome}</h4>
+                    <p class="specialty">${provider.especialidade}</p>
+                    <div class="rating">
+                        <span class="stars">${stars}</span>
+                        <span class="rating-number">${provider.avaliacao}</span>
+                    </div>
+                    <p class="distance"><i class="fas fa-map-marker-alt"></i> ${provider.distancia} km</p>
+                    <p class="price">A partir de <strong>R$ ${valorTotal.toFixed(2)}</strong></p>
+                </div>
+                <button class="btn-select-provider">
+                    <i class="fas fa-check"></i> Selecionar
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+// Função para filtrar e renderizar prestadores urgentes
+function filterUrgentServices() {
+    const searchTerm = document.getElementById('urgent-service-search')?.value.toLowerCase() || '';
+    const maxDistanceRadius = parseInt(document.getElementById('distance-radius')?.value || '10');
+
+    const serviceListContainer = document.querySelector('.service-list-urgent');
+    const noServicesMessage = document.getElementById('no-urgent-services-found');
+    
+    if (!serviceListContainer || !noServicesMessage) {
+        console.error('Elementos não encontrados na página');
+        return;
+    }
+    
+    serviceListContainer.innerHTML = ''; // Limpa antes de renderizar
+
+    // Filtra prestadores pelo termo de busca e distância
+    const filteredProviders = prestadoresUrgentesSimulados.filter(provider => {
+        const matchesSearch = provider.nome.toLowerCase().includes(searchTerm) || 
+                            provider.especialidade.toLowerCase().includes(searchTerm);
+        const withinDistance = provider.distancia <= maxDistanceRadius;
+        return matchesSearch && withinDistance && !provider.patrocinado; // Exclui patrocinados desta lista
+    });
+
+    if (filteredProviders.length === 0) {
+        noServicesMessage.style.display = 'block';
+        renderSponsoredProviderCards(); // Sempre renderiza patrocinados
+        return;
+    }
+
+    noServicesMessage.style.display = 'none';
+
+    // Renderiza prestadores não patrocinados
+    filteredProviders.forEach(provider => {
+        const valorTotal = provider.valorBaseServico + (provider.distancia * provider.custoPorKmDeslocamento);
+        const stars = '★'.repeat(Math.floor(provider.avaliacao)) + (provider.avaliacao % 1 >= 0.5 ? '☆' : '');
+        
+        const card = document.createElement('div');
+        card.classList.add('provider-card');
+        card.onclick = () => openServiceDescriptionModal(provider.id);
+        card.innerHTML = `
+            <div class="provider-avatar">
+                <img src="${provider.foto}" alt="${provider.nome}">
+            </div>
+            <div class="provider-info">
+                <h4>${provider.nome}</h4>
+                <p class="specialty">${provider.especialidade}</p>
+                <div class="rating">
+                    <span class="stars">${stars}</span>
+                    <span class="rating-number">${provider.avaliacao}</span>
+                </div>
+                <p class="distance"><i class="fas fa-map-marker-alt"></i> ${provider.distancia} km</p>
+                <p class="price">A partir de <strong>R$ ${valorTotal.toFixed(2)}</strong></p>
+            </div>
+            <button class="btn-select-provider">
+                <i class="fas fa-check"></i> Selecionar
+            </button>
+        `;
+        serviceListContainer.appendChild(card);
+    });
+
+    // Renderiza prestadores patrocinados
+    renderSponsoredProviderCards();
+}
+
+// Função para abrir modal de descrição do serviço
+function openServiceDescriptionModal(providerId) {
+    selectedUrgentProvider = prestadoresUrgentesSimulados.find(p => p.id === providerId);
+    if (!selectedUrgentProvider) return;
+
+    const modal = document.getElementById('urgent-service-description-modal');
+    const providerInfo = document.getElementById('selected-provider-info');
+    
+    if (modal && providerInfo) {
+        providerInfo.innerHTML = `
+            <strong>Prestador selecionado:</strong> ${selectedUrgentProvider.nome} (${selectedUrgentProvider.especialidade}) - ${selectedUrgentProvider.distancia}km
+        `;
+        providerInfo.style.display = 'block';
+        
+        // Limpa a descrição anterior
+        document.getElementById('urgent-description').value = '';
+        
+        modal.style.display = 'flex';
+    }
+}
+
+// Função para enviar solicitação urgente
+function sendUrgentRequest() {
+    const description = document.getElementById('urgent-description')?.value.trim();
+    
+    if (!description) {
+        alert('Por favor, descreva sua emergência.');
+        return;
+    }
+    
+    if (!selectedUrgentProvider) {
+        alert('Erro: Nenhum prestador selecionado.');
+        return;
+    }
+
+    // Fecha modal de descrição
+    closeModal('urgent-service-description-modal');
+    
+    // Mostra loading
+    showLoading('Enviando solicitação...');
+    
+    // Simula envio da solicitação
+    setTimeout(() => {
+        showLoading('Aguardando propostas...');
+        
+        // Simula chegada de propostas
+        setTimeout(() => {
+            hideLoading();
+            generateSimulatedProposals(description);
+        }, 3000);
+    }, 2000);
+}
+
+// Função para gerar propostas simuladas
+function generateSimulatedProposals(serviceDescription) {
+    // Gera 2-4 propostas aleatórias
+    const proposalCount = Math.floor(Math.random() * 3) + 2;
+    const allProviders = prestadoresUrgentesSimulados.filter(p => p.especialidade === selectedUrgentProvider.especialidade);
+    
+    const proposals = [];
+    for (let i = 0; i < Math.min(proposalCount, allProviders.length); i++) {
+        const provider = allProviders[i];
+        const baseValue = provider.valorBaseServico + (provider.distancia * provider.custoPorKmDeslocamento);
+        const variation = (Math.random() - 0.5) * 0.2; // ±10% de variação
+        const finalValue = baseValue * (1 + variation);
+        const estimatedTime = Math.floor(Math.random() * 60) + 30; // 30-90 minutos
+        
+        proposals.push({
+            provider: provider,
+            value: finalValue,
+            estimatedTime: estimatedTime,
+            message: `Olá! Posso atender sua emergência de ${selectedUrgentProvider.especialidade.toLowerCase()}. Chego em aproximadamente ${estimatedTime} minutos.`
+        });
+    }
+    
+    // Ordena por preço (menor para maior)
+    proposals.sort((a, b) => a.value - b.value);
+    
+    renderProposalsModal(proposals);
+}
+
+// Função para renderizar modal de propostas
+function renderProposalsModal(proposals) {
+    const modal = document.getElementById('urgent-proposals-modal');
+    const proposalsList = document.getElementById('proposals-list');
+    const noProposalsMsg = document.getElementById('no-proposals-found');
+    
+    if (!modal || !proposalsList) return;
+
+    if (proposals.length === 0) {
+        noProposalsMsg.style.display = 'block';
+        proposalsList.innerHTML = '';
+    } else {
+        noProposalsMsg.style.display = 'none';
+        
+        proposalsList.innerHTML = proposals.map((proposal, index) => {
+            const isFirstPlace = index === 0;
+            const stars = '★'.repeat(Math.floor(proposal.provider.avaliacao)) + (proposal.provider.avaliacao % 1 >= 0.5 ? '☆' : '');
+            
+            return `
+                <div class="proposal-item ${isFirstPlace ? 'best-proposal' : ''}" onclick="selectProposal(${index})">
+                    ${isFirstPlace ? '<div class="best-badge"><i class="fas fa-crown"></i> Melhor Oferta</div>' : ''}
+                    <div class="proposal-header">
+                        <div class="provider-mini-info">
+                            <img src="${proposal.provider.foto}" alt="${proposal.provider.nome}" class="mini-avatar">
+                            <div>
+                                <h4>${proposal.provider.nome}</h4>
+                                <div class="mini-rating">
+                                    <span class="stars">${stars}</span>
+                                    <span class="rating-number">${proposal.provider.avaliacao}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="proposal-value">
+                            <h3>R$ ${proposal.value.toFixed(2)}</h3>
+                            <p>em ${proposal.estimatedTime} min</p>
+                        </div>
+                    </div>
+                    <p class="proposal-message">"${proposal.message}"</p>
+                    <button class="btn-accept-proposal">
+                        <i class="fas fa-check"></i> Aceitar Proposta
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    modal.style.display = 'flex';
+}
+
+// Função para selecionar uma proposta
+function selectProposal(proposalIndex) {
+    closeModal('urgent-proposals-modal');
+    
+    showLoading('Confirmando serviço...');
+    
+    setTimeout(() => {
+        hideLoading();
+        alert('🎉 Serviço confirmado! O prestador está a caminho. Você receberá uma notificação quando ele chegar.');
+        
+        // Volta para a tela inicial
+        showScreen('home-screen');
+    }, 2000);
+}
+
+// Função para filtrar e renderizar serviços urgentes com busca e raio
+function filterUrgentServices() {
+    const searchTerm = document.getElementById('urgent-service-search')?.value.toLowerCase() || '';
+    const maxDistanceRadius = parseInt(document.getElementById('distance-radius')?.value || '10');
+
+    const serviceListContainer = document.querySelector('.service-list-urgent');
+    const noServicesMessage = document.getElementById('no-urgent-services-found');
+    
+    if (!serviceListContainer || !noServicesMessage) {
+        console.error('Elementos não encontrados na página');
+        return;
+    }
+    
+    serviceListContainer.innerHTML = ''; // Limpa antes de renderizar
+
+    let foundServicesCount = 0;
+
+    servicosUrgentesTipos.forEach(tipoServico => {
+        if (tipoServico.nome.toLowerCase().includes(searchTerm)) {
+            // Tenta encontrar um prestador e calcular o valor/distância
+            const result = calcularValorESimularDistancia(tipoServico.id, maxDistanceRadius);
+
+            if (result) { // Se um prestador foi simulado dentro do raio
+                foundServicesCount++;
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.style.cursor = 'pointer';
+                card.style.position = 'relative';
+                
+                // ID único para o card
+                const cardId = `provider-${tipoServico.id}-${foundServicesCount}`;
+                card.setAttribute('data-provider-id', cardId);
+                card.setAttribute('data-specialty', tipoServico.nome);
+                
+                // Adiciona checkbox de seleção
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'provider-checkbox';
+                checkbox.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    width: 20px;
+                    height: 20px;
+                    cursor: pointer;
+                    z-index: 2;
+                `;
+                checkbox.onchange = (e) => {
+                    e.stopPropagation();
+                    toggleProviderSelection(cardId, result, checkbox.checked);
+                };
+                
+                // Evento de clique no card (exceto no checkbox)
+                card.onclick = (e) => {
+                    if (e.target !== checkbox) {
+                        openUrgentProviderProfile(result);
+                    }
+                };
+                
+                card.innerHTML = 
+                    '<i class="' + tipoServico.icone + '"></i>' +
+                    '<h3>' + tipoServico.nome + '</h3>' +
+                    '<p><strong>Preço Médio:</strong> R$ ' + result.valorTotal + '</p>' +
+                    '<p><strong>Tempo de Chegada:</strong> Aproximadamente ' + Math.round(result.distanciaEstimada * 2.5) + ' minutos</p>';
+                
+                // Adiciona o checkbox após renderizar o conteúdo
+                card.appendChild(checkbox);
+                serviceListContainer.appendChild(card);
+            }
+        }
+    });
+
+    if (foundServicesCount === 0) {
+        noServicesMessage.style.display = 'block';
+    } else {
+        noServicesMessage.style.display = 'none';
+    }
+}
+
+// Função para abrir o perfil do prestador urgente
+function openUrgentProviderProfile(serviceData) {
+    currentSelectedUrgentServiceData = serviceData; // Armazena todos os dados para a solicitação
+
+    // Preenche os dados do modal de perfil com verificação de existência
+    const avatarElement = document.getElementById('urgent-provider-avatar');
+    if (avatarElement) avatarElement.src = serviceData.prestador.avatar;
+    
+    const nameElement = document.getElementById('urgent-provider-name');
+    if (nameElement) nameElement.textContent = serviceData.prestador.nome;
+    
+    const specialtyElement = document.getElementById('urgent-provider-specialty');
+    if (specialtyElement) specialtyElement.textContent = serviceData.tipoServico.nome.split(' - ')[0];
+    
+    const ratingElement = document.getElementById('urgent-provider-rating');
+    if (ratingElement) ratingElement.innerHTML = `<i class="fas fa-star text-warning"></i> ${serviceData.prestador.avaliacao}`;
+    
+    const distanceElement = document.getElementById('urgent-provider-distance');
+    if (distanceElement) distanceElement.textContent = `Aproximadamente ${Math.round(serviceData.distanciaEstimada * 2.5)} minutos`;
+    
+    const bioElement = document.getElementById('urgent-provider-bio');
+    if (bioElement) bioElement.textContent = `"Disponível para ${serviceData.tipoServico.nome.split(' - ')[0]} em tempo de chegada estimado de ${Math.round(serviceData.distanciaEstimada * 2.5)} minutos. Atendimento rápido e de qualidade!"`;
+    
+    const valueElement = document.getElementById('urgent-provider-service-total-value');
+    if (valueElement) valueElement.textContent = `R$ ${serviceData.valorTotal}`;
+
+    const modal = document.getElementById('urgent-provider-profile-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        console.warn('Modal urgent-provider-profile-modal não encontrado');
+        // Fallback: mostrar notificação com dados do prestador
+        showNotification(`Prestador: ${serviceData.prestador.nome} - R$ ${serviceData.valorTotal}`, 'info');
+    }
+}
+
+// Função auxiliar para mostrar modais (função faltante)
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        // Adicionar classe para animação se existir
+        modal.classList.add('show');
+    } else {
+        console.warn(`Modal ${modalId} não encontrado`);
+    }
+}
+
+// Função auxiliar para fechar modais
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+    }
+}
+
+// Função hideModal para compatibilidade (alias para closeModal)
+function hideModal(modalId) {
+    closeModal(modalId);
+}
+
+// Função para solicitar o serviço urgente (chamada do modal de perfil)
+function solicitarServicoUrgente() {
+    if (!currentSelectedUrgentServiceData) {
+        showAlert('Erro: Nenhum serviço urgente selecionado para solicitação.', 'error');
+        return;
+    }
+
+    const { tipoServico, prestador, valorTotal, distanciaEstimada } = currentSelectedUrgentServiceData;
+
+    showLoading('Enviando solicitação urgente e buscando confirmação do prestador...');
+
+    setTimeout(() => {
+        hideLoading();
+        closeModal('urgent-provider-profile-modal'); // Fecha o modal de perfil
+
+        // Adiciona o trabalho simulado à lista de trabalhos em execução
+        trabalhosEmExecucao.push({
+            id: `urg-${Date.now()}`,
+            servico: tipoServico.nome,
+            prestador: prestador.nome,
+            status: 'Em caminho',
+            valor: `R$ ${valorTotal}`,
+            prazo: `Chegada estimada em ${Math.floor(Math.random() * 15) + 5} min (aprox., ${distanciaEstimada} km)`,
+            progresso: 10,
+            isUrgent: true
+        });
+
+        showAlert(`Serviço "${tipoServico.nome}" solicitado com sucesso! O prestador ${prestador.nome} está a caminho.`, 'success');
+        showScreen('client-dashboard'); // Retorna ao dashboard
+        updateDashboard(); // Atualiza a lista de trabalhos
+        currentSelectedUrgentServiceData = null; // Limpa os dados selecionados
+    }, 2500); // Simula 2.5 segundos para processamento
+}
+
+// ===== SISTEMA DE BADGE DE VERIFICAÇÃO - MONETIZAÇÃO PREMIUM =====
+
+// Função para renderizar badges do prestador
+function renderBadges(badges, size = 'normal') {
+    if (!badges || badges.length === 0) return '';
+    
+    const sizeClass = size === 'small' ? 'badge-small' : 'badge-normal';
+    
+    return badges.map(badgeType => {
+        const badge = badgeTypes[badgeType];
+        if (!badge) return '';
+        
+        return `
+            <span class="verification-badge ${sizeClass}" 
+                  style="color: ${badge.color};" 
+                  title="${badge.description}">
+                <i class="${badge.icon}"></i>
+            </span>
+        `;
+    }).join('');
+}
+
+// Função para verificar se prestador tem badge específico
+function hasBadge(prestador, badgeType) {
+    return prestador.badges && prestador.badges.includes(badgeType);
+}
+
+// Função para verificar se prestador é premium
+function isPremiumProvider(prestador) {
+    if (!prestador.badges) return false;
+    return prestador.badges.some(badge => badgeTypes[badge] && badgeTypes[badge].premium);
+}
+
+// Função para mostrar modal de upgrade para premium
+function showPremiumUpgradeModal() {
+    const modal = document.getElementById('modal-premium-upgrade');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Adicionar animação
+        setTimeout(() => {
+            modal.querySelector('.modal-content').style.transform = 'translateY(0)';
+            modal.querySelector('.modal-content').style.opacity = '1';
+        }, 10);
+    }
+}
+
+// Função para fechar modal de upgrade premium
+function closePremiumModal() {
+    const modal = document.getElementById('modal-premium-upgrade');
+    if (modal) {
+        modal.querySelector('.modal-content').style.transform = 'translateY(-20px)';
+        modal.querySelector('.modal-content').style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+}
+
+// Função para simular compra do plano premium
+function purchasePremium() {
+    // Simular processamento
+    const purchaseBtn = document.querySelector('#premium-purchase-btn');
+    if (purchaseBtn) {
+        purchaseBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+        purchaseBtn.disabled = true;
+    }
+    
+    setTimeout(() => {
+        // Ativar plano premium
+        badgeSystem.currentPlan = 'premium';
+        
+        // Mostrar sucesso
+        showNotification('Parabéns! Seu plano Premium foi ativado com sucesso!', 'success');
+        
+        // Fechar modal
+        closePremiumModal();
+        
+        // Restaurar botão
+        if (purchaseBtn) {
+            purchaseBtn.innerHTML = '<i class="fas fa-crown"></i> Confirmar Compra';
+            purchaseBtn.disabled = false;
+        }
+        
+        // Atualizar interface se estiver na tela de prestador
+        if (activeScreenId === 'provider-dashboard') {
+            updateProviderInterface();
+        }
+    }, 2000);
+}
+
+// Função para atualizar interface do prestador com recursos premium
+function updateProviderInterface() {
+    const premiumFeatures = document.querySelectorAll('.premium-feature');
+    const premiumBadges = document.querySelectorAll('.premium-badge-indicator');
+    
+    if (badgeSystem.currentPlan === 'premium') {
+        premiumFeatures.forEach(feature => {
+            feature.classList.remove('premium-locked');
+            feature.classList.add('premium-active');
+        });
+        
+        premiumBadges.forEach(badge => {
+            badge.style.display = 'inline-block';
+        });
+    } else {
+        premiumFeatures.forEach(feature => {
+            feature.classList.add('premium-locked');
+            feature.classList.remove('premium-active');
+        });
+        
+        premiumBadges.forEach(badge => {
+            badge.style.display = 'none';
+        });
+    }
+}
+
+// Função para adicionar badges aos cards de prestadores já existentes
+function updateExistingProviderCards() {
+    const providerCards = document.querySelectorAll('.provider-card');
+    
+    providerCards.forEach(card => {
+        const providerName = card.querySelector('h4')?.textContent;
+        if (!providerName) return;
+        
+        // Encontrar prestador correspondente
+        const provider = prestadoresSimulados.find(p => p.nome === providerName) ||
+                        prestadoresUrgentesSimulados.find(p => p.nome === providerName);
+        
+        if (provider && provider.badges) {
+            const nameElement = card.querySelector('h4');
+            if (nameElement && !nameElement.parentElement.classList.contains('provider-name-container')) {
+                // Criar container para nome + badges
+                const nameContainer = document.createElement('div');
+                nameContainer.className = 'provider-name-container';
+                
+                nameContainer.appendChild(nameElement.cloneNode(true));
+                nameContainer.innerHTML += renderBadges(provider.badges, 'small');
+                
+                nameElement.parentElement.replaceChild(nameContainer, nameElement);
+            }
+        }
+    });
+}
+
+// Inicializar sistema de badges quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar observer para detectar novos cards de prestadores
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1 && node.classList.contains('provider-card')) {
+                        setTimeout(() => updateExistingProviderCards(), 100);
+                    }
+                });
+            }
+        });
+    });
+
+    // Observar mudanças no DOM
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    // Atualizar cards existentes
+    setTimeout(() => updateExistingProviderCards(), 1000);
+});
+
+// ===== INICIALIZAÇÃO COMPLETA DO SISTEMA =====
+
+// Verificar se todos os sistemas foram carregados
+function initializeAllSystems() {
+    console.log('🚀 Inicializando sistemas ChamadoPro v2.1.0...');
+    
+    try {
+        // 1. Sistemas de experiência
+        if (typeof initializeExperienceSystems === 'function') {
+            initializeExperienceSystems();
+            console.log('✅ Sistemas de experiência carregados');
+        } else {
+            console.warn('⚠️ initializeExperienceSystems não encontrada');
+        }
+        
+        // 2. Sistema de notificações avançadas
+        if (!document.getElementById('notification-container')) {
+            const container = createNotificationContainer();
+            document.body.appendChild(container);
+            console.log('✅ Sistema de notificações configurado');
+        }
+        
+        // 3. Sistema de relatórios
+        if (!document.getElementById('reporting-modal')) {
+            const reportModal = createReportingSystem();
+            document.body.appendChild(reportModal);
+            console.log('✅ Sistema de relatórios adicionado');
+        }
+        
+        // 4. Configurar atalhos de teclado
+        setupKeyboardShortcuts();
+        console.log('✅ Atalhos de teclado configurados');
+        
+        // 5. Verificar se é primeira visita para onboarding
+        setTimeout(() => {
+            if (!localStorage.getItem('onboarding_completed')) {
+                showNotification('Bem-vindo ao ChamadoPro! 🎉 Pressione F1 para tutorial.', 'info');
+            } else {
+                // Seleciona uma frase motivacional aleatória
+                const fraseAleatoria = frasesMotivacionais[Math.floor(Math.random() * frasesMotivacionais.length)];
+                showNotification(fraseAleatoria, 'success');
+            }
+        }, 3000);
+        
+        console.log('🎉 Todos os sistemas inicializados com sucesso!');
+        
+    } catch (error) {
+        console.error('❌ Erro na inicialização:', error);
+        // Fallback: mostrar notificação simples
+        setTimeout(() => {
+            alert('Erro na inicialização. Recarregue a página.');
+        }, 1000);
+    }
+}
+
+// Configurar atalhos de teclado
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + K para assistente
+        if (e.ctrlKey && e.key === 'k') {
+            e.preventDefault();
+            toggleAssistant();
+        }
+        
+        // F1 para tutorial
+        if (e.key === 'F1') {
+            e.preventDefault();
+            startOnboarding();
+        }
+        
+        // Ctrl + R para relatórios (admin only)
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            openReportingModal();
+        }
+        
+        // Escape para fechar modais
+        if (e.key === 'Escape') {
+            const modals = ['premium-modal', 'reporting-modal', 'advanced-feedback-modal', 'onboarding-overlay'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal && modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            if (virtualAssistant.isOpen) {
+                toggleAssistant();
+            }
+        }
+    });
+}
+
+// Inicialização automática quando sistemas estão prontos
+document.addEventListener('DOMContentLoaded', function() {
+    // Aguardar um pouco para garantir que tudo carregou
+    setTimeout(initializeAllSystems, 1000);
+});
+
+// ===== CORREÇÕES E FUNÇÕES FALTANTES =====
+
+// Função para criar container de notificações (estava faltando)
+function createNotificationContainer() {
+    const container = document.createElement('div');
+    container.id = 'notification-container';
+    container.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        pointer-events: none;
+        max-width: 400px;
+    `;
+    return container;
+}
+
+// Função para criar relatórios de usuários
+function createUsersReport() {
+    return `
+        <div style="display: grid; gap: 20px;">
+            <div style="
+                background: linear-gradient(135deg, #28a745, #20c997);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            ">
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">1,400</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Total Usuários</p>
+                </div>
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">1,020</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Usuários Ativos</p>
+                </div>
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">87%</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Taxa Retenção</p>
+                </div>
+            </div>
+            
+            <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px;">
+                <h4 style="margin: 0 0 15px 0; color: #333;">Crescimento de Usuários</h4>
+                <p style="color: #666;">Gráfico de crescimento seria exibido aqui</p>
+            </div>
+        </div>
+    `;
+}
+
+// Função para criar relatórios de serviços
+function createServicesReport() {
+    return `
+        <div style="display: grid; gap: 20px;">
+            <div style="
+                background: linear-gradient(135deg, #17a2b8, #6f42c1);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            ">
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">378</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Serviços Mês</p>
+                </div>
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">95%</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Taxa Conclusão</p>
+                </div>
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">4.7★</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Avaliação Média</p>
+                </div>
+            </div>
+            
+            <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px;">
+                <h4 style="margin: 0 0 15px 0; color: #333;">Distribuição por Categoria</h4>
+                <div style="display: grid; gap: 10px;">
+                    ${Object.entries(reportData.services.categories).map(([category, value]) => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #f8f9fa; border-radius: 6px;">
+                            <span style="color: #333; font-weight: 500;">${category}</span>
+                            <span style="background: #00BCD4; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">
+                                ${value} serviços
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Função para criar relatórios de performance
+function createPerformanceReport() {
+    return `
+        <div style="display: grid; gap: 20px;">
+            <div style="
+                background: linear-gradient(135deg, #6f42c1, #dc3545);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            ">
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">2.3s</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Tempo Resposta</p>
+                </div>
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">99.8%</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Uptime</p>
+                </div>
+                <div style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 2rem;">15%</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Conversão</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ===== SISTEMA DE SELEÇÃO MÚLTIPLA PARA SERVIÇOS URGENTES =====
+
+function toggleProviderSelection(providerId, providerData, isSelected) {
+    try {
+        const card = document.querySelector(`[data-provider-id="${providerId}"]`);
+        
+        if (isSelected) {
+            selectedProviders.add({
+                id: providerId,
+                data: providerData,
+                specialty: card.getAttribute('data-specialty')
+            });
+            card.style.border = '3px solid #00BCD4';
+            card.style.backgroundColor = '#e8f5e8';
+        } else {
+            // Remove da seleção
+            selectedProviders.forEach(provider => {
+                if (provider.id === providerId) {
+                    selectedProviders.delete(provider);
+                }
+            });
+            card.style.border = '';
+            card.style.backgroundColor = '';
+        }
+        
+        updateSelectionUI();
+    } catch (error) {
+        console.error('Erro ao alternar seleção do prestador:', error);
+    }
+}
+
+function updateSelectionUI() {
+    const selectedCount = selectedProviders.size;
+    const selectionInfo = document.getElementById('selection-info');
+    const broadcastButton = document.getElementById('broadcast-button');
+    const buttonText = document.getElementById('button-text');
+    const selectedCountSpan = document.getElementById('selected-count');
+    
+    if (selectedCount === 0) {
+        selectionInfo.style.display = 'none';
+        broadcastButton.disabled = true;
+        broadcastButton.style.backgroundColor = '#ccc';
+        buttonText.textContent = 'Selecione ao menos 2 prestadores para enviar solicitação';
+    } else if (selectedCount === 1) {
+        selectionInfo.style.display = 'block';
+        selectedCountSpan.textContent = selectedCount;
+        broadcastButton.disabled = true;
+        broadcastButton.style.backgroundColor = '#ff9800';
+        buttonText.textContent = 'Selecione mais 1 prestador para enviar solicitação';
+    } else {
+        selectionInfo.style.display = 'block';
+        selectedCountSpan.textContent = selectedCount;
+        broadcastButton.disabled = false;
+        broadcastButton.style.backgroundColor = '#00BCD4';
+        buttonText.textContent = `Enviar Solicitação para ${selectedCount} Prestadores Selecionados`;
+    }
+}
+
+function clearAllSelections() {
+    selectedProviders.clear();
+    
+    // Remove a seleção visual de todos os cards
+    document.querySelectorAll('.provider-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    document.querySelectorAll('[data-provider-id]').forEach(card => {
+        card.style.border = '';
+        card.style.backgroundColor = '';
+    });
+    
+    updateSelectionUI();
+}
+
+function sendToSelectedProviders() {
+    if (selectedProviders.size < 2) {
+        showAlert('Selecione ao menos 2 prestadores para enviar a solicitação.', 'warning');
+        return;
+    }
+    
+    // Verifica se todos os selecionados são da mesma especialidade
+    const specialties = new Set();
+    selectedProviders.forEach(provider => {
+        specialties.add(provider.specialty);
+    });
+    
+    if (specialties.size > 1) {
+        showAlert('Todos os prestadores selecionados devem ser da mesma especialidade.', 'warning');
+        return;
+    }
+    
+    // Simula o envio da solicitação
+    urgentRequestActive = true;
+    urgentRequestData = {
+        providers: Array.from(selectedProviders),
+        specialty: Array.from(specialties)[0],
+        timestamp: Date.now(),
+        status: 'pending'
+    };
+    
+    showUrgentRequestModal();
+}
+
+function showUrgentRequestModal() {
+    const providersCount = selectedProviders.size;
+    const specialty = urgentRequestData.specialty;
+    const estimatedValue = Array.from(selectedProviders)[0].data.valorTotal;
+    
+    showAlert('Solicitação urgente enviada para ' + providersCount + ' prestadores de ' + specialty + '. Valor estimado: R$ ' + estimatedValue + '. Aguardando resposta...', 'success', 5000);
+    
+    // Simula resposta após 3 segundos
+    setTimeout(() => {
+        simulateProviderResponse();
+    }, 3000);
+    
+    // Limpa a seleção
+    clearAllSelections();
+}
+
+function simulateProviderResponse() {
+    if (!urgentRequestActive) return;
+    
+    const selectedProvider = Array.from(urgentRequestData.providers)[0];
+    
+    showAlert('Prestador ' + selectedProvider.data.prestador.nome + ' aceitou o serviço! Valor R$ ' + selectedProvider.data.valorTotal + ' debitado automaticamente. Outros prestadores cancelados.', 'success', 5000);
+    
+    urgentRequestActive = false;
+    urgentRequestData = null;
+}
+
+function cancelUrgentRequest() {
+    urgentRequestActive = false;
+    urgentRequestData = null;
+    showAlert('Solicitação urgente cancelada.', 'info');
+}
+
+// ===== SISTEMA DE SELEÇÃO MÚLTIPLA PARA SERVIÇOS URGENTES =====
+
+function toggleProviderSelection(providerId, providerData, isSelected) {
+    try {
+        const card = document.querySelector(`[data-provider-id="${providerId}"]`);
+        
+        if (isSelected) {
+            selectedProviders.add({
+                id: providerId,
+                data: providerData,
+                specialty: card.getAttribute('data-specialty')
+            });
+            card.style.border = '3px solid #00BCD4';
+            card.style.backgroundColor = '#e8f5e8';
+        } else {
+            // Remove da seleção
+            selectedProviders.forEach(provider => {
+                if (provider.id === providerId) {
+                    selectedProviders.delete(provider);
+                }
+            });
+            card.style.border = '';
+            card.style.backgroundColor = '';
+        }
+        
+        updateSelectionUI();
+    } catch (error) {
+        console.error('Erro ao alternar seleção do prestador:', error);
+    }
+}
+
+function updateSelectionUI() {
+    const selectedCount = selectedProviders.size;
+    const selectionInfo = document.getElementById('selection-info');
+    const broadcastButton = document.getElementById('broadcast-button');
+    const buttonText = document.getElementById('button-text');
+    const selectedCountSpan = document.getElementById('selected-count');
+    
+    if (selectedCount === 0) {
+        selectionInfo.style.display = 'none';
+        broadcastButton.disabled = true;
+        broadcastButton.style.backgroundColor = '#ccc';
+        buttonText.textContent = 'Selecione ao menos 2 prestadores para enviar solicitação';
+    } else if (selectedCount === 1) {
+        selectionInfo.style.display = 'block';
+        selectedCountSpan.textContent = selectedCount;
+        broadcastButton.disabled = true;
+        broadcastButton.style.backgroundColor = '#ff9800';
+        buttonText.textContent = 'Selecione mais 1 prestador para enviar solicitação';
+    } else {
+        selectionInfo.style.display = 'block';
+        selectedCountSpan.textContent = selectedCount;
+        broadcastButton.disabled = false;
+        broadcastButton.style.backgroundColor = '#00BCD4';
+        buttonText.textContent = `Enviar Solicitação para ${selectedCount} Prestadores Selecionados`;
+    }
+}
+
+function clearAllSelections() {
+    selectedProviders.clear();
+    
+    // Remove a seleção visual de todos os cards
+    document.querySelectorAll('.provider-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    document.querySelectorAll('[data-provider-id]').forEach(card => {
+        card.style.border = '';
+        card.style.backgroundColor = '';
+    });
+    
+    updateSelectionUI();
+}
+
+function sendToSelectedProviders() {
+    if (selectedProviders.size < 2) {
+        showAlert('Selecione ao menos 2 prestadores para enviar a solicitação.', 'warning');
+        return;
+    }
+    
+    // Verifica se todos os selecionados são da mesma especialidade
+    const specialties = new Set();
+    selectedProviders.forEach(provider => {
+        specialties.add(provider.specialty);
+    });
+    
+    if (specialties.size > 1) {
+        showAlert('Todos os prestadores selecionados devem ser da mesma especialidade.', 'warning');
+        return;
+    }
+    
+    // Simula o envio da solicitação
+    urgentRequestActive = true;
+    urgentRequestData = {
+        providers: Array.from(selectedProviders),
+        specialty: Array.from(specialties)[0],
+        timestamp: Date.now(),
+        status: 'pending'
+    };
+    
+    showUrgentRequestModal();
+}
+
+function showUrgentRequestModal() {
+    const providersCount = selectedProviders.size;
+    const specialty = urgentRequestData.specialty;
+    const estimatedValue = Array.from(selectedProviders)[0].data.valorTotal;
+    
+    showAlert(`
+        <div style="text-align: center;">
+            <h3 style="color: #00BCD4; margin-bottom: 15px;">
+                <i class="fas fa-bolt"></i> Solicitação Urgente Enviada!
+            </h3>
+            <p><strong>Especialidade:</strong> ${specialty}</p>
+            <p><strong>Prestadores contactados:</strong> ${providersCount}</p>
+            <p><strong>Valor estimado:</strong> R$ ${estimatedValue}</p>
+            <div style="background: #e8f5e8; padding: 10px; border-radius: 8px; margin: 15px 0;">
+                <p style="margin: 0; color: #2e7d2e;">
+                    <i class="fas fa-clock"></i> Aguardando resposta dos prestadores...
+                </p>
+                <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #666;">
+                    O primeiro a aceitar será contratado automaticamente.
+                </p>
+            </div>
+            <button onclick="simulateProviderResponse()" style="
+                background: #00BCD4; 
+                color: white; 
+                border: none; 
+                padding: 10px 20px; 
+                border-radius: 8px; 
+                cursor: pointer;
+                margin-right: 10px;
+            ">
+                Simular Resposta
+            </button>
+            <button onclick="cancelUrgentRequest()" style="
+                background: #d32f2f; 
+                color: white; 
+                border: none; 
+                padding: 10px 20px; 
+                border-radius: 8px; 
+                cursor: pointer;
+            ">
+                Cancelar Solicitação
+            </button>
+        </div>
+    `, 'info', 10000);
+    
+    // Limpa a seleção
+    clearAllSelections();
+}
+
+function simulateProviderResponse() {
+    if (!urgentRequestActive) return;
+    
+    const selectedProvider = Array.from(selectedProviders)[0] || Array.from(urgentRequestData.providers)[0];
+    
+    showAlert(`
+        <div style="text-align: center;">
+            <h3 style="color: #4CAF50; margin-bottom: 15px;">
+                <i class="fas fa-check-circle"></i> Prestador Encontrado!
+            </h3>
+            <p><strong>Prestador:</strong> ${selectedProvider.data.prestador.nome}</p>
+            <p><strong>Especialidade:</strong> ${selectedProvider.specialty}</p>
+            <p><strong>Tempo estimado:</strong> ${Math.round(selectedProvider.data.distanciaEstimada * 2.5)} minutos</p>
+            <p><strong>Valor:</strong> R$ ${selectedProvider.data.valorTotal}</p>
+            <div style="background: #e8f5e8; padding: 10px; border-radius: 8px; margin: 15px 0;">
+                <p style="margin: 0; color: #2e7d2e;">
+                    <i class="fas fa-credit-card"></i> Valor debitado automaticamente do cartão
+                </p>
+                <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #666;">
+                    Outros prestadores foram automaticamente cancelados.
+                </p>
+            </div>
+        </div>
+    `, 'success', 8000);
+    
+    urgentRequestActive = false;
+    urgentRequestData = null;
+}
+
+function cancelUrgentRequest() {
+    urgentRequestActive = false;
+    urgentRequestData = null;
+    showAlert('Solicitação urgente cancelada.', 'info');
+}
+
+
+// ===== SISTEMA DE SELEÇÃO MÚLTIPLA PARA SERVIÇOS URGENTES =====
+
+function toggleProviderSelection(providerId, providerData, isSelected) {
+    try {
+        const card = document.querySelector('[data-provider-id="' + providerId + '"]');
+        
+        if (isSelected) {
+            selectedProviders.add({
+                id: providerId,
+                data: providerData,
+                specialty: card.getAttribute('data-specialty')
+            });
+            card.style.border = '3px solid #00BCD4';
+            card.style.backgroundColor = '#e8f5e8';
+        } else {
+            selectedProviders.forEach(provider => {
+                if (provider.id === providerId) {
+                    selectedProviders.delete(provider);
+                }
+            });
+            card.style.border = '';
+            card.style.backgroundColor = '';
+        }
+        
+        updateSelectionUI();
+    } catch (error) {
+        console.error('Erro ao alternar seleção do prestador:', error);
+    }
+}
+
+function updateSelectionUI() {
+    const selectedCount = selectedProviders.size;
+    const selectionInfo = document.getElementById('selection-info');
+    const broadcastButton = document.getElementById('broadcast-button');
+    const buttonText = document.getElementById('button-text');
+    const selectedCountSpan = document.getElementById('selected-count');
+    
+    if (selectedCount === 0) {
+        if (selectionInfo) selectionInfo.style.display = 'none';
+        if (broadcastButton) {
+            broadcastButton.disabled = true;
+            broadcastButton.style.backgroundColor = '#ccc';
+        }
+        if (buttonText) buttonText.textContent = 'Selecione ao menos 2 prestadores para enviar solicitação';
+    } else if (selectedCount === 1) {
+        if (selectionInfo) selectionInfo.style.display = 'block';
+        if (selectedCountSpan) selectedCountSpan.textContent = selectedCount;
+        if (broadcastButton) {
+            broadcastButton.disabled = true;
+            broadcastButton.style.backgroundColor = '#ff9800';
+        }
+        if (buttonText) buttonText.textContent = 'Selecione mais 1 prestador para enviar solicitação';
+    } else {
+        if (selectionInfo) selectionInfo.style.display = 'block';
+        if (selectedCountSpan) selectedCountSpan.textContent = selectedCount;
+        if (broadcastButton) {
+            broadcastButton.disabled = false;
+            broadcastButton.style.backgroundColor = '#00BCD4';
+        }
+        if (buttonText) buttonText.textContent = 'Enviar Solicitação para ' + selectedCount + ' Prestadores Selecionados';
+    }
+}
+
+function clearAllSelections() {
+    selectedProviders.clear();
+    
+    document.querySelectorAll('.provider-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    document.querySelectorAll('[data-provider-id]').forEach(card => {
+        card.style.border = '';
+        card.style.backgroundColor = '';
+    });
+    
+    updateSelectionUI();
+}
+
+function sendToSelectedProviders() {
+    if (selectedProviders.size < 2) {
+        showAlert('Selecione ao menos 2 prestadores para enviar a solicitação.', 'warning');
+        return;
+    }
+    
+    const specialties = new Set();
+    selectedProviders.forEach(provider => {
+        specialties.add(provider.specialty);
+    });
+    
+    if (specialties.size > 1) {
+        showAlert('Todos os prestadores selecionados devem ser da mesma especialidade.', 'warning');
+        return;
+    }
+    
+    urgentRequestActive = true;
+    urgentRequestData = {
+        providers: Array.from(selectedProviders),
+        specialty: Array.from(specialties)[0],
+        timestamp: Date.now(),
+        status: 'pending'
+    };
+    
+    showUrgentRequestModal();
+}
+
+function showUrgentRequestModal() {
+    const providersCount = selectedProviders.size;
+    const specialty = urgentRequestData.specialty;
+    const estimatedValue = Array.from(selectedProviders)[0].data.valorTotal;
+    
+    showAlert('Solicitação urgente enviada para ' + providersCount + ' prestadores de ' + specialty + '. Valor estimado: R$ ' + estimatedValue + '. Aguardando resposta...', 'success', 5000);
+    
+    setTimeout(() => {
+        simulateProviderResponse();
+    }, 3000);
+    
+    clearAllSelections();
+}
+
+function simulateProviderResponse() {
+    if (!urgentRequestActive) return;
+    
+    const selectedProvider = Array.from(urgentRequestData.providers)[0];
+    
+    showAlert('Prestador ' + selectedProvider.data.prestador.nome + ' aceitou o serviço! Valor R$ ' + selectedProvider.data.valorTotal + ' debitado automaticamente. Outros prestadores cancelados.', 'success', 5000);
+    
+    urgentRequestActive = false;
+    urgentRequestData = null;
+}
+
+function cancelUrgentRequest() {
+    urgentRequestActive = false;
+    urgentRequestData = null;
+    showAlert('Solicitação urgente cancelada.', 'info');
+}
