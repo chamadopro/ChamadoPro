@@ -3049,8 +3049,10 @@ function goToHome() {
     screenHistory = []; // Limpa o histórico para garantir que o "Voltar" funcione corretamente a partir da home
     if (currentUserType === 'usuario') {
         showScreen('dashboard-usuario');
+        checkFirstLoginTutorial(); // Verifica se deve mostrar tutorial
     } else if (currentUserType === 'prestador') {
         showScreen('dashboard-prestador');
+        checkFirstLoginTutorial(); // Verifica se deve mostrar tutorial
     } else {
         // Se o tipo de usuário não estiver definido, volta para a tela de login
         showLoginChoiceScreen(); // Volta para a tela de escolha de login
@@ -3059,6 +3061,17 @@ function goToHome() {
     const sidebar = document.getElementById('sidebar');
     if (sidebar) {
         sidebar.classList.remove('active');
+    }
+}
+
+// Função para verificar se deve mostrar o tutorial após o primeiro login
+function checkFirstLoginTutorial() {
+    // Verifica se o usuário ainda não completou o onboarding
+    if (!localStorage.getItem('onboarding_completed')) {
+        // Aguarda um pouco para a tela carregar completamente antes de mostrar o tutorial
+        setTimeout(() => {
+            showOnboarding();
+        }, 1000);
     }
 }
 
@@ -8101,15 +8114,11 @@ function initializeAllSystems() {
         setupKeyboardShortcuts();
         console.log('✅ Atalhos de teclado configurados');
         
-        // 5. Verificar se é primeira visita para onboarding
+        // 5. Mostrar notificação de boas-vindas
         setTimeout(() => {
-            if (!localStorage.getItem('onboarding_completed')) {
-                showNotification('Bem-vindo ao ChamadoPro! 🎉 Pressione F1 para tutorial.', 'info');
-            } else {
-                // Seleciona uma frase motivacional aleatória
-                const fraseAleatoria = frasesMotivacionais[Math.floor(Math.random() * frasesMotivacionais.length)];
-                showNotification(fraseAleatoria, 'success');
-            }
+            // Seleciona uma frase motivacional aleatória
+            const fraseAleatoria = frasesMotivacionais[Math.floor(Math.random() * frasesMotivacionais.length)];
+            showNotification(fraseAleatoria, 'success');
         }, 3000);
         
         console.log('🎉 Todos os sistemas inicializados com sucesso!');
