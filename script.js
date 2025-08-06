@@ -2963,7 +2963,19 @@ function showScreen(screenId, title = '') {
         renderTrabalhosFinalizados();
         updateTrabalhosCount(); // Atualiza os contadores das abas
         switchCpTab('trabalhos-execucao-finalizados', 'execucao'); // Mostra aba de execução por padrão
-    } else if (screenId === 'ocorrencias-usuario') {
+    }
+    // Adiciona a renderização para orçamentos aprovados e recusados
+    else if (screenId === 'orcamentos-aprovados-recusados') {
+        renderOrcamentosAprovados();
+        renderOrcamentosRecusados();
+        updateAprovadosRecusadosCounts(); // Atualiza os contadores das abas
+        
+        // Use um pequeno timeout para garantir que o DOM seja atualizado antes de ativar a aba
+        setTimeout(() => {
+            switchCpTab('orcamentos-aprovados-recusados', 'aprovados'); // Mostra aba de aprovados por padrão
+        }, 50); // Pequeno atraso de 50ms
+    }
+    else if (screenId === 'ocorrencias-usuario') {
         renderUserOccurrences();
     } else if (screenId === 'ocorrencias-prestador') {
         renderProviderOccurrences();
@@ -6514,12 +6526,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Chama a função para atualizar o menu lateral e os contadores assim que o DOM é carregado
     // Isso garante que, se o usuário já estiver "logado" (simulado), o menu e dashboard sejam corretos
     updateSidebarMenu();
-    
-    // Atualiza o nome do cliente no dashboard se o elemento existir
-    const dashboardClientName = document.getElementById('dashboard-client-name');
-    if (dashboardClientName) {
-        dashboardClientName.textContent = nomeDoClienteLogado;
-    }
     
     // Inicializa as sub-abas
     initializeSubTabs();
