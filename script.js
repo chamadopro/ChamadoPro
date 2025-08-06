@@ -2204,6 +2204,11 @@ function closeFeedbackModal() {
 
 // Sistema de Onboarding
 function startOnboarding() {
+    console.log('🚀 startOnboarding() foi chamada!', {
+        'stack': new Error().stack,
+        'tutorialSystem': tutorialSystem
+    });
+    
     tutorialSystem.isActive = true;
     tutorialSystem.currentStep = 0;
     
@@ -3058,8 +3063,17 @@ function goToHome() {
 
 // Função para verificar se deve mostrar o tutorial após o primeiro login
 function checkFirstLoginTutorial() {
+    console.log('🔍 Verificando tutorial...', {
+        'onboarding_completed': localStorage.getItem('onboarding_completed'),
+        'currentUserType': currentUserType
+    });
+    
+    // Temporariamente desabilitado para debug
+    return;
+    
     // Verifica se o usuário ainda não completou o onboarding
     if (!localStorage.getItem('onboarding_completed')) {
+        console.log('📚 Iniciando tutorial após login...');
         // Aguarda um pouco para a tela carregar completamente antes de mostrar o tutorial
         setTimeout(() => {
             startOnboarding();
@@ -8078,6 +8092,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // Verificar se todos os sistemas foram carregados
 function initializeAllSystems() {
     console.log('🚀 Inicializando sistemas ChamadoPro v2.1.0...');
+    
+    // Temporariamente marcar tutorial como completo para debug
+    if (!localStorage.getItem('onboarding_completed')) {
+        console.log('⚠️ Marcando tutorial como completo para debug...');
+        localStorage.setItem('onboarding_completed', 'true');
+    }
     
     try {
         // 1. Sistemas de experiência
