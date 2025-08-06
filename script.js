@@ -2274,9 +2274,6 @@ function completeOnboarding() {
 
 // Funções de inicialização dos sistemas de experiência
 function initializeExperienceSystems() {
-    // Verificar se é a primeira visita
-    const isFirstVisit = !localStorage.getItem('onboarding_completed');
-    
     // Adicionar sistemas ao DOM
     if (!document.getElementById('onboarding-overlay')) {
         document.body.appendChild(createOnboardingSystem());
@@ -2290,12 +2287,7 @@ function initializeExperienceSystems() {
         document.body.appendChild(createAdvancedFeedbackSystem());
     }
     
-    // Iniciar onboarding para novos usuários
-    if (isFirstVisit) {
-        setTimeout(() => {
-            startOnboarding();
-        }, 2000);
-    }
+    // Onboarding será iniciado apenas após o login, não automaticamente
 }
 
 // Função para mostrar o painel administrativo
@@ -3070,7 +3062,7 @@ function checkFirstLoginTutorial() {
     if (!localStorage.getItem('onboarding_completed')) {
         // Aguarda um pouco para a tela carregar completamente antes de mostrar o tutorial
         setTimeout(() => {
-            showOnboarding();
+            startOnboarding();
         }, 1000);
     }
 }
