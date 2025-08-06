@@ -2204,7 +2204,10 @@ function closeFeedbackModal() {
 
 // Sistema de Onboarding
 function startOnboarding() {
-    console.log('🚀 startOnboarding() foi chamada!', {
+    console.log('� startOnboarding() bloqueado temporariamente para debug!');
+    return; // Bloqueia a execução da função
+    
+    console.log('�🚀 startOnboarding() foi chamada!', {
         'stack': new Error().stack,
         'tutorialSystem': tutorialSystem
     });
@@ -2282,6 +2285,13 @@ function initializeExperienceSystems() {
     // Adicionar sistemas ao DOM
     if (!document.getElementById('onboarding-overlay')) {
         document.body.appendChild(createOnboardingSystem());
+    }
+    
+    // FORÇAR OCULTAÇÃO DO TUTORIAL
+    const overlay = document.getElementById('onboarding-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+        console.log('🚫 Tutorial forçadamente ocultado!');
     }
     
     if (!document.getElementById('virtual-assistant')) {
