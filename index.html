@@ -1318,7 +1318,7 @@
         border-color: #2ed573;
     }
 
-    /* ===== ESTILOS DO FLUXO DE SERVIÇO REDESENHADO ===== */
+    /* ===== ESTILOS DO FLUXO DE SERVIÇO ===== */
     
     /* Barra Superior */
     .flow-header-bar {
@@ -2231,7 +2231,51 @@
                 </div>
               </div>
             </div>
-            <button type="submit" class="btn primary-btn">Cadastrar</button>
+            
+            <!-- Seção de Termos e Responsabilidades para Cadastro -->
+            <div class="terms-section" style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+              <h4 style="color: #00BCD4; margin-bottom: 10px; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-file-contract"></i> Termos de Responsabilidade
+              </h4>
+              
+              <div class="terms-content" style="max-height: 180px; overflow-y: auto; padding: 10px; background-color: white; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 10px; font-size: 13px; line-height: 1.4;">
+                <p style="margin-bottom: 8px;"><strong>1. RESPONSABILIDADES:</strong></p>
+                <p style="margin-bottom: 8px;">• Executar serviços com qualidade e pontualidade;</p>
+                <p style="margin-bottom: 8px;">• Possuir qualificações técnicas necessárias;</p>
+                <p style="margin-bottom: 8px;">• Manter documentação regular e atualizada;</p>
+                
+                <p style="margin-bottom: 8px;"><strong>2. OBRIGAÇÕES LEGAIS:</strong></p>
+                <p style="margin-bottom: 8px;">• Cumprir normas de segurança aplicáveis;</p>
+                <p style="margin-bottom: 8px;">• Emitir recibos conforme legislação;</p>
+                <p style="margin-bottom: 8px;">• Respeitar leis trabalhistas e tributárias;</p>
+                
+                <p style="margin-bottom: 8px;"><strong>3. POLÍTICA DE QUALIDADE:</strong></p>
+                <p style="margin-bottom: 8px;">• Garantir qualidade por no mínimo 30 dias;</p>
+                <p style="margin-bottom: 8px;">• Corrigir defeitos sem custo adicional;</p>
+                
+                <p style="margin-bottom: 8px;"><strong>4. USO DA PLATAFORMA:</strong></p>
+                <p style="margin-bottom: 8px;">• Manter informações sempre atualizadas;</p>
+                <p style="margin-bottom: 8px;">• Comunicar-se de forma respeitosa;</p>
+                
+                <p style="margin-bottom: 0px;"><strong>5. PENALIDADES:</strong> O descumprimento pode resultar em advertência, suspensão ou cancelamento da conta.</p>
+              </div>
+
+              <div class="terms-acceptance" style="margin-bottom: 10px;">
+                <label style="display: flex; align-items: flex-start; cursor: pointer; font-size: 13px;">
+                  <input type="checkbox" id="accept-terms-register" style="margin-right: 8px; margin-top: 2px;" onchange="validateRegisterTermsAcceptance()">
+                  <span style="line-height: 1.3;">
+                    <strong>Li e aceito todos os termos de responsabilidade</strong><br>
+                    <small style="color: #666;">Obrigatório para concluir o cadastro.</small>
+                  </span>
+                </label>
+              </div>
+
+              <div id="terms-warning-register" style="display: none; background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 8px; border-radius: 5px; font-size: 12px;">
+                <i class="fas fa-exclamation-triangle"></i> Você deve aceitar os termos para finalizar o cadastro.
+              </div>
+            </div>
+            
+            <button type="submit" class="btn primary-btn" id="register-provider-btn" disabled style="opacity: 0.5;">Cadastrar</button>
             <div class="social-login">
               <p>Ou cadastre-se com:</p>
               <div class="social-buttons">
@@ -2923,7 +2967,70 @@
             <span class="specialty-name"><i class="fas fa-ellipsis-h"></i> Outros</span>
           </label>
         </div>
-        <button class="btn primary-btn" onclick="showAlert('Especialidades salvas!')">Salvar Especialidades</button>
+
+        <!-- Seção de Termos e Responsabilidades -->
+        <div class="terms-section" style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+          <h3 style="color: #00BCD4; margin-bottom: 15px; font-size: 1.2rem;">
+            <i class="fas fa-file-contract"></i> Termos de Responsabilidade e Contrato de Prestação de Serviços
+          </h3>
+          
+          <div class="terms-content" style="max-height: 250px; overflow-y: auto; padding: 15px; background-color: white; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 15px; font-size: 14px; line-height: 1.5;">
+            <h4 style="color: #333; margin-bottom: 10px;">1. RESPONSABILIDADES DO PRESTADOR</h4>
+            <p style="margin-bottom: 10px;">• Executar os serviços com qualidade, pontualidade e dentro dos padrões técnicos adequados;</p>
+            <p style="margin-bottom: 10px;">• Possuir as qualificações técnicas necessárias para os serviços oferecidos;</p>
+            <p style="margin-bottom: 10px;">• Manter documentação regular (CPF, RG, comprovantes profissionais quando aplicável);</p>
+            <p style="margin-bottom: 10px;">• Cumprir os prazos acordados com os clientes;</p>
+            <p style="margin-bottom: 15px;">• Tratar os clientes com respeito e profissionalismo;</p>
+
+            <h4 style="color: #333; margin-bottom: 10px;">2. OBRIGAÇÕES LEGAIS</h4>
+            <p style="margin-bottom: 10px;">• Cumprir todas as normas de segurança aplicáveis aos serviços prestados;</p>
+            <p style="margin-bottom: 10px;">• Possuir seguro de responsabilidade civil quando exigido por lei;</p>
+            <p style="margin-bottom: 10px;">• Emitir recibos ou notas fiscais conforme legislação vigente;</p>
+            <p style="margin-bottom: 15px;">• Respeitar todas as leis trabalhistas e tributárias aplicáveis;</p>
+
+            <h4 style="color: #333; margin-bottom: 10px;">3. POLÍTICA DE QUALIDADE</h4>
+            <p style="margin-bottom: 10px;">• Garantir a qualidade dos serviços prestados por no mínimo 30 dias;</p>
+            <p style="margin-bottom: 10px;">• Corrigir defeitos ou problemas decorrentes da prestação do serviço sem custo adicional;</p>
+            <p style="margin-bottom: 15px;">• Aceitar avaliações dos clientes e trabalhar para manter boa reputação;</p>
+
+            <h4 style="color: #333; margin-bottom: 10px;">4. USO DA PLATAFORMA</h4>
+            <p style="margin-bottom: 10px;">• Manter informações de perfil sempre atualizadas e verídicas;</p>
+            <p style="margin-bottom: 10px;">• Não solicitar pagamentos fora da plataforma sem autorização;</p>
+            <p style="margin-bottom: 10px;">• Respeitar os termos de uso e políticas do ChamadoPro;</p>
+            <p style="margin-bottom: 15px;">• Comunicar-se de forma respeitosa através da plataforma;</p>
+
+            <h4 style="color: #333; margin-bottom: 10px;">5. PENALIDADES</h4>
+            <p style="margin-bottom: 10px;">• O descumprimento destes termos pode resultar em:</p>
+            <p style="margin-bottom: 5px;">&nbsp;&nbsp;- Advertência;</p>
+            <p style="margin-bottom: 5px;">&nbsp;&nbsp;- Suspensão temporária da conta;</p>
+            <p style="margin-bottom: 5px;">&nbsp;&nbsp;- Cancelamento definitivo do cadastro;</p>
+            <p style="margin-bottom: 15px;">&nbsp;&nbsp;- Responsabilização por danos causados a terceiros;</p>
+
+            <h4 style="color: #333; margin-bottom: 10px;">6. DISPOSIÇÕES GERAIS</h4>
+            <p style="margin-bottom: 10px;">• Este contrato entra em vigor na data da aceitação destes termos;</p>
+            <p style="margin-bottom: 10px;">• O prestador declara ter lido e compreendido todos os termos;</p>
+            <p style="margin-bottom: 10px;">• Eventuais alterações serão comunicadas com antecedência de 30 dias;</p>
+            <p style="margin-bottom: 0;">• Foro competente: Comarca onde está sediada a empresa ChamadoPro.</p>
+          </div>
+
+          <div class="terms-acceptance" style="margin-bottom: 15px;">
+            <label style="display: flex; align-items: flex-start; cursor: pointer; font-size: 14px;">
+              <input type="checkbox" id="accept-terms" style="margin-right: 10px; margin-top: 2px;" onchange="validateTermsAcceptance()">
+              <span style="line-height: 1.4;">
+                <strong>Li e aceito todos os termos de responsabilidade e contrato de prestação de serviços</strong><br>
+                <small style="color: #666;">Ao marcar esta opção, você concorda em cumprir todas as obrigações descritas acima.</small>
+              </span>
+            </label>
+          </div>
+
+          <div id="terms-warning" style="display: none; background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px;">
+            <i class="fas fa-exclamation-triangle"></i> Você deve aceitar os termos de responsabilidade para salvar suas especialidades.
+          </div>
+        </div>
+
+        <button class="btn primary-btn" id="save-specialties-btn" onclick="saveSpecialtiesWithTerms()" disabled style="opacity: 0.5;">
+          <i class="fas fa-save"></i> Salvar Especialidades
+        </button>
       </div>
 
       <!-- Tela de Serviços 24 Horas -->
@@ -5358,6 +5465,108 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </div>
+
+    <!-- Scripts para Termos de Responsabilidade -->
+    <script>
+        // Função para validar aceitação dos termos
+        function validateTermsAcceptance() {
+            const termsCheckbox = document.getElementById('accept-terms');
+            const saveButton = document.getElementById('save-specialties-btn');
+            const warningDiv = document.getElementById('terms-warning');
+            
+            if (termsCheckbox.checked) {
+                saveButton.disabled = false;
+                saveButton.style.opacity = '1';
+                warningDiv.style.display = 'none';
+            } else {
+                saveButton.disabled = true;
+                saveButton.style.opacity = '0.5';
+                warningDiv.style.display = 'block';
+            }
+        }
+
+        // Função para salvar especialidades com validação de termos
+        function saveSpecialtiesWithTerms() {
+            const termsCheckbox = document.getElementById('accept-terms');
+            const selectedSpecialties = [];
+            
+            // Verificar se os termos foram aceitos
+            if (!termsCheckbox.checked) {
+                showAlert('Você deve aceitar os termos de responsabilidade para continuar.');
+                return;
+            }
+            
+            // Coletar especialidades selecionadas
+            const specialtyInputs = document.querySelectorAll('input[name="specialty"]:checked');
+            specialtyInputs.forEach(input => {
+                selectedSpecialties.push(input.value);
+            });
+            
+            if (selectedSpecialties.length === 0) {
+                showAlert('Selecione pelo menos uma especialidade.');
+                return;
+            }
+            
+            // Aqui você pode adicionar a lógica para salvar no banco de dados
+            console.log('Especialidades selecionadas:', selectedSpecialties);
+            console.log('Termos aceitos em:', new Date().toISOString());
+            
+            // Mostrar mensagem de sucesso
+            showAlert(`Especialidades salvas com sucesso!\\nEspecialidades: ${selectedSpecialties.join(', ')}\\nTermos de responsabilidade aceitos.`);
+            
+            // Opcionalmente, redirecionar para outra tela
+            // showScreen('dashboard-prestador');
+        }
+
+        // Função para validar aceitação dos termos no cadastro
+        function validateRegisterTermsAcceptance() {
+            const termsCheckbox = document.getElementById('accept-terms-register');
+            const registerButton = document.getElementById('register-provider-btn');
+            const warningDiv = document.getElementById('terms-warning-register');
+            
+            if (termsCheckbox && registerButton) {
+                if (termsCheckbox.checked) {
+                    registerButton.disabled = false;
+                    registerButton.style.opacity = '1';
+                    if (warningDiv) warningDiv.style.display = 'none';
+                } else {
+                    registerButton.disabled = true;
+                    registerButton.style.opacity = '0.5';
+                    if (warningDiv) warningDiv.style.display = 'block';
+                }
+            }
+        }
+
+        // Função para mostrar alerta (caso não exista)
+        function showAlert(message) {
+            if (typeof alert !== 'undefined') {
+                alert(message);
+            } else {
+                console.log('Alert:', message);
+            }
+        }
+
+        // Inicializar validação quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            // Garantir que o botão de especialidades inicie desabilitado
+            const saveButton = document.getElementById('save-specialties-btn');
+            const termsCheckbox = document.getElementById('accept-terms');
+            
+            if (saveButton && termsCheckbox) {
+                saveButton.disabled = true;
+                saveButton.style.opacity = '0.5';
+            }
+            
+            // Garantir que o botão de cadastro inicie desabilitado
+            const registerButton = document.getElementById('register-provider-btn');
+            const registerTermsCheckbox = document.getElementById('accept-terms-register');
+            
+            if (registerButton && registerTermsCheckbox) {
+                registerButton.disabled = true;
+                registerButton.style.opacity = '0.5';
+            }
+        });
+    </script>
         
 </body>
 </html>
