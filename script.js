@@ -3073,21 +3073,32 @@ function goToHome() {
 
 // Função para verificar se deve mostrar o tutorial após o primeiro login
 function checkFirstLoginTutorial() {
-    console.log('🔍 Verificando tutorial...', {
+    console.log('🔍 Verificando tutorial pós-login...', {
         'onboarding_completed': localStorage.getItem('onboarding_completed'),
         'currentUserType': currentUserType
     });
-    
-    // Temporariamente desabilitado para debug
-    return;
     
     // Verifica se o usuário ainda não completou o onboarding
     if (!localStorage.getItem('onboarding_completed')) {
         console.log('📚 Iniciando tutorial após login...');
         // Aguarda um pouco para a tela carregar completamente antes de mostrar o tutorial
         setTimeout(() => {
-            startOnboarding();
+            startOnboardingFixed(); // Função temporária sem bloqueio
         }, 1000);
+    }
+}
+
+// Função temporária para tutorial funcionar pós-login
+function startOnboardingFixed() {
+    console.log('🚀 Iniciando tutorial pós-login...');
+    
+    tutorialSystem.isActive = true;
+    tutorialSystem.currentStep = 0;
+    
+    const overlay = document.getElementById('onboarding-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        updateOnboardingContent();
     }
 }
 
@@ -8102,12 +8113,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // Verificar se todos os sistemas foram carregados
 function initializeAllSystems() {
     console.log('🚀 Inicializando sistemas ChamadoPro v2.1.0...');
-    
-    // Temporariamente marcar tutorial como completo para debug
-    if (!localStorage.getItem('onboarding_completed')) {
-        console.log('⚠️ Marcando tutorial como completo para debug...');
-        localStorage.setItem('onboarding_completed', 'true');
-    }
     
     try {
         // 1. Sistemas de experiência
