@@ -2893,7 +2893,7 @@ function showScreen(screenId, title = '') {
                     headerTitleElement.textContent = 'Orçamentos Recusados';
                     break;
                 case 'trabalhos-execucao-finalizados':
-                    headerTitleElement.textContent = 'Execução e Finalizados';
+                    headerTitleElement.textContent = 'Trabalhos em Execução e Finalizados';
                     break;
                 case 'orcamentos-aprovados-recusados':
                     headerTitleElement.textContent = 'Orçamentos Aprovados e Recusados';
