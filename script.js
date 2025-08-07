@@ -3374,32 +3374,117 @@ function registerUserV2() {
 
 
 function logout() {
-    // Usando o modal de alerta personalizado para a confirmação de saída
-    showAlert('Tem certeza que deseja sair?', 'Confirmação', () => {
-        currentUserType = null;
-        nomeDoClienteLogado = "Visitante"; // Reseta o nome ao deslogar
-        screenHistory = []; // Limpa o histórico de telas
-        // Esconde todas as telas principais
-        const mainContent = document.querySelector('.main-content-wrapper');
-        if (mainContent) mainContent.style.display = 'none';
-        const appHeader = document.getElementById('app-header');
-        if (appHeader) appHeader.style.display = 'none';
-        document.body.classList.remove('app-active');
-        // Esconde dashboards e telas de conteúdo
-        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
-        // Exibe a tela de login principal (login-choice-screen)
-        showLoginChoiceScreen();
-        // Garante que o menu lateral seja fechado ao deslogar
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.classList.remove('active');
+    console.log('Função logout() chamada');
+    // Função específica para confirmação de logout
+    showConfirmDialog(
+        'Tem certeza que deseja sair?', 
+        'Confirmação de Saída',
+        () => {
+            // Callback para confirmação (SIM)
+            console.log('Usuário confirmou logout');
+            performLogout();
+        },
+        () => {
+            // Callback para cancelamento (NÃO) - não faz nada
+            console.log('Logout cancelado pelo usuário');
         }
-        // Reinicia os contadores do dashboard para 0 ao deslogar
-        updateUserDashboardCounts();
-        updatePrestadorDashboardCounts();
-        // Exibe mensagem de logout
+    );
+}
+
+// Função que executa o logout efetivamente
+function performLogout() {
+    console.log('Executando performLogout()');
+    
+    // Executa a lógica de logout
+    currentUserType = null;
+    nomeDoClienteLogado = "Visitante"; // Reseta o nome ao deslogar
+    screenHistory = []; // Limpa o histórico de telas
+    
+    // Esconde todas as telas principais
+    const mainContent = document.querySelector('.main-content-wrapper');
+    if (mainContent) {
+        mainContent.style.display = 'none';
+        console.log('Main content ocultado');
+    }
+    
+    const appHeader = document.getElementById('app-header');
+    if (appHeader) {
+        appHeader.style.display = 'none';
+        console.log('App header ocultado');
+    }
+    
+    document.body.classList.remove('app-active');
+    console.log('Classe app-active removida do body');
+    
+    // Esconde dashboards e telas de conteúdo
+    document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+    console.log('Todas as telas desativadas');
+    
+    // Garante que o menu lateral seja fechado ao deslogar
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.remove('active');
+        console.log('Sidebar fechado');
+    }
+    
+    // Reinicia os contadores do dashboard para 0 ao deslogar
+    updateUserDashboardCounts();
+    updatePrestadorDashboardCounts();
+    console.log('Contadores reiniciados');
+    
+    // Exibe a tela de login principal (login-choice-screen)
+    showLoginChoiceScreen();
+    console.log('Tela de login exibida');
+    
+    // Pequeno delay para garantir que a transição ocorra antes da mensagem de sucesso
+    setTimeout(() => {
         showAlert('Logout realizado com sucesso! Você foi redirecionado para a tela de login.');
-    });
+        console.log('Mensagem de sucesso exibida');
+    }, 100);
+}
+
+// Função para mostrar diálogo de confirmação com opções SIM/NÃO
+function showConfirmDialog(message, title = 'Confirmação', onConfirmCallback = null, onCancelCallback = null) {
+    document.getElementById('custom-alert-title').textContent = title;
+    document.getElementById('custom-alert-message').textContent = message;
+    
+    const modal = document.getElementById('custom-alert-modal');
+    const modalActions = modal.querySelector('.modal-actions');
+    
+    // Substitui o conteúdo dos botões por SIM e CANCELAR
+    modalActions.innerHTML = `
+        <button class="btn" id="confirm-cancel-btn">Cancelar</button>
+        <button class="btn primary-btn" id="confirm-ok-btn">Sim</button>
+    `;
+    
+    modal.style.display = 'flex';
+    
+    // Event listener para o botão "Sim"
+    document.getElementById('confirm-ok-btn').onclick = function() {
+        closeModal('custom-alert-modal');
+        // Restaura os botões originais
+        restoreOriginalModalButtons();
+        if (onConfirmCallback) {
+            onConfirmCallback();
+        }
+    };
+    
+    // Event listener para o botão "Cancelar"
+    document.getElementById('confirm-cancel-btn').onclick = function() {
+        closeModal('custom-alert-modal');
+        // Restaura os botões originais
+        restoreOriginalModalButtons();
+        if (onCancelCallback) {
+            onCancelCallback();
+        }
+    };
+}
+
+// Função para restaurar os botões originais do modal
+function restoreOriginalModalButtons() {
+    const modal = document.getElementById('custom-alert-modal');
+    const modalActions = modal.querySelector('.modal-actions');
+    modalActions.innerHTML = `<button class="btn primary-btn" onclick="closeModal('custom-alert-modal')">OK</button>`;
 }
 
 
@@ -6165,9 +6250,17 @@ function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'none';
+        modal.classList.remove('show');
+        
         // Remove modal dinâmico do DOM se necessário
         if (modalId === 'indicar-prestador-modal' || modalId === 'indicar-contato-modal') {
             modal.remove();
+        }
+        
+        // Limpa qualquer classe especial (como warning-background)
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.classList.remove('warning-background');
         }
     }
 }
@@ -7894,15 +7987,6 @@ function showModal(modalId) {
         modal.classList.add('show');
     } else {
         console.warn(`Modal ${modalId} não encontrado`);
-    }
-}
-
-// Função auxiliar para fechar modais
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-        modal.classList.remove('show');
     }
 }
 

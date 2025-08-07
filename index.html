@@ -5567,6 +5567,71 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     </script>
+
+    <!-- Marca d'água da A.C Trova Assessoria -->
+    <div id="watermark" style="
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.1);
+        color: rgba(0, 0, 0, 0.6);
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-family: Arial, sans-serif;
+        line-height: 1.2;
+        text-align: left;
+        z-index: 9999;
+        backdrop-filter: blur(2px);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        max-width: 180px;
+        user-select: none;
+        pointer-events: none;
+    ">
+        <div style="font-weight: 600; margin-bottom: 2px;">Interface de Demonstração</div>
+        <div style="font-size: 9px; opacity: 0.8;">
+            © A.C Trova Assessoria<br>
+            CNPJ: 47.111.830/0001-50
+        </div>
+    </div>
+
+    <style>
+        /* Responsividade da marca d'água */
+        @media (max-width: 768px) {
+            #watermark {
+                bottom: 5px !important;
+                left: 5px !important;
+                padding: 5px 7px !important;
+                font-size: 9px !important;
+                max-width: 140px !important;
+            }
+            #watermark div:last-child {
+                font-size: 8px !important;
+            }
+        }
+
+        /* Efeito hover sutil */
+        #watermark:hover {
+            background: rgba(0, 0, 0, 0.15) !important;
+            color: rgba(0, 0, 0, 0.8) !important;
+            transform: scale(1.02);
+        }
+
+        /* Garante que a marca d'água fique sempre visível */
+        body.app-active #watermark {
+            display: block !important;
+        }
+
+        /* Ajuste para telas de login */
+        .login-screen-v2 ~ #watermark,
+        .splash-screen ~ #watermark {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
         
 </body>
 </html>
