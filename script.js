@@ -3268,7 +3268,7 @@ function performLoginV2(event) {
             let email = document.getElementById('client-email-login').value.trim();
             let password = document.getElementById('client-password-login').value;
             console.log('Tentando login cliente:', email, password);
-            if (email.toLowerCase() === 'cliente@chamadopro.com.br' && password === '123') { // Novo usuário de exemplo para cliente
+            if (email.toLowerCase() === 'vinivius@chamadopro.com.br' && password === '123') { // Novo usuário de exemplo para cliente
                 currentUserType = 'usuario';
                 nomeDoClienteLogado = "João Silva"; // Define o nome do cliente logado
                 setTimeout(function() {
@@ -3306,7 +3306,7 @@ function performLoginV2(event) {
         let email = document.getElementById('provider-email-login').value.trim();
         let password = document.getElementById('provider-password-login').value;
         console.log('Tentando login prestador:', email, password);
-        if (email.toLowerCase() === 'prestador@chamadopro.com.br' && password === '123') { // Novo usuário de exemplo para prestador
+        if (email.toLowerCase() === 'vinivius@chamadopro.com.br' && password === '123') { // Novo usuário de exemplo para prestador
             currentUserType = 'prestador';
             nomeDoClienteLogado = "Eletricista Silva"; // Define o nome do prestador logado
             setTimeout(function() {
